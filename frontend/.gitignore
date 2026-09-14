@@ -1,0 +1,8 @@
+node_modules/
+.next/
+out/
+.env.local
+*.log
+# `npx tsc --noEmit` 실행 시 증분 컴파일 캐시로 생성됨 (CI에서 매번 새로
+# 실행하는데 로컬 산출물이라 커밋할 필요 없음)
+*.tsbuildinfo
