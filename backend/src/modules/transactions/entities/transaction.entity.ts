@@ -43,26 +43,19 @@ export class Transaction {
   @Column({ type: 'enum', enum: EscrowStatus, default: EscrowStatus.LOCKED })
   escrowStatus: EscrowStatus;
 
-  // 실제 PG 연동(Task #14): 이 트랜잭션에 대응하는 포트원(PortOne) 결제 건의 ID.
-  // 지원자 선택 시점에 서버가 미리 발급해서 프론트엔드에 내려주고, 프론트가 이
-  // paymentId로 포트원 체크아웃을 띄운다. 결제 완료 후 서버는 이 값으로 PG에
-  // "진짜 결제됐는지" 재확인(PaymentGatewayService.verifyPayment)한다.
-  @Column({ name: 'payment_id', type: 'varchar', nullable: true })
-  paymentId: string | null;
-
   @Column({ type: 'bigint' })
   amount: number;
 
   @Column({ type: 'bigint', default: 0 })
   platformFeeAmount: number;
 
-  // 확장 기획 4장 "마일스톤 정산": 바운티를 여러 마일스톤으로 쪼갠 경우, 정산이
-  // approve() 한 번에 끝나지 않고 마일스톤이 승인될 때마다 "일부만" 정산된다.
-  // settledAmount는 "지금까지 실제로 전문가에게 지급된 누적 금액"이고, 이 값이
-  // amount(전체 락업 금액)에 도달하면 그때 비로소 escrowStatus를 SETTLED로 바꾼다.
-  // 마일스톤을 안 쓰는 일반 바운티는 settleNormally()에서 한 번에
-  // settledAmount = amount 가 되므로 기존 동작과 완전히 동일하다.
-  @Column({ name: 'settled_amount', type: 'bigint', default: 0 })
+  /**
+   * 마일스톤 분할 정산(Phase 2)에서 지금까지 실제로 지급 완료된 누적 금액.
+   * 일반(단일) 정산 흐름에서는 SETTLED로 바뀌는 순간 amount와 같아진다.
+   * 마일스톤 흐름에서는 승인된 마일스톤 금액만큼씩 누적되다가, amount에 도달하면
+   * escrowStatus가 SETTLED로 바뀐다 — "부분 정산 중"과 "완전 정산 완료"를 이 값으로 구분한다.
+   */
+  @Column({ type: 'bigint', default: 0 })
   settledAmount: number;
 
   @CreateDateColumn()

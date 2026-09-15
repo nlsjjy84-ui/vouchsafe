@@ -6,6 +6,7 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
-  "setupFiles": ["<rootDir>/setup-env.ts"],
-  "testTimeout": 30000
+  "setupFiles": ["<rootDir>/jest-e2e-env-setup.ts"],
+  "testTimeout": 30000,
+  "maxWorkers": 1
 }

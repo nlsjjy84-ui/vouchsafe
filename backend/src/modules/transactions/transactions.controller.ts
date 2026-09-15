@@ -13,7 +13,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
  * =========================================================================
  */
 @ApiTags('transactions')
-@ApiBearerAuth('access-token')
+@ApiBearerAuth('JWT-auth')
 @Controller('transactions')
 @UseGuards(JwtAuthGuard)
 export class TransactionsController {

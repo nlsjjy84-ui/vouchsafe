@@ -20,7 +20,7 @@ type AuthUser = { userId: string };
  * =========================================================================
  */
 @ApiTags('disputes')
-@ApiBearerAuth('access-token')
+@ApiBearerAuth('JWT-auth')
 @Controller('disputes')
 @UseGuards(JwtAuthGuard)
 export class DisputesController {
@@ -54,21 +54,17 @@ export class DisputesController {
    *   refund=true  → 의뢰인 전액 환불 (전문가 귀책으로 판단)
    *   refund=false → 정상 정산 진행 (전문가 손을 들어줌)
    *
-   * [Phase 2 완료] 관리자(ADMIN) 역할만 호출 가능하도록 RolesGuard로 제한했다.
-   * JwtAuthGuard(로그인 여부) → RolesGuard(역할 확인) 순서로 반드시 실행되어야
-   * 하므로, 클래스 레벨의 @UseGuards(JwtAuthGuard) 뒤에 메서드 레벨로 RolesGuard를
-   * 추가 적용한다. ADMIN이 아닌 사용자가 호출하면 403 Forbidden이 반환된다.
+   * Phase 2: ADMIN 역할만 호출 가능. 클래스 레벨 JwtAuthGuard(로그인 여부)가 먼저 돌고,
+   * 그 다음 메서드 레벨 RolesGuard(역할 여부)가 돈다 — 로그인은 했지만 ADMIN이 아니면 403.
    */
   @Post(':id/resolve')
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
   resolve(
     @Param('id') id: string,
-    @CurrentUser() user: AuthUser,
     @Body('adminNote') adminNote: string,
     @Body('refund') refund: boolean,
   ) {
-    // 누가(admin) 이 조치를 내렸는지도 감사 로그에 남아야 하므로 user.userId를 함께 넘긴다.
-    return this.disputesService.resolve(id, user.userId, adminNote, refund);
+    return this.disputesService.resolve(id, adminNote, refund);
   }
 }

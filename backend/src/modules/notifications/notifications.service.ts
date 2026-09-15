@@ -1,35 +1,18 @@
-import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
+import { NotificationType } from '../../common/enums/notification-type.enum';
 
 /**
- * 지금 앱에서 실제로 발생하는 알림 종류. 새 알림을 추가할 때는 여기에 값을
- * 하나 늘리고, 실제로 notify()를 호출할 지점(BountiesService/DisputesService/
- * CertificationsService 등)에 한 줄 추가하면 된다.
- */
-export type NotificationType =
-  | 'APPLICATION_SELECTED'
-  | 'APPLICATION_REJECTED'
-  | 'PAYMENT_LOCKED'
-  | 'SUBMISSION_RECEIVED'
-  | 'BOUNTY_SETTLED'
-  | 'MILESTONE_SETTLED'
-  | 'DISPUTE_FILED'
-  | 'DISPUTE_RESOLVED'
-  | 'CERTIFICATION_APPROVED'
-  | 'CERTIFICATION_REJECTED';
-
-/**
- * =========================================================================
- * NotificationsService — 알림 생성/조회/읽음 처리
- * =========================================================================
- * AuditService와 마찬가지로 "부가 기록"에 해당하는 서비스라, notify() 호출
- * 실패가 원래 하려던 핵심 작업(지원자 선택, 결제 확인 등)을 막으면 안 된다.
- * 그래서 이 서비스의 notify()는 항상 각 호출부에서 "메인 DB 트랜잭션이 커밋된
- * 뒤에" 별도로 호출하고, 만에 하나 실패해도 예외를 위로 던지지 않고 로그만
- * 남긴다 (알림 하나 못 남겼다고 바운티 선택 자체가 실패한 것처럼 보이면 안 된다).
- * =========================================================================
+ * 인앱 알림 발송/조회.
+ *
+ * 핵심 설계 원칙: notify()는 절대 예외를 던지지 않는다. 정산·이의제기·마일스톤 승인 같은
+ * 핵심 로직 중간에 "알림 보내기"를 끼워 넣는데, 만약 알림 저장이 실패했다고 해서 이미
+ * 커밋된 정산까지 실패한 것처럼 보이면 안 되기 때문이다 (그리고 이 메서드는 대부분
+ * DataSource.transaction() 콜백 "밖"에서, 트랜잭션이 커밋된 뒤 호출된다 — 알림 실패가
+ * 거래 자체의 롤백 사유가 되어서는 안 되므로 의도적으로 트랜잭션에 포함시키지 않는다).
+ * 호출하는 쪽은 그냥 await만 하면 되고, try/catch를 따로 감쌀 필요가 없다.
  */
 @Injectable()
 export class NotificationsService {
@@ -43,51 +26,38 @@ export class NotificationsService {
   async notify(
     userId: string,
     type: NotificationType,
-    title: string,
     message: string,
-    relatedBountyId?: string | null,
+    relatedBountyId?: string,
   ): Promise<void> {
     try {
       const notification = this.notificationRepository.create({
         userId,
         type,
-        title,
         message,
         relatedBountyId: relatedBountyId ?? null,
       });
       await this.notificationRepository.save(notification);
     } catch (err) {
-      this.logger.warn(`알림 생성 실패 (원래 작업에는 영향 없음) userId=${userId} type=${type}: ${(err as Error).message}`);
+      // 의도적으로 삼킨다 — 알림 실패가 호출자의 핵심 로직을 막아서는 안 된다.
+      this.logger.error(
+        `알림 저장 실패 (핵심 로직에는 영향 없음): userId=${userId}, type=${type} — ${(err as Error).message}`,
+      );
     }
   }
 
-  findMine(userId: string) {
+  findMine(userId: string, limit = 20) {
     return this.notificationRepository.find({
       where: { userId },
       order: { createdAt: 'DESC' },
-      take: 100,
+      take: limit,
     });
   }
 
   countUnread(userId: string) {
-    return this.notificationRepository.count({ where: { userId, isRead: false } });
+    return this.notificationRepository.count({ where: { userId, read: false } });
   }
 
-  async markRead(id: string, userId: string): Promise<Notification> {
-    const notification = await this.notificationRepository.findOne({ where: { id } });
-    if (!notification) throw new NotFoundException('알림을 찾을 수 없습니다');
-    if (notification.userId !== userId) {
-      throw new ForbiddenException('본인에게 온 알림만 읽음 처리할 수 있습니다');
-    }
-    if (!notification.isRead) {
-      notification.isRead = true;
-      await this.notificationRepository.save(notification);
-    }
-    return notification;
-  }
-
-  async markAllRead(userId: string): Promise<{ updated: number }> {
-    const result = await this.notificationRepository.update({ userId, isRead: false }, { isRead: true });
-    return { updated: result.affected ?? 0 };
+  async markRead(id: string, userId: string): Promise<void> {
+    await this.notificationRepository.update({ id, userId }, { read: true });
   }
 }

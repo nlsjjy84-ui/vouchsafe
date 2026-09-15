@@ -1,43 +1,26 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { createHash } from 'crypto';
 
 /**
- * 안심전화번호(가상번호) Mock 서비스.
+ * 안심전화번호(050 가상번호) 연동 Mock.
+ * 실제로는 통신사 안심번호 API(예: 원폰/타워)를 호출해 070/050 가상번호를 발급받아
+ * 실제 번호와 매핑해두고, 그 가상번호로 걸려온 전화를 실제 번호로 중계한다.
+ * 동행(COMPANION) 서비스에서 의뢰인과 전문가가 실제 전화번호를 교환하지 않고도
+ * 약속을 조율할 수 있게 하기 위한 장치 — 기획서 7장 "개인정보 최소 노출 원칙"의 연장선.
  *
- * 실제 서비스 전환 시 할 일:
- *  - NHN Cloud "070 안심번호" 또는 통신 3사 부가서비스 API로 교체
- *  - generateSafeNumber()는 그 API가 실제로 할당해주는 착신 전환 번호를 그대로 받아 씀
- *  - relayCall()은 실제로는 없음 - 안심번호로 걸려온 전화를 통신사 교환기가
- *    알아서 진짜 번호로 착신 전환해주기 때문. Mock 단계에서는 "연결이 되긴 했다"는
- *    걸 보여주기 위해 로그만 남긴다.
- *
- * 다른 Mock 서비스들(StorageService, PaymentGatewayService)과 달리 인터페이스로
- * 분리하지 않은 이유: 안심번호는 통신사 전용 회선/API 계약이 있어야만 실제로
- * 테스트해볼 수 있는 영역이라, 이 프로젝트 범위(취업용 포트폴리오)에서는 Mock으로
- * 개념 증명만 하고 끝내는 게 맞다고 판단했다 - PROGRESS.md에 이 판단 근거를 기록.
+ * Mock에서는 실제 가상 회선을 발급하지 않고, 입력값을 SHA-256으로 해시해 재현 가능한
+ * "050-XXXX-XXXX" 형태의 문자열만 만들어낸다 (실 회선 없이도 매핑 로직/API 형태를 검증 가능).
  */
 @Injectable()
 export class MockSafeNumberService {
   private readonly logger = new Logger(MockSafeNumberService.name);
 
-  /** 050 + 임의 8자리 형식의 가짜 안심번호를 생성한다 */
-  generateSafeNumber(): string {
-    const mid = Math.floor(1000 + Math.random() * 9000);
-    const last = Math.floor(1000 + Math.random() * 9000);
-    const safeNumber = `050-${mid}-${last}`;
-    this.logger.debug(`[MOCK] 안심번호 발급: ${safeNumber}`);
+  generateSafeNumber(seed: string): string {
+    const hash = createHash('sha256').update(seed).digest('hex');
+    const middle = parseInt(hash.slice(0, 4), 16) % 10000;
+    const last = parseInt(hash.slice(4, 8), 16) % 10000;
+    const safeNumber = `050-${String(middle).padStart(4, '0')}-${String(last).padStart(4, '0')}`;
+    this.logger.debug(`[MOCK] 안심번호 발급: seed=${seed.slice(0, 8)}... -> ${safeNumber}`);
     return safeNumber;
-  }
-
-  /**
-   * 안심번호로 "전화를 거는" 흉내를 낸다. 실제로는 통신사 교환기가 처리할 일이라
-   * 백엔드가 할 일이 없지만, 프론트엔드 데모/시연에서 "연결되었다"는 걸 보여주고
-   * 감사 로그성 기록을 남기기 위한 용도.
-   */
-  async relayCall(safeNumber: string, callerRole: 'CLIENT' | 'EXPERT'): Promise<{ connected: true; note: string }> {
-    this.logger.log(`[MOCK] ${safeNumber} 로 ${callerRole}가 통화 연결 시도 -> 상대방에게 착신 전환됨(모의)`);
-    return {
-      connected: true,
-      note: '[MOCK] 실제 통신사 연동 전이라 실제로 전화가 걸리지는 않습니다. 연동 성공 로그만 남깁니다.',
-    };
   }
 }

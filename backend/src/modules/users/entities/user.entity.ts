@@ -36,18 +36,13 @@ export class User {
   @Column({ unique: true })
   ciHash: string;
 
-  // null이면 "아직 이메일 인증을 안 한 상태". 값이 들어가면 그 시각에 인증 완료.
-  // Phase 2 시점에는 인증 안 해도 서비스 이용은 그대로 가능하게 뒀다(막으면
-  // 테스트/시연이 번거로워짐) — 나중에 "인증된 사용자만 바운티 등록 가능" 같은
-  // 정책을 넣고 싶으면 이 컬럼만 보고 판단하면 된다.
-  @Column({ name: 'email_verified_at', type: 'timestamptz', nullable: true })
+  /**
+   * 이메일 인증 완료 시각 (Phase 2). null이면 미인증 상태.
+   * Security 4탄에서 이 값이 없으면 로그인 자체를 막는 게이트를 추가할 예정 —
+   * 지금 그룹1 단계에서는 우선 인증 플로우(AuthToken)와 이 컬럼만 준비해둔다.
+   */
+  @Column({ type: 'timestamptz', nullable: true })
   emailVerifiedAt: Date | null;
-
-  // 안심전화번호(가상번호) 기능(11장 확장)의 기반이 되는 "진짜" 연락처.
-  // 이 값 자체는 절대 다른 사용자에게 그대로 노출되지 않는다 - SafeNumberMapping이
-  // 발급하는 가상번호를 통해서만 간접적으로 연결된다.
-  @Column({ name: 'phone_number', type: 'varchar', nullable: true })
-  phoneNumber: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

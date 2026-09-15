@@ -4,19 +4,9 @@ import { ROLES_KEY } from '../decorators/roles.decorator';
 import { UserRole } from '../enums/user-role.enum';
 
 /**
- * =========================================================================
- * RolesGuard — "이 요청을 보낸 사람이 이 API를 쓸 자격(역할)이 있는가?"를 확인
- * =========================================================================
- * 반드시 JwtAuthGuard "다음"에 실행되어야 한다. (JwtAuthGuard가 먼저 토큰을
- * 검증해서 request.user를 채워놔야, 이 가드가 그 user.role을 읽을 수 있다.)
- * 그래서 실제 컨트롤러에서는 항상 @UseGuards(JwtAuthGuard, RolesGuard) 순서로 쓴다.
- *
- * 동작 순서:
- * 1) Reflector로 이 요청이 향하는 메서드에 @Roles(...)가 붙어있는지 확인
- * 2) @Roles가 아예 없으면 → 역할 제한이 없는 API라는 뜻이므로 통과
- * 3) @Roles(UserRole.ADMIN)처럼 붙어있으면 → 로그인한 사용자의 role이
- *    그 목록에 포함되는지 확인, 아니면 403 Forbidden으로 차단
- * =========================================================================
+ * @Roles(...)가 붙은 라우트에서 request.user.role이 허용 목록에 있는지 검사한다.
+ * @Roles가 없는 라우트는 그냥 통과시킨다 (역할 제한이 없다는 뜻이므로) —
+ * 이 가드 하나를 전역에 걸어두더라도 @Roles를 명시한 라우트에만 실제로 제한이 걸린다.
  */
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -27,18 +17,14 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-
-    // @Roles가 안 붙어있으면 역할 제한이 없는 API → 그냥 통과시킨다.
     if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
 
     const { user } = context.switchToHttp().getRequest();
-
     if (!user || !requiredRoles.includes(user.role)) {
-      throw new ForbiddenException('이 작업을 수행할 권한이 없습니다 (관리자 전용 기능입니다)');
+      throw new ForbiddenException('이 작업을 수행할 권한이 없습니다');
     }
-
     return true;
   }
 }

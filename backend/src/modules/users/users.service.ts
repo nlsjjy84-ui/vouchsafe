@@ -28,18 +28,13 @@ export class UsersService {
     return this.userRepository.findOne({ where: { ciHash } });
   }
 
-  /** 비밀번호 재설정 성공 시, 새 해시로 교체 */
-  async updatePasswordHash(userId: string, passwordHash: string): Promise<void> {
-    await this.userRepository.update({ id: userId }, { passwordHash });
-  }
-
-  /** 이메일 인증 성공 시, 인증 시각 기록 */
+  /** 이메일 인증 완료 처리 (Phase 2 AuthToken 플로우에서 호출) */
   async markEmailVerified(userId: string): Promise<void> {
     await this.userRepository.update({ id: userId }, { emailVerifiedAt: new Date() });
   }
 
-  /** 안심번호 발급 등 연락처가 필요한 기능을 위해 본인 전화번호를 등록/수정 */
-  async updatePhoneNumber(userId: string, phoneNumber: string): Promise<void> {
-    await this.userRepository.update({ id: userId }, { phoneNumber });
+  /** 비밀번호 재설정 완료 처리. 호출 전에 이미 새 비밀번호를 해시해서 넘겨야 한다 */
+  async updatePasswordHash(userId: string, passwordHash: string): Promise<void> {
+    await this.userRepository.update({ id: userId }, { passwordHash });
   }
 }

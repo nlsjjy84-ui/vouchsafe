@@ -1,0 +1,101 @@
+name: CI
+
+# main으로의 push와 모든 PR에서 돈다. backend/frontend는 서로 의존하지 않는 별개 워크스페이스라
+# 두 잡을 같은 워크플로 안에서 병렬로 실행한다 (하나가 실패해도 다른 하나의 결과를 따로 볼 수 있다).
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+# 같은 브랜치에 연달아 푸시하면(예: 짧은 시간에 커밋 2~3개) 아직 끝나지 않은 이전 실행을
+# 자동으로 취소한다 — 어차피 최신 커밋 결과만 보면 되므로 CI 리소스를 아낀다.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (build → unit → e2e)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    # e2e 테스트가 실제 Postgres에 붙어야 하므로, 잡 전체 수명 동안 살아있는
+    # postgres:16 서비스 컨테이너를 띄운다. GitHub Actions가 health check를 통과할 때까지
+    # 이후 스텝 시작을 자동으로 대기시켜준다.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: credobounty_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: credobounty_test
+      # 운영 배포에서는 저장소 Secrets(예: Settings > Secrets and variables > Actions)에 등록한
+      # 진짜 값을 ${{ secrets.JWT_SECRET }}로 주입해야 한다 — 이 값은 CI 전용 테스트 값이다.
+      JWT_SECRET: ci-only-jwt-secret-never-use-in-production
+      PORT: 8080
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Unit tests (42+ — pure 로직, 트랜잭션 없이 mock 리포지토리로 검증)
+        run: npm test
+
+      - name: e2e tests (24+ — 실제 Postgres에 HTTP 요청을 끝까지 흘려보내며 검증)
+        run: npm run test:e2e
+
+  frontend:
+    name: Frontend (type-check → build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Build
+        run: npm run build

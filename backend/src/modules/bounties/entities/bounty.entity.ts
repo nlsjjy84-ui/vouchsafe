@@ -51,25 +51,23 @@ export class Bounty {
   @Column({ name: 'assigned_expert_id', type: 'uuid', nullable: true })
   assignedExpertId: string | null;
 
-  // 확장 기획 4장 "동행 서비스": REMOTE(기존 원격 작업) 또는 COMPANION(실제 현장 동행).
-  // 새 DomainType을 만드는 대신, 기존 도메인(부동산 권리분석/차량 진단 등)에 붙는
-  // "진행 방식" 차이로 모델링했다 - service-type.enum.ts 주석 참고.
-  @Column({ name: 'service_type', type: 'enum', enum: ServiceType, default: ServiceType.REMOTE })
+  /** 동행 서비스 확장 (Phase 2): REMOTE(기본, 원격) | COMPANION(현장 동행) */
+  @Column({ type: 'enum', enum: ServiceType, default: ServiceType.REMOTE })
   serviceType: ServiceType;
 
-  // COMPANION일 때만 의미 있는 필드들. REMOTE 바운티는 항상 null.
-  @Column({ name: 'scheduled_at', type: 'timestamptz', nullable: true })
-  scheduledAt: Date | null;
+  /** COMPANION일 때만 의미 있음 — 만나기로 한 장소 */
+  @Column({ type: 'text', nullable: true })
+  companionLocation: string | null;
 
-  @Column({ type: 'varchar', nullable: true })
-  location: string | null;
+  /** COMPANION일 때만 의미 있음 — 만나기로 한 시각 */
+  @Column({ type: 'timestamptz', nullable: true })
+  companionMeetingAt: Date | null;
 
-  // 결과물이 제출(SUBMITTED)된 정확한 시각. updatedAt을 대신 써도 되지 않을까
-  // 싶을 수 있지만, updatedAt은 이 바운티의 "아무 필드나" 바뀔 때마다 갱신되는
-  // 범용 타임스탬프라 나중에 다른 필드를 추가로 건드리면 값이 흔들릴 위험이 있다.
-  // "무이의 기간 만료 자동 정산" 스케줄러가 정확히 이 시점 기준으로 날짜를 계산해야
-  // 하므로, 목적이 분명한 전용 컬럼을 따로 둔다 (auto-settlement.scheduler.ts 참고).
-  @Column({ name: 'submitted_at', type: 'timestamptz', nullable: true })
+  /**
+   * SUBMITTED로 전환된 시각 (Phase 2). 자동 정산 스케줄러가
+   * "무이의 기간(5일)이 지난 SUBMITTED 바운티"를 찾을 때 이 값을 기준으로 삼는다.
+   */
+  @Column({ type: 'timestamptz', nullable: true })
   submittedAt: Date | null;
 
   @CreateDateColumn()

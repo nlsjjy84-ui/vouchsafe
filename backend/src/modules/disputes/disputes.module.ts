@@ -6,7 +6,6 @@ import { DisputesController } from './disputes.controller';
 import { BountiesModule } from '../bounties/bounties.module';
 import { TransactionsModule } from '../transactions/transactions.module';
 import { UsersModule } from '../users/users.module';
-import { AuditModule } from '../audit/audit.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
@@ -15,7 +14,6 @@ import { NotificationsModule } from '../notifications/notifications.module';
     BountiesModule,
     TransactionsModule,
     UsersModule,
-    AuditModule,
     NotificationsModule,
   ],
   providers: [DisputesService],
