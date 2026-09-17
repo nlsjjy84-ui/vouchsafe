@@ -36,7 +36,7 @@ export class AuthService {
    * 의미가 없다 — 오히려 "인증 안 된 계정도 토큰만 있으면 API를 쓸 수 있다"는 혼동을 막기
    * 위해 아예 발급하지 않는다.
    */
-  async register(dto: RegisterDto): Promise<{ id: string; email: string; role: string }> {
+  async register(dto: RegisterDto): Promise<{ id: string; email: string; role: string; message: string }> {
     const existing = await this.usersService.findByEmail(dto.email);
     if (existing) {
       throw new ConflictException('이미 가입된 이메일입니다');
@@ -58,7 +58,14 @@ export class AuthService {
     // 가입 직후 이메일 인증 토큰을 바로 발급해서 (Mock) 메일로 보낸다.
     await this.sendEmailVerification(user.id, user.email);
 
-    return { id: user.id, email: user.email, role: user.role };
+    // 프론트(register/page.tsx)가 이 message를 그대로 화면에 보여준다 — 가입 직후
+    // 자동 로그인이 없으므로, "메일함을 확인해주세요" 안내를 서버가 문구로 내려준다.
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      message: '가입이 완료됐어요. 메일함에서 인증 링크를 확인한 뒤 로그인해주세요.',
+    };
   }
 
   /**
