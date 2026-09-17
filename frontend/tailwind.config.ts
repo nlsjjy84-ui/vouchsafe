@@ -1,30 +1,37 @@
 import type { Config } from 'tailwindcss';
 
 /**
- * 기획서 표지/본문에서 쓰인 색상 팔레트(brand.*)에 더해, 2026-09 UI 리뉴얼 때
- * 국내 핀테크(토스/카카오뱅크)와 Linear/Stripe 계열 대시보드 디자인 리서치를 참고해
- * "표면(surface) 3단 레이어 + 중립(ink) 텍스트 스케일 + 옅은 상태색(soft-tint)" 토큰을
- * 추가했다. brand.* 색은 CTA/활성 상태 등 "포인트"에만 쓰고, 배경/구분선/본문 텍스트는
- * 아래 surface/ink/border 토큰을 쓰는 게 원칙 (리서치 결과: 포인트 컬러를 아끼는 것이
- * "차분한 신뢰감"을 주는 핵심 트릭).
+ * =========================================================================
+ * 팔레트/서체/형태 전면 재설계 (2026-09-17)
+ * =========================================================================
+ * 배경: concept-b(teal/네이비 + 각진 스캘럽)에 대한 피드백 이후 concept-c
+ * (클레이/잉크/세이지 + 세리프 + 원형·블롭)를 별도 비교용 페이지(/concept-c)로
+ * 만들어놓고 "형태만 c로, 색상은 b(기존 teal/navy)로 유지"라는 절충안으로
+ * 덮어버렸었다(components/Decor.tsx 옛 주석 참고). 그 절충 자체가 문제였다 -
+ * 화면에서 가장 먼저, 가장 강하게 인식되는 건 형태가 아니라 색인데, 색을 그대로
+ * 두고 장식 모양만 바꿔서는 "여전히 어디서 본 듯한 청록/네이비 SaaS"라는 인상이
+ * 바뀔 수 없었다. 팔레트를 1차(#14b8a6 그대로), 2차(#1c8f82로 살짝 어둡게)로
+ * 두 번 땜질했다가 "달라진 게 없다"는 재지적을 받은 이력도 있다(git blame 참고).
  *
- * 2026-09-16 팔레트 리터치: "기본색이 너무 흔하다"는 피드백에 실제로 원인이 있었다 -
- * 기존 brand.teal(#14b8a6)/tealDeep(#0d9488)은 Tailwind 기본 팔레트의 teal-500/600을
- * 손도 안 대고 그대로 쓰고 있었다(그래서 "어디서 많이 본 색"처럼 느껴진 것). 1차
- * 수정(#1c8f82)은 그냥 살짝 어둡게만 한 거라 "달라졌다"고 할 수 없다는 재지적을 받고,
- * 훨씬 더 짙고 채도 높은 "깊은 비취/spruce" 톤(#0a6e5c)으로 다시 조색했다 - 스포이드로
- * 찍어도 Tailwind 기본 팔레트 어디에도 없는 값이고, 밝기 자체가 원래보다 눈에 띄게
- * 어두워서 "정말 바뀌었다"가 한눈에 보인다. 토큰 이름(brand.teal)은 유지해서 이 색을
- * 쓰는 기존 클래스(bg-brand-teal 등)가 전부 자동으로 새 색을 받는다.
- * 그리고 "버튼마다 색이 다 똑같다"는 지적은 색상 자체보다 "모든 버튼이 brand.teal
- * 하나만 쓰고 있었다"는 사용 편중 문제였다 - components/Button.tsx가 이미 있던
- * blue/amber/navy/red 톤을 버튼 역할별로 나눠 쓰도록 하는 게 진짜 해법이라 그 쪽도
- * 같이 손봤다(components/Button.tsx 참고). 색 역할 정리:
- *   teal  = 화면당 단 하나의 핵심 액션 (로그인/지원하기/제출/승인)
- *   blue  = AI 기능 · 선택/결정 액션
- *   amber = 결제 등 돈이 오가거나 주의가 필요한 지점
- *   navy  = 구조적 요소(헤더/사이드바) + 보조 유틸리티 액션
- *   red   = 위험 · 경고 · 이의제기
+ * 이번엔 절충 없이 concept-c 쪽으로 완전히 넘어간다 - 색(clay/ink/sage/gold +
+ * 종이 질감의 warm ivory 배경)과 서체(세리프 헤드라인)를 모두 교체한다. 토큰
+ * 이름 자체도 teal/navy/amber/blue가 아니라 실제 색의 정체성을 그대로 부르는
+ * 이름(clay/ink/sage/gold)으로 바꿔서, 다음에 또 "값만 슬쩍 바꾸는" 땜질을
+ * 하기 어렵게 만들었다 - 이름을 바꾸면 코드 전체에서 그 색을 쓰는 자리가
+ * 전부 드러나기 때문에, 이번 변경이 코드베이스 전역에 실제로 적용됐다는 걸
+ * grep 한 번으로 확인할 수 있다.
+ *
+ * 색 역할 정리 (기존 teal/blue/amber/navy/red 자리를 그대로 대체):
+ *   clay(테라코타/적) = 화면당 단 하나의 핵심 액션 (구 teal)
+ *   sage(청록빛 자연)  = AI 기능 · 선택/결정 액션 (구 blue)
+ *   gold(황토)         = 결제 등 돈이 오가거나 주의가 필요한 지점 (구 amber)
+ *   ink(먹)            = 구조적 요소(헤더/사이드바) + 보조 유틸리티 액션 (구 navy)
+ *   red                = 위험 · 경고 · 이의제기 (그대로 유지 - clay와 색상환에서
+ *                        떨어뜨려 둬서 "브랜드 강조색"과 "진짜 위험 신호"가
+ *                        섞이지 않게 함)
+ *
+ * 오방색(청/적/황/백/흑)과의 대응: ink=흑, clay=적, gold=황, surface(paper)=백,
+ * sage=청(자연/생명 쪽으로 해석) - 사물놀이/국악 배경을 색상 서사로 가져왔다.
  */
 const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
@@ -32,51 +39,73 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          teal: '#0a6e5c',
-          tealDeep: '#054a3d',
-          navy: '#0f172a',
-          navyLight: '#1e2b4d',
-          amber: '#c2760c',
-          blue: '#3b6fc9',
-          red: '#b3413e',
+          clay: '#c2410c',
+          clayDeep: '#9a3412',
+          ink: '#241a14',
+          inkLight: '#4a3626',
+          gold: '#b8801f',
+          sage: '#5b6b4f',
+          red: '#a3312c',
         },
         surface: {
-          canvas: '#ffffff',
-          DEFAULT: '#f7f8f9',
-          raised: '#eef1f4',
+          canvas: '#fffdf8',
+          DEFAULT: '#f7f1e8',
+          raised: '#efe3d1',
         },
         ink: {
-          900: '#0f172a',
-          700: '#334155',
-          500: '#64748b',
-          400: '#94a3b8',
+          900: '#241a14',
+          700: '#4a3d33',
+          500: '#7a6a5c',
+          400: '#a89686',
         },
         hairline: {
-          DEFAULT: '#e2e8f0',
-          strong: '#cbd5e1',
+          DEFAULT: '#e4d9c8',
+          strong: '#d3c3ac',
         },
         tint: {
-          teal: '#e6f7f5',
-          amber: '#fdf1e2',
-          blue: '#e9eefb',
-          red: '#fbeceb',
-          navy: '#eaecf1',
+          clay: '#f7e2d3',
+          gold: '#faecd0',
+          sage: '#e6ebe0',
+          red: '#f4dedd',
+          ink: '#ece6dd',
         },
       },
+      borderRadius: {
+        /*
+         * "네모(카드 모서리)가 다 똑같아 보인다"는 지적의 실제 원인은 반경 값이
+         * 아니라 반경 "규칙이 하나뿐"이라는 거였다 - 지금은 두 축으로 나눴다:
+         *   rounded-full  : 상호작용 요소(버튼/배지/아바타/네비 pill) - 완전한 원
+         *   rounded-none  : 의도적으로 각지게 남겨둘 유틸리티 요소
+         *   rounded-4xl   : 카드/패널 전용 - concept-c의 28px 카드 반경으로 통일
+         * 이 두 축이 한 화면 안에 같이 있는 것 자체가 "규칙이 하나가 아니다"는
+         * 신호가 되도록 했다(예: 각진 pill 버튼 + 큰 카드 + 완전한 원형 로고칩).
+         */
+        '4xl': '28px',
+        '3xl': '22px',
+        '2xl': '18px',
+      },
       boxShadow: {
-        float: '0 12px 24px -8px rgba(15, 23, 42, 0.18)',
+        float: '0 12px 24px -8px rgba(36, 26, 20, 0.18)',
+        bloom: '0 20px 45px -15px rgba(36, 26, 20, 0.35)',
       },
       fontFamily: {
         /*
-         * 타이포그래피 시스템(2026-09 재수정): "글꼴도 그렇고 강조도... 뭔가 변화가
-         * 없자나"라는 피드백에 대한 직접적인 답. sans(본문)를 시스템 기본값에서
-         * Gothic A1로 바꿔 전체 화면의 "손질된 느낌"을 올리고, display(헤드라인/큰
-         * 숫자 전용)는 Do Hyeon으로 완전히 다른 성격의 서체를 써서 "여기는 강조 지점"
-         * 이라는 신호를 글꼴 자체로 준다 - 배민 브랜드 서체처럼 특정 접점에만 한정.
+         * "폰트도 그렇고... 반복되는 습관을 깨라"는 지적에 대한 답. Gothic A1은
+         * 이미 주석에 "부트캠프/포폴에서 자주 보이는 흔한 조합"이라고 스스로
+         * 적어놨던 서체이고, Do Hyeon도 마찬가지로 흔한 라운드 고딕 디스플레이라
+         * 둘 다 완전히 걷어냈다.
+         *   sans(본문)    : IBM Plex Sans KR - 기술/금융 서비스 느낌의 각진
+         *     그로테스크. 국내 부트캠프 포폴에서 거의 안 쓰는 조합이라 눈에 띈다.
+         *   display(헤드라인) : Gowun Batang(세리프)을 "포인트"가 아니라 전체
+         *     헤드라인의 기본값으로 승격 - 고딕 일색이던 화면에 세리프 헤드라인은
+         *     그 자체로 "다른 축"이다. font-display를 쓰는 자리(로고/헤드라인/
+         *     큰 숫자)가 전부 자동으로 세리프로 바뀐다.
+         *   serifAccent   : display와 같은 서체를 유지 - 기존에 이미 이 이름으로
+         *     쓰이던 자리(감성 카피, concept-c 유산)가 자연스럽게 이어지도록.
          */
-        sans: ['"Gothic A1"', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif'],
-        display: ['"Do Hyeon"', 'sans-serif'],
-        serifAccent: ['"Gowun Batang"', 'serif'],
+        sans: ['"IBM Plex Sans KR"', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif'],
+        display: ['"Gowun Batang"', 'Georgia', 'serif'],
+        serifAccent: ['"Gowun Batang"', 'Georgia', 'serif'],
       },
     },
   },

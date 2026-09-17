@@ -109,7 +109,7 @@ export default function BountyDetailPage() {
         <h1 className="font-display text-xl tracking-wide text-ink-900">{bounty.title}</h1>
 
         {bounty.serviceType === 'COMPANION' && (
-          <div className="mt-3 rounded-xl bg-tint-amber px-3 py-2 text-sm text-brand-amber">
+          <div className="mt-3 rounded-xl bg-tint-gold px-3 py-2 text-sm text-brand-gold">
             <span className="font-medium">{SERVICE_TYPE_LABELS.COMPANION}</span>
             {bounty.scheduledAt && (
               <span> · {new Date(bounty.scheduledAt).toLocaleString('ko-KR')} 예정</span>
@@ -225,7 +225,7 @@ export default function BountyDetailPage() {
       {isOwner && bounty.status === 'SUBMITTED' && (
         <section className={`space-y-3 ${CARD_CLASS}`}>
           <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
-            <CheckCircle2 size={16} className="text-brand-teal" /> 결과물이 제출됐어요
+            <CheckCircle2 size={16} className="text-brand-clay" /> 결과물이 제출됐어요
           </h2>
           <p className="text-sm text-ink-500">
             결과물을 확인한 뒤 문제가 없으면 승인해서 정산을 진행하세요. 문제가 있다면
@@ -279,7 +279,7 @@ function ApplyForm({ bountyId, onDone }: { bountyId: string; onDone: () => void 
   return (
     <form onSubmit={handleSubmit} className={`space-y-3 ${CARD_CLASS}`}>
       <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
-        <Send size={16} className="text-brand-teal" /> 이 바운티에 지원하기
+        <Send size={16} className="text-brand-clay" /> 이 바운티에 지원하기
       </h2>
       <textarea
         className={`${FIELD_INPUT_CLASS} h-24`}
@@ -327,9 +327,9 @@ function SubmitForm({ bountyId, onDone }: { bountyId: string; onDone: () => void
   return (
     <form onSubmit={handleSubmit} className={`space-y-3 ${CARD_CLASS}`}>
       <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
-        <FileUp size={16} className="text-brand-teal" /> 결과물 제출
+        <FileUp size={16} className="text-brand-clay" /> 결과물 제출
       </h2>
-      <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-hairline-strong px-3 py-2.5 text-sm text-ink-500 hover:border-brand-teal hover:text-brand-teal">
+      <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-hairline-strong px-3 py-2.5 text-sm text-ink-500 hover:border-brand-clay hover:text-brand-clay">
         <FileUp size={16} />
         {file ? file.name : '파일 선택 (PDF, 이미지, ZIP)'}
         <input
@@ -398,9 +398,9 @@ function PaymentSection({
   }
 
   return (
-    <section className="space-y-3 rounded-4xl bg-tint-amber p-5">
+    <section className="space-y-3 rounded-4xl bg-tint-gold p-5">
       <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
-        <CreditCard size={16} className="text-brand-amber" /> 결제를 완료해주세요
+        <CreditCard size={16} className="text-brand-gold" /> 결제를 완료해주세요
       </h2>
       <p className="text-sm text-ink-700">
         전문가를 선택했어요. 결제가 완료되어야 에스크로에 자금이 잠기고 작업이 시작됩니다.
@@ -481,7 +481,7 @@ function SafeNumberSection({ bountyId }: { bountyId: string }) {
   return (
     <section className={`space-y-2 ${UTILITY_CARD_CLASS}`}>
       <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
-        <Phone size={16} className="text-brand-teal" /> 안심번호
+        <Phone size={16} className="text-brand-clay" /> 안심번호
       </h2>
       <p className="text-sm text-ink-500">
         서로의 실제 전화번호를 알리지 않고, 안심번호 하나로만 연락을 주고받을 수 있어요.
@@ -490,7 +490,7 @@ function SafeNumberSection({ bountyId }: { bountyId: string }) {
       {error && <FormErrorText>{error}</FormErrorText>}
 
       {needsPhoneRegistration && (
-        <div className="flex flex-wrap items-center gap-2 rounded-xl bg-tint-amber p-3">
+        <div className="flex flex-wrap items-center gap-2 rounded-xl bg-tint-gold p-3">
           <input
             className={`${FIELD_INPUT_CLASS} w-auto flex-1 bg-surface-canvas`}
             placeholder="내 휴대폰 번호 (010-1234-5678)"

@@ -16,9 +16,9 @@
 import { jangdanDelay } from '@/lib/motion';
 
 // 밝은 배경(surface-canvas)용 - 마지막 막대는 navy로 마무리해 장단의 "묵직한 종지음" 느낌을 준다.
-const BAR_COLORS_LIGHT = ['bg-brand-teal', 'bg-brand-blue', 'bg-brand-amber', 'bg-brand-navy'];
+const BAR_COLORS_LIGHT = ['bg-brand-clay', 'bg-brand-sage', 'bg-brand-gold', 'bg-brand-ink'];
 // 어두운 배경(네이비 히어로/헤더)용 - navy 막대는 배경에 묻히므로 흰색 계열로 교체.
-const BAR_COLORS_DARK = ['bg-brand-teal', 'bg-brand-blue', 'bg-brand-amber', 'bg-white'];
+const BAR_COLORS_DARK = ['bg-brand-clay', 'bg-brand-sage', 'bg-brand-gold', 'bg-white'];
 const BAR_HEIGHTS = [0.35, 0.55, 0.8, 1];
 
 export function JangdanMark({

@@ -33,7 +33,7 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void } = {}) {
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-hairline bg-surface-canvas/95 px-4 backdrop-blur">
       <h1 className="flex items-center gap-2 truncate text-sm font-semibold text-ink-900">
-        <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-brand-teal" aria-hidden="true" />
+        <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-brand-clay" aria-hidden="true" />
         {title}
       </h1>
 

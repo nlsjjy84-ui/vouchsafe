@@ -58,7 +58,7 @@ export default function RegisterPage() {
           {/* 개발 단계라 실제 메일 발송 대신 백엔드 콘솔 로그에 링크가 남는다 (Mock) */}
         </SuccessPulse>
         <p className="mt-4 text-sm text-ink-500">
-          <Link href="/login" className="font-medium text-brand-teal hover:underline">
+          <Link href="/login" className="font-medium text-brand-clay hover:underline">
             로그인하러 가기
           </Link>
         </p>
@@ -73,7 +73,7 @@ export default function RegisterPage() {
       footer={
         <span>
           이미 계정이 있다면{' '}
-          <Link href="/login" className="font-medium text-brand-teal hover:underline">
+          <Link href="/login" className="font-medium text-brand-clay hover:underline">
             로그인
           </Link>
         </span>
@@ -146,7 +146,7 @@ export default function RegisterPage() {
                 onClick={() => setRole(value)}
                 className={`flex flex-col items-center gap-1 rounded-2xl border px-3 py-2.5 text-xs font-medium transition-colors ${
                   role === value
-                    ? 'border-brand-teal bg-tint-teal text-brand-teal'
+                    ? 'border-brand-clay bg-tint-clay text-brand-clay'
                     : 'border-hairline text-ink-500 hover:border-hairline-strong'
                 }`}
               >

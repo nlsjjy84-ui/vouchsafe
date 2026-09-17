@@ -49,7 +49,7 @@ function VerifyEmailInner() {
   return (
     <div
       className={`flex items-center gap-2 rounded-xl px-4 py-3 text-sm ${
-        status === 'success' ? 'bg-tint-teal text-brand-teal' : 'bg-tint-red text-brand-red'
+        status === 'success' ? 'bg-tint-clay text-brand-clay' : 'bg-tint-red text-brand-red'
       }`}
     >
       {status === 'success' ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
@@ -66,7 +66,7 @@ export default function VerifyEmailPage() {
         // [보안 강화] 이메일 인증 전 로그인 차단이 생기면서, 인증 직후 자동 로그인
         // 상태가 아니게 됐다 - 이제 인증을 마쳐도 로그인은 따로 해야 하므로,
         // "바운티 목록으로"(로그인이 필요한 화면) 대신 로그인 화면으로 안내한다.
-        <Link href="/login" className="font-medium text-brand-teal hover:underline">
+        <Link href="/login" className="font-medium text-brand-clay hover:underline">
           로그인하러 가기
         </Link>
       }

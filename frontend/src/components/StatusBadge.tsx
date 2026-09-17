@@ -7,13 +7,13 @@ import { ApplicationStatus, APPLICATION_STATUS_LABELS, BountyStatus, BOUNTY_STAT
  */
 
 const BOUNTY_STYLES: Record<BountyStatus, string> = {
-  PENDING: 'bg-slate-100 text-slate-700 border-slate-300',
-  PAYMENT_PENDING: 'bg-amber-50 text-brand-amber border-amber-200',
-  LOCKED: 'bg-blue-50 text-brand-blue border-blue-200',
-  SUBMITTED: 'bg-amber-50 text-brand-amber border-amber-200',
-  SETTLED: 'bg-teal-50 text-brand-teal border-teal-200',
-  DISPUTED: 'bg-red-50 text-brand-red border-red-200',
-  REFUNDED: 'bg-slate-100 text-slate-500 border-slate-300',
+  PENDING: 'bg-tint-ink text-ink-700 border-hairline-strong',
+  PAYMENT_PENDING: 'bg-tint-gold text-brand-gold border-brand-gold/30',
+  LOCKED: 'bg-tint-sage text-brand-sage border-brand-sage/30',
+  SUBMITTED: 'bg-tint-gold text-brand-gold border-brand-gold/30',
+  SETTLED: 'bg-tint-clay text-brand-clay border-brand-clay/30',
+  DISPUTED: 'bg-tint-red text-brand-red border-brand-red/30',
+  REFUNDED: 'bg-tint-ink text-ink-500 border-hairline-strong',
 };
 
 export function BountyStatusBadge({ status }: { status: BountyStatus }) {
@@ -27,11 +27,11 @@ export function BountyStatusBadge({ status }: { status: BountyStatus }) {
 }
 
 const ESCROW_STYLES: Record<EscrowStatus, string> = {
-  PENDING_PAYMENT: 'bg-amber-50 text-brand-amber border-amber-200',
-  LOCKED: 'bg-blue-50 text-brand-blue border-blue-200',
-  FROZEN: 'bg-red-50 text-brand-red border-red-200',
-  SETTLED: 'bg-teal-50 text-brand-teal border-teal-200',
-  REFUNDED: 'bg-slate-100 text-slate-700 border-slate-300',
+  PENDING_PAYMENT: 'bg-tint-gold text-brand-gold border-brand-gold/30',
+  LOCKED: 'bg-tint-sage text-brand-sage border-brand-sage/30',
+  FROZEN: 'bg-tint-red text-brand-red border-brand-red/30',
+  SETTLED: 'bg-tint-clay text-brand-clay border-brand-clay/30',
+  REFUNDED: 'bg-tint-ink text-ink-700 border-hairline-strong',
 };
 
 const ESCROW_LABELS: Record<EscrowStatus, string> = {
@@ -54,9 +54,9 @@ export function EscrowStatusBadge({ status }: { status: EscrowStatus }) {
 
 // [Task #31 마이페이지] "내가 지원한 바운티" 목록에서 지원 결과를 한눈에 보여주기 위해 추가.
 const APPLICATION_STYLES: Record<ApplicationStatus, string> = {
-  APPLIED: 'bg-slate-100 text-slate-700 border-slate-300',
-  SELECTED: 'bg-teal-50 text-brand-teal border-teal-200',
-  REJECTED: 'bg-slate-100 text-slate-500 border-slate-300',
+  APPLIED: 'bg-tint-ink text-ink-700 border-hairline-strong',
+  SELECTED: 'bg-tint-clay text-brand-clay border-brand-clay/30',
+  REJECTED: 'bg-tint-ink text-ink-500 border-hairline-strong',
 };
 
 export function ApplicationStatusBadge({ status }: { status: ApplicationStatus }) {

@@ -68,7 +68,7 @@ export default function LoginPage() {
         <div className="flex items-center justify-between">
           <span>
             계정이 없다면{' '}
-            <Link href="/register" className="font-medium text-brand-teal hover:underline">
+            <Link href="/register" className="font-medium text-brand-clay hover:underline">
               회원가입
             </Link>
           </span>
@@ -108,7 +108,7 @@ export default function LoginPage() {
         {error && <AuthErrorText>{error}</AuthErrorText>}
 
         {needsVerification && (
-          <div className="rounded-2xl bg-tint-amber p-3 text-sm text-brand-amber">
+          <div className="rounded-2xl bg-tint-gold p-3 text-sm text-brand-gold">
             {resendMessage ?? (
               <>
                 <p className="mb-2">아직 이메일 인증을 안 하셨다면 링크를 다시 보내드릴 수 있어요.</p>
@@ -116,7 +116,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleResend}
                   disabled={resending || !email}
-                  className="rounded-full border border-brand-amber/40 bg-surface-canvas px-3 py-1.5 text-sm font-medium text-brand-amber hover:bg-surface-canvas/70 disabled:opacity-50"
+                  className="rounded-full border border-brand-gold/40 bg-surface-canvas px-3 py-1.5 text-sm font-medium text-brand-gold hover:bg-surface-canvas/70 disabled:opacity-50"
                 >
                   {resending ? '발송 중...' : '인증 메일 재발송'}
                 </button>

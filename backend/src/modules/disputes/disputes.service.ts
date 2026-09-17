@@ -94,6 +94,7 @@ export class DisputesService {
     const saved = await this.dataSource.transaction(async (manager: EntityManager) => {
       if (refund) {
         await this.transactionsService.refundExpertFault(dispute.bountyId, manager);
+        await this.bountiesService.markRefundedAfterDispute(dispute.bountyId, manager);
         dispute.status = DisputeStatus.RESOLVED_REFUND;
       } else {
         // approve()는 SUBMITTED 상태를 요구하므로, 분쟁 중 정산은 별도 헬퍼로 상태만 SETTLED 전환

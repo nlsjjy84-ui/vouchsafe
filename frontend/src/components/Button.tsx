@@ -4,7 +4,7 @@ import { ButtonHTMLAttributes, ReactNode } from 'react';
  * =========================================================================
  * 공용 버튼 컴포넌트 (2026-09-16 신설)
  * =========================================================================
- * 이전까지는 화면마다 "rounded-full bg-brand-teal px-4 py-2 text-sm
+ * 이전까지는 화면마다 "rounded-full bg-brand-clay px-4 py-2 text-sm
  * font-semibold text-white hover:opacity-90" 같은 똑같은 문자열을 버튼이
  * 나올 때마다 복사-붙여넣기하고 있었다 - 그래서 로그인/지원하기/바운티
  * 등록/정산하기가 전부 시각적으로 구분이 안 되는 "같은 버튼"처럼 보인다는
@@ -39,10 +39,10 @@ export type ButtonVariant = 'solid' | 'outline' | 'soft' | 'text';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 const TONE_HEX: Record<ButtonTone, { solidBg: string; solidHover: string; text: string; border: string; softBg: string }> = {
-  teal: { solidBg: 'bg-brand-teal', solidHover: 'hover:bg-brand-tealDeep', text: 'text-brand-teal', border: 'border-brand-teal', softBg: 'bg-tint-teal' },
-  blue: { solidBg: 'bg-brand-blue', solidHover: 'hover:brightness-90', text: 'text-brand-blue', border: 'border-brand-blue', softBg: 'bg-tint-blue' },
-  amber: { solidBg: 'bg-brand-amber', solidHover: 'hover:brightness-90', text: 'text-brand-amber', border: 'border-brand-amber', softBg: 'bg-tint-amber' },
-  navy: { solidBg: 'bg-brand-navy', solidHover: 'hover:bg-brand-navyLight', text: 'text-brand-navy', border: 'border-brand-navy', softBg: 'bg-tint-navy' },
+  teal: { solidBg: 'bg-brand-clay', solidHover: 'hover:bg-brand-clayDeep', text: 'text-brand-clay', border: 'border-brand-clay', softBg: 'bg-tint-clay' },
+  blue: { solidBg: 'bg-brand-sage', solidHover: 'hover:brightness-90', text: 'text-brand-sage', border: 'border-brand-sage', softBg: 'bg-tint-sage' },
+  amber: { solidBg: 'bg-brand-gold', solidHover: 'hover:brightness-90', text: 'text-brand-gold', border: 'border-brand-gold', softBg: 'bg-tint-gold' },
+  navy: { solidBg: 'bg-brand-ink', solidHover: 'hover:bg-brand-inkLight', text: 'text-brand-ink', border: 'border-brand-ink', softBg: 'bg-tint-ink' },
   red: { solidBg: 'bg-brand-red', solidHover: 'hover:brightness-90', text: 'text-brand-red', border: 'border-brand-red', softBg: 'bg-tint-red' },
 };
 
@@ -74,13 +74,13 @@ function variantClass(variant: ButtonVariant, tone: ButtonTone) {
     case 'outline':
       return `border bg-transparent ${t.border} ${t.text} transition-colors hover:text-white ${
         tone === 'teal'
-          ? 'hover:bg-brand-teal'
+          ? 'hover:bg-brand-clay'
           : tone === 'blue'
-            ? 'hover:bg-brand-blue'
+            ? 'hover:bg-brand-sage'
             : tone === 'amber'
-              ? 'hover:bg-brand-amber'
+              ? 'hover:bg-brand-gold'
               : tone === 'navy'
-                ? 'hover:bg-brand-navy'
+                ? 'hover:bg-brand-ink'
                 : 'hover:bg-brand-red'
       }`;
     case 'soft':

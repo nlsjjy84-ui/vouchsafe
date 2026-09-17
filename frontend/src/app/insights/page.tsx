@@ -84,9 +84,9 @@ export default function InsightsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
-        <Sparkles size={20} className="text-brand-teal" />
+        <Sparkles size={20} className="text-brand-clay" />
         <h1 className="font-display text-2xl tracking-wide text-ink-900">AI 인사이트</h1>
-        <span className="rounded-full bg-tint-teal px-2 py-0.5 text-[11px] font-semibold text-brand-teal">
+        <span className="rounded-full bg-tint-clay px-2 py-0.5 text-[11px] font-semibold text-brand-clay">
           내 활동 데이터 기반 자동 분석
         </span>
       </div>
@@ -127,8 +127,8 @@ export default function InsightsPage() {
 
       {/* 기능2: 소비 이상탐지 하이라이트 (주제1) */}
       {data.spendingAnomaly && (
-        <div className="flex items-start gap-3 rounded-4xl border border-brand-amber/30 bg-tint-amber p-5">
-          <Flame size={20} className="mt-0.5 flex-shrink-0 text-brand-amber" />
+        <div className="flex items-start gap-3 rounded-4xl border border-brand-gold/30 bg-tint-gold p-5">
+          <Flame size={20} className="mt-0.5 flex-shrink-0 text-brand-gold" />
           <div>
             <p className="text-sm font-semibold text-ink-900">
               '{data.spendingAnomaly.domainLabel}' 지출이 급증했어요
@@ -136,7 +136,7 @@ export default function InsightsPage() {
             <p className="mt-1 text-sm text-ink-700">
               이번 달 {formatWon(data.spendingAnomaly.thisMonthAmount)} — 최근 3개월 평균{' '}
               {formatWon(data.spendingAnomaly.avgPrevAmount)} 대비{' '}
-              <span className="font-semibold text-brand-amber">+{data.spendingAnomaly.increasePct}%</span>
+              <span className="font-semibold text-brand-gold">+{data.spendingAnomaly.increasePct}%</span>
             </p>
           </div>
         </div>
@@ -144,14 +144,14 @@ export default function InsightsPage() {
 
       <div className="rounded-4xl border border-hairline bg-surface-canvas p-5">
         <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink-900">
-          <Sparkles size={16} className="text-brand-teal" /> AI가 발견한 인사이트
+          <Sparkles size={16} className="text-brand-clay" /> AI가 발견한 인사이트
         </h2>
         <ul className="space-y-2">
           {data.insights.map((line, i) => (
             <li
               key={i}
               style={jangdanDelay(i)}
-              className="animate-stagger-in rounded-xl bg-tint-teal px-4 py-3 text-sm leading-relaxed text-ink-700"
+              className="animate-stagger-in rounded-xl bg-tint-clay px-4 py-3 text-sm leading-relaxed text-ink-700"
             >
               {line}
             </li>
@@ -165,14 +165,14 @@ export default function InsightsPage() {
           icon={TrendingDown}
           items={data.spendingByDomain}
           max={maxDomainAmount}
-          barClass="bg-brand-blue"
+          barClass="bg-brand-sage"
         />
         <DomainBreakdownCard
           title="분야별 수익 분포"
           icon={TrendingUp}
           items={data.earningByDomain}
           max={maxDomainAmount}
-          barClass="bg-brand-teal"
+          barClass="bg-brand-clay"
         />
       </div>
 
@@ -183,12 +183,12 @@ export default function InsightsPage() {
             <div key={m.month} className="flex flex-1 flex-col items-center gap-1">
               <div className="flex h-32 items-end gap-1">
                 <div
-                  className="w-3 rounded-t bg-brand-blue"
+                  className="w-3 rounded-t bg-brand-sage"
                   style={{ height: `${Math.max(2, (m.spent / maxTrend) * 100)}%` }}
                   title={`지출 ${formatWon(m.spent)}`}
                 />
                 <div
-                  className="w-3 rounded-t bg-brand-teal"
+                  className="w-3 rounded-t bg-brand-clay"
                   style={{ height: `${Math.max(2, (m.earned / maxTrend) * 100)}%` }}
                   title={`수익 ${formatWon(m.earned)}`}
                 />
@@ -199,10 +199,10 @@ export default function InsightsPage() {
         </div>
         <div className="mt-3 flex gap-4 text-xs text-ink-500">
           <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-brand-blue" /> 지출
+            <span className="h-2 w-2 rounded-full bg-brand-sage" /> 지출
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-brand-teal" /> 수익
+            <span className="h-2 w-2 rounded-full bg-brand-clay" /> 수익
           </span>
         </div>
 
@@ -212,8 +212,8 @@ export default function InsightsPage() {
             <CalendarRange size={18} className="flex-shrink-0 text-ink-400" />
             <p className="text-sm text-ink-700">
               최근 추세로 보면 다음 달엔 약{' '}
-              <span className="font-semibold text-brand-blue">{formatWon(data.forecast.nextMonthSpent)}</span> 지출,
-              약 <span className="font-semibold text-brand-teal">{formatWon(data.forecast.nextMonthEarned)}</span>{' '}
+              <span className="font-semibold text-brand-sage">{formatWon(data.forecast.nextMonthSpent)}</span> 지출,
+              약 <span className="font-semibold text-brand-clay">{formatWon(data.forecast.nextMonthEarned)}</span>{' '}
               수익이 예상돼요.
             </p>
           </div>
@@ -252,7 +252,7 @@ function BudgetCard({ budget, onSaved }: { budget: MyInsightsResponse['budget'];
         onSubmit={handleSave}
         className="flex flex-wrap items-center gap-3 rounded-4xl border border-hairline bg-surface-canvas p-5"
       >
-        <Target size={18} className="flex-shrink-0 text-brand-teal" />
+        <Target size={18} className="flex-shrink-0 text-brand-clay" />
         <label className="text-sm font-medium text-ink-700">이번 달 예산 목표</label>
         <input
           type="number"
@@ -261,12 +261,12 @@ function BudgetCard({ budget, onSaved }: { budget: MyInsightsResponse['budget'];
           placeholder="예: 500000 (비우면 해제)"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="w-48 rounded-xl border border-hairline bg-surface px-3 py-2 text-sm text-ink-900 outline-none focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20"
+          className="w-48 rounded-xl border border-hairline bg-surface px-3 py-2 text-sm text-ink-900 outline-none focus:border-brand-clay focus:ring-2 focus:ring-brand-clay/20"
         />
         <button
           type="submit"
           disabled={saving}
-          className="rounded-xl bg-brand-blue px-4 py-2 text-xs font-semibold text-white transition-colors hover:brightness-90 disabled:opacity-50"
+          className="rounded-xl bg-brand-sage px-4 py-2 text-xs font-semibold text-white transition-colors hover:brightness-90 disabled:opacity-50"
         >
           {saving ? '저장중...' : '저장'}
         </button>
@@ -286,29 +286,29 @@ function BudgetCard({ budget, onSaved }: { budget: MyInsightsResponse['budget'];
     return (
       <button
         onClick={() => setEditing(true)}
-        className="flex w-full items-center gap-3 rounded-4xl border border-dashed border-hairline-strong bg-surface-canvas p-5 text-left transition-colors hover:border-brand-teal"
+        className="flex w-full items-center gap-3 rounded-4xl border border-dashed border-hairline-strong bg-surface-canvas p-5 text-left transition-colors hover:border-brand-clay"
       >
         <Target size={18} className="flex-shrink-0 text-ink-400" />
         <span className="text-sm text-ink-500">
           아직 월 예산 목표가 없어요. 목표를 설정하면 AI가 지출 속도를 보고 알려드려요.
         </span>
-        <span className="ml-auto flex-shrink-0 text-xs font-semibold text-brand-teal">설정하기 →</span>
+        <span className="ml-auto flex-shrink-0 text-xs font-semibold text-brand-clay">설정하기 →</span>
       </button>
     );
   }
 
   const rate = budget.usageRate ?? 0;
-  const barClass = rate >= 100 ? 'bg-brand-red' : rate >= 80 ? 'bg-brand-amber' : 'bg-brand-teal';
+  const barClass = rate >= 100 ? 'bg-brand-red' : rate >= 80 ? 'bg-brand-gold' : 'bg-brand-clay';
 
   return (
     <div className="rounded-4xl border border-hairline bg-surface-canvas p-5">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-ink-900">
-          <Target size={16} className="text-brand-teal" /> 이번 달 예산 진행률
+          <Target size={16} className="text-brand-clay" /> 이번 달 예산 진행률
         </h2>
         <button
           onClick={() => setEditing(true)}
-          className="flex items-center gap-1 text-xs text-ink-400 hover:text-brand-teal"
+          className="flex items-center gap-1 text-xs text-ink-400 hover:text-brand-clay"
         >
           <Pencil size={12} /> 수정
         </button>
@@ -343,9 +343,9 @@ function SummaryCard({
   tone: 'blue' | 'teal' | 'amber' | 'red';
 }) {
   const toneClass = {
-    blue: 'bg-tint-blue text-brand-blue',
-    teal: 'bg-tint-teal text-brand-teal',
-    amber: 'bg-tint-amber text-brand-amber',
+    blue: 'bg-tint-sage text-brand-sage',
+    teal: 'bg-tint-clay text-brand-clay',
+    amber: 'bg-tint-gold text-brand-gold',
     red: 'bg-tint-red text-brand-red',
   }[tone];
 

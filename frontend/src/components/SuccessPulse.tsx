@@ -9,9 +9,9 @@ import { ReactNode } from 'react';
  */
 export function SuccessPulse({ children }: { children: ReactNode }) {
   return (
-    <div className="animate-stagger-in flex items-center gap-3 rounded-lg bg-tint-teal px-4 py-3 text-sm text-brand-teal">
+    <div className="animate-stagger-in flex items-center gap-3 rounded-lg bg-tint-clay px-4 py-3 text-sm text-brand-clay">
       <span className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center">
-        <span className="absolute inline-flex h-full w-full animate-success-ring rounded-full bg-brand-teal/30" />
+        <span className="absolute inline-flex h-full w-full animate-success-ring rounded-full bg-brand-clay/30" />
         <CheckCircle2 size={22} className="relative" strokeWidth={2} />
       </span>
       <span className="leading-relaxed">{children}</span>

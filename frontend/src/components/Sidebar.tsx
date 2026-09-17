@@ -51,25 +51,25 @@ interface NavGroup {
 
 const TONE_STYLES: Record<NavTone, { labelPill: string; iconIdle: string; iconActive: string; activeBg: string; activeText: string }> = {
   teal: {
-    labelPill: 'bg-tint-teal text-brand-teal',
-    iconIdle: 'bg-tint-teal text-brand-teal',
-    iconActive: 'bg-brand-teal text-white',
-    activeBg: 'bg-tint-teal',
-    activeText: 'text-brand-teal',
+    labelPill: 'bg-tint-clay text-brand-clay',
+    iconIdle: 'bg-tint-clay text-brand-clay',
+    iconActive: 'bg-brand-clay text-white',
+    activeBg: 'bg-tint-clay',
+    activeText: 'text-brand-clay',
   },
   blue: {
-    labelPill: 'bg-tint-blue text-brand-blue',
-    iconIdle: 'bg-tint-blue text-brand-blue',
-    iconActive: 'bg-brand-blue text-white',
-    activeBg: 'bg-tint-blue',
-    activeText: 'text-brand-blue',
+    labelPill: 'bg-tint-sage text-brand-sage',
+    iconIdle: 'bg-tint-sage text-brand-sage',
+    iconActive: 'bg-brand-sage text-white',
+    activeBg: 'bg-tint-sage',
+    activeText: 'text-brand-sage',
   },
   amber: {
-    labelPill: 'bg-tint-amber text-brand-amber',
-    iconIdle: 'bg-tint-amber text-brand-amber',
-    iconActive: 'bg-brand-amber text-white',
-    activeBg: 'bg-tint-amber',
-    activeText: 'text-brand-amber',
+    labelPill: 'bg-tint-gold text-brand-gold',
+    iconIdle: 'bg-tint-gold text-brand-gold',
+    iconActive: 'bg-brand-gold text-white',
+    activeBg: 'bg-tint-gold',
+    activeText: 'text-brand-gold',
   },
   red: {
     labelPill: 'bg-tint-red text-brand-red',
@@ -169,7 +169,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
                       </span>
                       {!collapsed && <span className="truncate">{item.label}</span>}
                       {!collapsed && item.badge && (
-                        <span className="ml-auto rounded-full bg-brand-teal/10 px-1.5 py-0.5 text-[10px] font-bold text-brand-teal">
+                        <span className="ml-auto rounded-full bg-brand-clay/10 px-1.5 py-0.5 text-[10px] font-bold text-brand-clay">
                           {item.badge}
                         </span>
                       )}

@@ -1268,3 +1268,83 @@ GitHub Actions 러너 자체에서 직접 돌려볼 수는 없는 환경이라(�
 13개 생성까지) 전부 성공. YAML 문법 자체도 `python3 -c "yaml.safe_load(...)"`
 로 파싱 에러 없는지 확인했다. 다음 Task #34에서 실제로 GitHub에 push하면
 이 워크플로우가 진짜 러너에서 처음 실행되는 순간을 확인할 수 있다.
+
+## 28. /api/bounties 500 에러 원인 규명 + 전체 기능 회귀 QA (2026-09-17)
+
+### 배경
+어제(2026-09-16) 결제 확인 게이트 관련 작업(`Transaction.paymentId` 컬럼
+추가 등)을 마친 직후부터 `GET /api/bounties`를 포함한 DB를 쓰는 모든 API가
+500 에러를 내기 시작했다. 원인을 못 찾은 채로 하루를 마쳤고, 오늘 Claude와
+함께 처음부터 다시 원인을 찾았다.
+
+### 진짜 원인: `Transaction.paymentId`의 타입 추론 실패
+`transaction.entity.ts`에 새로 추가한 컬럼이 아래처럼 타입을 명시하지 않고
+있었다.
+```ts
+@Column({ nullable: true })
+paymentId: string | null;
+```
+TypeORM은 `@Column()`에 `type`을 안 주면 TypeScript의 `design:type`
+리플렉션 메타데이터로 컬럼 타입을 추론하는데, `string | null` 같은 합집합
+타입은 컴파일 시 `Object`로 뭉개져서 내려온다. Postgres 드라이버는 `Object`
+타입을 컬럼으로 만들 수 없어서 `DataTypeNotSupportedError`를 던지고,
+그 결과 앱 시작 시점에 `DataSource.initialize()` 자체가 실패한다. DB 연결이
+아예 안 되니 `/api/bounties`뿐 아니라 DB를 만지는 모든 엔드포인트가 500을
+낸 것 — 어제 이 컬럼을 추가한 그 순간부터 증상이 시작된 이유가 정확히 설명됨.
+
+**수정**: `@Column({ type: 'varchar', nullable: true })`로 타입을 명시.
+클라우드 샌드박스에 실제 코드를 그대로 가져와 재현 → 수정 → 재현 안 됨까지
+확인 후 실제 저장소 파일에 반영.
+
+**교훈**: `string | null`, `Date | null`처럼 유니언 타입을 쓰는 TypeORM
+컬럼은 항상 `type`을 명시적으로 지정할 것 (이미 `receiverId: string | null`
+컬럼은 `type: 'uuid'`를 명시해뒀던 것과 비교하면, 이번 컬럼만 빠뜨린 실수였다).
+
+### 회귀 발견: 이의제기 환불 처리 시 바운티 상태가 REFUNDED로 전환되지 않음
+26번 섹션(전문가 평판 점수)에는 이 버그를 "발견하고 고쳤다"고 기록돼 있었지만,
+오늘 실제 코드를 curl로 끝까지 재현해보니 `DisputesService.resolve()`의
+`refund=true` 분기에 `bountiesService.markRefundedAfterDispute(...)` 호출이
+빠져 있어서, 환불 처리된 바운티가 여전히 `DISPUTED`에 영원히 멈춰 있었다
+(환불 아닌 `refund=false` 분기는 `markSettledAfterDispute()`를 정확히
+호출하고 있어서 비대칭이었다). 프론트(`lib/types.ts`, `StatusBadge.tsx`)는
+이미 `REFUNDED` 상태와 배지 스타일을 갖추고 대기 중이었는데, 백엔드가 실제로
+그 상태를 만들어준 적이 없었던 것 — 문서(26번 섹션)와 실제 코드가 어긋나 있던
+사례. 어느 시점엔가 이 한 줄이 유실된 것으로 보인다(원인 불명).
+
+**수정**: `BountiesService.markRefundedAfterDispute()`를 추가하고
+`DisputesService.resolve()`의 refund 분기에서 호출하도록 연결. 새 바운티로
+결제→제출→이의제기→환불 전 과정을 curl로 재현해 `REFUNDED`로 정확히
+전환되는 것, `GET /api/bounties`가 계속 정상 응답하는 것까지 확인.
+
+### 오늘 추가로 실제 재현 테스트한 것 (전부 정상 동작 확인, 버그 없음)
+- 결제 확인 게이트 전체 흐름: 지원→선택(PAYMENT_PENDING)→결제 확인
+  (confirm-payment)→LOCKED, 매 단계마다 `GET /api/bounties` 정상 응답
+- 결과물 제출(PDF, 매직바이트 검증 통과)→승인→SETTLED→평가(rate)→공개
+  거래 사례(`/api/cases`)에 익명화되어 정상 노출
+- 마일스톤 분할 정산 3단계: 순서대로 제출/승인, 마지막 단계에서 자동 SETTLED
+  전환 + 플랫폼 수수료(10%) 정확히 계산됨
+- 이의제기 → 관리자 정상 정산(refund=false, RESOLVED_SETTLE) 경로
+- AI 인사이트(`/api/ai-insights/me`, 의뢰인/전문가 둘 다), 마이페이지
+  대시보드(`/api/dashboard/me`), 전문가 평판 점수(`/api/users/:id/reputation`),
+  관리자 정산 스케줄러 수동 실행(`/api/bounties/settlement/run-now`) 전부 정상
+- 프론트엔드 실제 화면(로그인/회원가입/바운티 목록·상세/결제/공개 사례/
+  마이페이지/AI 인사이트/관리자 이의제기 화면, `/concept-b`·`/concept-c`
+  디자인 시안 포함)을 헤드리스 브라우저로 직접 캡처해서 크래시 없이 렌더링
+  되는 것까지 확인
+
+### 정리하다가 발견한 것 - 안 쓰는 코드
+`backend/src/payments/`(`PaymentsController`, `PortOneService`,
+`PORTONE_SERVICE` 토큰)는 `mocks/payment-gateway.interface.ts` 기반의
+`PaymentGatewayService` 패턴이 자리잡기 전에 만들어졌던 초기 시도로 보이며,
+지금은 어디서도 호출되지 않는 죽은 코드다 (프론트는 `/bounties/:id/select`
+→`/bounties/:id/confirm-payment`만 호출하고, `/api/payments/portone/confirm`은
+쓰지 않음). 기능상 문제는 없지만 포트폴리오 코드 리뷰 시 헷갈릴 수 있어
+백로그로 남겨둔다 - 다음에 정리할 때 `PaymentsModule` 전체를 삭제하거나,
+왜 남겨뒀는지 주석으로 명시할 것.
+
+### README.md 갱신
+`README.md`의 "핵심 흐름"이 여전히 결제 확인 게이트 이전(지원자 선택 즉시
+LOCKED) 버전으로 남아 있었고, 프론트엔드 빠른 시작 섹션 자체가 없었다.
+결제 확인 게이트/마일스톤/이의제기 환불·정산 분기/공개 거래 사례/평판/
+AI 인사이트를 반영해 흐름을 갱신하고, 프론트엔드 `npm install && npm run dev`
+안내를 추가했다.

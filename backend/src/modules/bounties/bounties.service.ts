@@ -588,4 +588,19 @@ export class BountiesService {
     bounty.status = BountyStatus.SETTLED;
     return bountyRepo.save(bounty);
   }
+
+  /**
+   * DisputesService.resolve()의 refund=true(전문가 귀책 환불) 분기에서 호출 - 자금은
+   * TransactionsService.refundExpertFault()가 REFUNDED로 되돌리고, 여기서는 바운티
+   * 자체의 상태를 DISPUTED에서 REFUNDED로 종결한다. markSettledAfterDispute()의
+   * 환불 버전 (2026-09-17 추가 - 원래 이 호출이 빠져 있어서 환불 처리된 바운티가
+   * DISPUTED에 영원히 머무르는 버그가 있었다).
+   */
+  async markRefundedAfterDispute(bountyId: string, manager?: EntityManager) {
+    const bountyRepo = manager ? manager.getRepository(Bounty) : this.bountyRepository;
+    const bounty = await bountyRepo.findOne({ where: { id: bountyId } });
+    if (!bounty) throw new NotFoundException('바운티를 찾을 수 없습니다');
+    bounty.status = BountyStatus.REFUNDED;
+    return bountyRepo.save(bounty);
+  }
 }

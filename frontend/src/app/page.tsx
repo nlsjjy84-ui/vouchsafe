@@ -70,11 +70,11 @@ export default function HomePage() {
     <div className="space-y-14">
       {/* 히어로 - 단색 navy 대신 navy→navyLight 그라디언트로 깊이감을 주고,
           헤드라인은 font-display(Do Hyeon)로 "여기가 브랜드의 얼굴"이라는 신호를 준다. */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-navy via-brand-navy to-brand-navyLight px-8 py-16 text-white sm:px-14">
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-ink via-brand-ink to-brand-inkLight px-8 py-16 text-white sm:px-14">
         <div className="pointer-events-none absolute -right-6 -top-6 opacity-90 sm:right-10 sm:top-10">
           <JangdanMark size={96} animated variant="dark" />
         </div>
-        <p className="text-sm font-medium uppercase tracking-wider text-brand-teal">
+        <p className="text-sm font-medium uppercase tracking-wider text-brand-clay">
           검증된 전문가 에스크로 거래 플랫폼
         </p>
         <h1 className="mt-3 max-w-2xl font-display text-4xl leading-tight tracking-wide sm:text-5xl">
@@ -93,13 +93,13 @@ export default function HomePage() {
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
             href="/register"
-            className="rounded-full bg-brand-teal px-7 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-tealDeep hover:shadow-lg"
+            className="rounded-full bg-brand-clay px-7 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-clayDeep hover:shadow-lg"
           >
             무료로 시작하기
           </Link>
           <Link
             href="/login"
-            className="rounded-full border border-white/30 px-7 py-3 text-sm font-medium text-white transition-colors hover:border-white hover:bg-white hover:text-brand-navy"
+            className="rounded-full border border-white/30 px-7 py-3 text-sm font-medium text-white transition-colors hover:border-white hover:bg-white hover:text-brand-ink"
           >
             로그인
           </Link>
@@ -137,10 +137,10 @@ export default function HomePage() {
       <JangdanDivider />
 
       {/* AI 인사이트 강조 */}
-      <section className="rounded-2xl bg-tint-teal p-6 sm:p-8">
+      <section className="rounded-2xl bg-tint-clay p-6 sm:p-8">
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
-            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-teal text-white">
+            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-clay text-white">
               <Sparkles size={18} />
             </span>
             <div>
@@ -153,7 +153,7 @@ export default function HomePage() {
           </div>
           <Link
             href="/register"
-            className="whitespace-nowrap rounded-full bg-brand-teal px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-tealDeep hover:shadow-md"
+            className="whitespace-nowrap rounded-full bg-brand-clay px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-clayDeep hover:shadow-md"
           >
             가입하고 체험하기
           </Link>
@@ -170,7 +170,7 @@ export default function HomePage() {
           <div className="relative flex justify-between">
             {STEPS.map((s, i) => (
               <div key={s.step} style={jangdanDelay(i)} className="animate-stagger-in flex w-40 flex-col items-center text-center">
-                <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-brand-navy font-display text-lg tracking-wide text-white">
+                <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-brand-ink font-display text-lg tracking-wide text-white">
                   {s.step}
                 </span>
                 <h3 className="mt-3 text-sm font-semibold text-ink-900">{s.title}</h3>
@@ -183,7 +183,7 @@ export default function HomePage() {
         <div className="mt-5 space-y-4 sm:hidden">
           {STEPS.map((s, i) => (
             <div key={s.step} style={jangdanDelay(i)} className="animate-stagger-in flex gap-3">
-              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-navy font-display text-sm tracking-wide text-white">
+              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-ink font-display text-sm tracking-wide text-white">
                 {s.step}
               </span>
               <div>
@@ -210,14 +210,14 @@ export default function HomePage() {
 
       {/* 하단 CTA - 히어로와 짝을 이루는 navy 판넬로 마무리해서, 전체 페이지가
           light → light → dark(히어로) → light → ... → dark(CTA)로 교차되게 했다. */}
-      <section className="overflow-hidden rounded-2xl bg-brand-navy p-8 text-center text-white sm:p-12">
+      <section className="overflow-hidden rounded-2xl bg-brand-ink p-8 text-center text-white sm:p-12">
         <h2 className="font-display text-2xl tracking-wide">지금 바로 시작해보세요</h2>
         <p className="mt-2 text-sm text-white/70">
           의뢰인으로 일감을 등록하거나, 전문가로 지원해보세요.
         </p>
         <Link
           href="/register"
-          className="mt-6 inline-block rounded-full bg-brand-teal px-7 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-tealDeep hover:shadow-lg"
+          className="mt-6 inline-block rounded-full bg-brand-clay px-7 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-clayDeep hover:shadow-lg"
         >
           무료 회원가입
         </Link>
@@ -230,9 +230,9 @@ export default function HomePage() {
 // 옅은 틴트로 통째로 채워서(solid tint) "카드 3개가 다 똑같이 생겼다"는 인상을 깨고
 // 색으로 먼저 구분되게 했다. 아이콘 배지도 반대로 진한 색을 채워 반전 대비를 준다.
 const ACCENT_STYLES: Record<'teal' | 'blue' | 'amber', { panel: string; badge: string; text: string }> = {
-  teal: { panel: 'bg-tint-teal', badge: 'bg-brand-teal text-white', text: 'text-brand-teal' },
-  blue: { panel: 'bg-tint-blue', badge: 'bg-brand-blue text-white', text: 'text-brand-blue' },
-  amber: { panel: 'bg-tint-amber', badge: 'bg-brand-amber text-white', text: 'text-brand-amber' },
+  teal: { panel: 'bg-tint-clay', badge: 'bg-brand-clay text-white', text: 'text-brand-clay' },
+  blue: { panel: 'bg-tint-sage', badge: 'bg-brand-sage text-white', text: 'text-brand-sage' },
+  amber: { panel: 'bg-tint-gold', badge: 'bg-brand-gold text-white', text: 'text-brand-gold' },
 };
 
 function FeatureCard({
@@ -261,9 +261,9 @@ function FeatureCard({
 }
 
 const CATEGORY_STYLES: Record<'A' | 'B' | 'C', { panel: string; badge: string }> = {
-  A: { panel: 'bg-tint-teal', badge: 'bg-brand-teal text-white' },
-  B: { panel: 'bg-tint-amber', badge: 'bg-brand-amber text-white' },
-  C: { panel: 'bg-tint-blue', badge: 'bg-brand-blue text-white' },
+  A: { panel: 'bg-tint-clay', badge: 'bg-brand-clay text-white' },
+  B: { panel: 'bg-tint-gold', badge: 'bg-brand-gold text-white' },
+  C: { panel: 'bg-tint-sage', badge: 'bg-brand-sage text-white' },
 };
 
 function DomainCategoryCard({

@@ -7,7 +7,7 @@ import { Button, ButtonTone } from './Button';
  * 래퍼 없이 필드 스타일만 제공한다.
  */
 export const FIELD_INPUT_CLASS =
-  'w-full rounded-xl border border-hairline bg-surface px-3 py-2.5 text-sm text-ink-900 outline-none transition-colors placeholder:text-ink-400 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20';
+  'w-full rounded-xl border border-hairline bg-surface px-3 py-2.5 text-sm text-ink-900 outline-none transition-colors placeholder:text-ink-400 focus:border-brand-clay focus:ring-2 focus:ring-brand-clay/20';
 
 export function FormField({
   label,

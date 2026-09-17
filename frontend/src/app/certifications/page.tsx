@@ -24,7 +24,7 @@ const STATUS_LABEL: Record<Certification['verifiedStatus'], string> = {
 
 const STATUS_STYLE: Record<Certification['verifiedStatus'], string> = {
   PENDING: 'bg-surface-raised text-ink-500',
-  APPROVED: 'bg-tint-teal text-brand-teal',
+  APPROVED: 'bg-tint-clay text-brand-clay',
   REJECTED: 'bg-tint-red text-brand-red',
 };
 
@@ -76,7 +76,7 @@ export default function CertificationsPage() {
   return (
     <div className="space-y-8">
       <div className="flex items-start gap-2">
-        <ShieldCheck size={22} className="mt-0.5 flex-shrink-0 text-brand-teal" />
+        <ShieldCheck size={22} className="mt-0.5 flex-shrink-0 text-brand-clay" />
         <div>
           <h1 className="text-xl font-bold text-ink-900">전문가 인증 신청</h1>
           <p className="mt-1 text-sm text-ink-500">
@@ -130,7 +130,7 @@ export default function CertificationsPage() {
         </FormField>
 
         <FormField label="증빙 서류" hint="(선택 · 첨부하면 AI OCR 자동 대조)">
-          <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-hairline-strong px-3 py-2.5 text-sm text-ink-500 hover:border-brand-teal hover:text-brand-teal">
+          <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-hairline-strong px-3 py-2.5 text-sm text-ink-500 hover:border-brand-clay hover:text-brand-clay">
             <Upload size={16} />
             {evidenceFile ? evidenceFile.name : '파일 선택 (PDF, 이미지, ZIP)'}
             <input
@@ -147,7 +147,7 @@ export default function CertificationsPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-full bg-brand-teal px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-tealDeep hover:shadow-md disabled:opacity-50 disabled:hover:translate-y-0"
+          className="rounded-full bg-brand-clay px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-clayDeep hover:shadow-md disabled:opacity-50 disabled:hover:translate-y-0"
         >
           {submitting ? '제출중...' : '인증 신청'}
         </button>
@@ -155,7 +155,7 @@ export default function CertificationsPage() {
 
       <div>
         <h2 className="mb-3 flex items-center gap-2 text-base font-semibold text-ink-900">
-          <Sparkles size={16} className="text-brand-teal" /> 내 인증 내역
+          <Sparkles size={16} className="text-brand-clay" /> 내 인증 내역
         </h2>
         {list.length === 0 && (
           <div className="flex flex-col items-center gap-2 rounded-4xl border border-dashed border-hairline-strong p-8 text-center">

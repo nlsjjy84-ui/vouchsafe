@@ -53,7 +53,7 @@ export default function NewBountyPage() {
   return (
     <div className="mx-auto max-w-xl">
       <div className="mb-6 flex items-center gap-2">
-        <PlusCircle size={20} className="text-brand-teal" />
+        <PlusCircle size={20} className="text-brand-clay" />
         <h1 className="text-xl font-bold text-ink-900">바운티 등록</h1>
       </div>
 
@@ -87,7 +87,7 @@ export default function NewBountyPage() {
         </FormField>
 
         {serviceType === 'COMPANION' && (
-          <div className="space-y-4 rounded-xl bg-tint-amber p-4">
+          <div className="space-y-4 rounded-xl bg-tint-gold p-4">
             <FormField label="예약 일시">
               <div className="relative">
                 <CalendarClock size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />

@@ -17,27 +17,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko">
       <head>
         {/*
-          타이포그래피 시스템: next/font/google 대신 <link> 태그로 직접 로드한다 -
-          빌드 타임에 폰트 파일을 원격에서 받아와야 하는 next/font 의존성을 피하고,
-          런타임에 브라우저가 알아서 받아오게 해서 이 프로젝트의 오프라인/샌드박스
-          빌드 환경에서도 항상 안전하게 빌드되도록 하기 위함이다.
+          타이포그래피 시스템 전면 교체 (2026-09-17): Do Hyeon + Gothic A1 조합을
+          완전히 걷어냈다 - 이전 주석에도 "부트캠프/포폴에서 흔히 보이는 조합"이라고
+          스스로 적어놨던 그 서체들이다. next/font/google 대신 <link> 태그로 직접
+          로드하는 방식은 그대로 유지한다 (빌드 타임에 폰트 파일을 원격에서 받아와야
+          하는 next/font 의존성을 피하고, 오프라인/샌드박스 빌드 환경에서도 항상
+          안전하게 빌드되도록 하기 위함 - 이건 서체 선택과 무관한 인프라 결정이라
+          바꿀 이유가 없었다).
 
-          - Do Hyeon: 헤드라인/큰 숫자 전용 디스플레이 폰트(font-display 유틸).
-            굵은 붓글씨 느낌이 살짝 남은 고딕체라 자간을 넓혀 쓰면 "브랜드 로고체"
-            처럼 보이면서도 유치해 보이지 않는다 (배민 브랜드 서체가 "특정 접점에만
-            한정해서 쓰는" 원칙을 따른 것 - 본문에는 절대 안 쓴다).
-          - Gothic A1: 본문/UI 기본 서체(font-sans, tailwind 기본값 교체). 시스템
-            기본 고딕(맑은 고딕)보다 자간/획 디자인이 정제되어 있어서, 같은
-            레이아웃이어도 "손질된 느낌"을 준다.
-          - Gowun Batang: 감성 헤드라인/에디토리얼 강조 전용 세리프(font-serif-accent
-            유틸). "폰트도 계속 같은 느낌"이라는 피드백에 대한 답 - Do Hyeon(고딕
-            디스플레이)과 완전히 다른 결의 서체를 한 지점 더 추가해서, 화면마다
-            쓰는 강조 서체 자체를 다르게 가져갈 수 있게 함.
+          - IBM Plex Sans KR: 본문/UI 기본 서체(font-sans). 국내 부트캠프 포폴에서
+            거의 안 쓰는, 기술/금융 서비스 느낌의 그로테스크 - Gothic A1 자리를
+            대체.
+          - Gowun Batang: 이전엔 "가끔 쓰는 감성 강조용 세리프"(font-serif-accent)
+            였던 걸, 이번엔 헤드라인 전체의 기본값(font-display)으로 승격시켰다.
+            고딕 일색이던 화면에서 세리프 헤드라인은 그 자체로 "다른 축"이 된다 -
+            색만 바꾸는 게 아니라 화면의 성격 자체가 달라 보이게 하는 핵심 장치.
         */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gothic+A1:wght@400;500;600;700;800;900&family=Gowun+Batang:wght@400;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Gowun+Batang:wght@400;700&display=swap"
           rel="stylesheet"
         />
       </head>

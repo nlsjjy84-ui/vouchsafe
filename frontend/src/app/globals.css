@@ -3,14 +3,17 @@
 @tailwind utilities;
 
 body {
-  background-color: #f7f8f9; /* surface.DEFAULT 디자인 토큰과 동일 톤 */
-  color: #0f172a;
-  font-family: 'Gothic A1', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  /* 2026-09-17: 차가운 회색(#f7f8f9)+슬레이트 텍스트 조합을 걷어내고 종이/먹
+     톤으로 - surface.DEFAULT/ink.900 토큰과 동일 값. */
+  background-color: #f7f1e8;
+  color: #241a14;
+  font-family: 'IBM Plex Sans KR', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
 }
 
-/* Do Hyeon은 자간을 살짝 넓혀야 로고체처럼 보인다 - font-display 유틸과 항상 같이 쓴다 */
+/* Gowun Batang(세리프)은 고딕과 달리 자간을 넓히면 오히려 어색해서 letter-spacing을
+   없앴다 - Do Hyeon 시절 유틸을 그대로 재사용하되 값만 세리프에 맞게 조정. */
 .font-display {
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
 }
 
 /* 스크롤바를 살짝만 얇게 - 과하지 않게 다듬어 대시보드 톤에 맞춘다 */
@@ -19,7 +22,7 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
+  background-color: #d3c3ac;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-track {

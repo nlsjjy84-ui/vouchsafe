@@ -1,11 +1,13 @@
 /**
  * =========================================================================
- * Decor — concept-b/c 합의안(v4)에서 "형태" 쪽으로 채택한 concept-c의 원형·블롭
- * 장식 요소를 실제 화면에서 재사용할 수 있게 뽑아둔 공용 컴포넌트.
+ * Decor — concept-c의 원형·블롭 장식 요소를 실제 화면에서 재사용할 수 있게
+ * 뽑아둔 공용 컴포넌트.
  * =========================================================================
- * concept-c 원본은 클레이(#c2410c)/세이지(#5b6b4f) 색으로 그렸지만, 이번 합의에서
- * "색상은 b" 쪽으로 정했기 때문에 색은 항상 brand.teal/brand.amber/brand.blue 같은
- * 기존 브랜드 토큰을 props로 넘겨 쓴다 - 장식 요소도 예외 없이 기존 팔레트를 따른다.
+ * 2026-09-17: 예전엔 "형태만 concept-c, 색은 기존 brand.teal/amber/blue 유지"로
+ * 절충했었는데, 그 절충 자체가 "여전히 같은 색"이라는 인상을 남겨 재지적을 받았다.
+ * 이제는 색도 concept-c 방향(클레이/세이지/골드)으로 완전히 넘어갔으므로, 기본값도
+ * tailwind.config.ts의 새 brand.clay/brand.sage 색을 그대로 반영한다. 호출부에서
+ * 다른 색을 쓰고 싶으면 여전히 color prop으로 자유롭게 덮어쓸 수 있다.
  *
  * - RippleRings: 징/북소리가 퍼지는 동심원 파동 모티프 (concept-c).
  * - Blob: 손으로 그린 듯한 비정형 곡선 (concept-c) - rounded-none 각진 습관을 벗어난
@@ -16,7 +18,7 @@
 
 export function RippleRings({
   className = '',
-  color = '#14b8a6',
+  color = '#c2410c',
   animated = false,
 }: {
   className?: string;
@@ -40,7 +42,7 @@ export function RippleRings({
 
 export function Blob({
   className = '',
-  color = '#14b8a6',
+  color = '#f4c98b',
   animated = false,
 }: {
   className?: string;

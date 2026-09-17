@@ -46,9 +46,9 @@ const CATEGORY_BY_DOMAIN: Record<DomainType, 'A' | 'B' | 'C'> = {
 };
 
 const CATEGORY_LABEL_CLASS: Record<'A' | 'B' | 'C', string> = {
-  A: 'bg-tint-teal text-brand-teal',
-  B: 'bg-tint-amber text-brand-amber',
-  C: 'bg-tint-blue text-brand-blue',
+  A: 'bg-tint-clay text-brand-clay',
+  B: 'bg-tint-gold text-brand-gold',
+  C: 'bg-tint-sage text-brand-sage',
 };
 
 export default function PublicCasesPage() {
@@ -66,7 +66,7 @@ export default function PublicCasesPage() {
   return (
     <div>
       <div className="mb-6 flex items-start gap-3">
-        <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-tint-navy text-brand-navy">
+        <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-tint-ink text-brand-ink">
           <ScrollText size={20} />
         </span>
         <div>
@@ -126,29 +126,29 @@ export default function PublicCasesPage() {
                 {/* 시스템 점수와 의뢰인 점수는 절대 합치지 않고 나란히 분리해서 보여준다
                     (사용자 지시: "시스템 점수와 의뢰인 점수를 같이 주는거지") */}
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded-2xl bg-tint-blue px-3 py-2.5">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-brand-blue">
+                  <div className="rounded-2xl bg-tint-sage px-3 py-2.5">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-brand-sage">
                       <Gauge size={13} /> 시스템 점수
                     </div>
-                    <p className="mt-0.5 font-display text-xl tracking-wide text-brand-blue">
+                    <p className="mt-0.5 font-display text-xl tracking-wide text-brand-sage">
                       {c.systemScore.toFixed(1)}
-                      <span className="text-xs font-sans font-medium text-brand-blue/70"> / 10</span>
+                      <span className="text-xs font-sans font-medium text-brand-sage/70"> / 10</span>
                     </p>
-                    <p className="mt-0.5 text-[10px] text-brand-blue/70">완료율·분쟁승률·처리속도 자동 계산</p>
+                    <p className="mt-0.5 text-[10px] text-brand-sage/70">완료율·분쟁승률·처리속도 자동 계산</p>
                   </div>
-                  <div className="rounded-2xl bg-tint-navy px-3 py-2.5">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-brand-navy">
+                  <div className="rounded-2xl bg-tint-ink px-3 py-2.5">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-brand-ink">
                       <UserCheck size={13} /> 의뢰인 점수
                     </div>
                     {c.clientRating !== null ? (
-                      <p className="mt-0.5 font-display text-xl tracking-wide text-brand-navy">
+                      <p className="mt-0.5 font-display text-xl tracking-wide text-brand-ink">
                         {c.clientRating.toFixed(1)}
-                        <span className="text-xs font-sans font-medium text-brand-navy/70"> / 10</span>
+                        <span className="text-xs font-sans font-medium text-brand-ink/70"> / 10</span>
                       </p>
                     ) : (
-                      <p className="mt-0.5 text-sm text-brand-navy/60">아직 평가 전</p>
+                      <p className="mt-0.5 text-sm text-brand-ink/60">아직 평가 전</p>
                     )}
-                    <p className="mt-0.5 text-[10px] text-brand-navy/70">거래해본 의뢰인의 직접 평가</p>
+                    <p className="mt-0.5 text-[10px] text-brand-ink/70">거래해본 의뢰인의 직접 평가</p>
                   </div>
                 </div>
 

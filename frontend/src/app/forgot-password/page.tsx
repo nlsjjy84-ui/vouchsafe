@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
       title="비밀번호 재설정"
       subtitle="가입할 때 쓴 이메일을 입력하면 재설정 링크를 보내드려요"
       footer={
-        <Link href="/login" className="font-medium text-brand-teal hover:underline">
+        <Link href="/login" className="font-medium text-brand-clay hover:underline">
           로그인으로 돌아가기
         </Link>
       }

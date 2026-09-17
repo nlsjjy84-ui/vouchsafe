@@ -22,7 +22,7 @@ export function AuthCard({
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center py-10">
       <Link href="/" className="mb-8 flex items-center justify-center gap-2.5">
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-navy">
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-ink">
           <JangdanMark size={18} variant="dark" />
         </span>
         <span className="font-display text-xl tracking-wide text-ink-900">CredoBounty</span>
@@ -60,7 +60,7 @@ export function AuthField({
 }
 
 export const AUTH_INPUT_CLASS =
-  'w-full rounded-xl border border-hairline bg-surface px-3 py-2.5 text-sm text-ink-900 outline-none transition-colors placeholder:text-ink-400 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20';
+  'w-full rounded-xl border border-hairline bg-surface px-3 py-2.5 text-sm text-ink-900 outline-none transition-colors placeholder:text-ink-400 focus:border-brand-clay focus:ring-2 focus:ring-brand-clay/20';
 
 export function AuthSubmitButton({
   children,
@@ -81,5 +81,5 @@ export function AuthErrorText({ children }: { children: ReactNode }) {
 }
 
 export function AuthSuccessBox({ children }: { children: ReactNode }) {
-  return <div className="rounded-xl bg-tint-teal px-4 py-3 text-sm text-brand-teal">{children}</div>;
+  return <div className="rounded-xl bg-tint-clay px-4 py-3 text-sm text-brand-clay">{children}</div>;
 }

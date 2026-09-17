@@ -90,48 +90,48 @@ export function NotificationBell() {
     <div className="relative" ref={containerRef}>
       <button
         onClick={toggleOpen}
-        className="relative flex h-8 w-8 items-center justify-center rounded-full text-slate-200 hover:bg-white/10 hover:text-white"
+        className="relative flex h-8 w-8 items-center justify-center rounded-full text-ink-400 hover:bg-white/10 hover:text-white"
         aria-label="알림"
       >
         <BellIcon />
         {unreadCount > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold leading-none text-white">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-tint-red0 px-1 text-[10px] font-semibold leading-none text-white">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 rounded-lg border border-slate-200 bg-white text-slate-800 shadow-lg">
-          <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
+        <div className="absolute right-0 z-50 mt-2 w-80 rounded-lg border border-hairline bg-white text-ink-700 shadow-lg">
+          <div className="flex items-center justify-between border-b border-hairline px-3 py-2">
             <span className="text-sm font-semibold">알림</span>
             {notifications.some((n) => !n.isRead) && (
-              <button onClick={handleMarkAllRead} className="text-xs text-brand-blue hover:underline">
+              <button onClick={handleMarkAllRead} className="text-xs text-brand-sage hover:underline">
                 모두 읽음 처리
               </button>
             )}
           </div>
 
           <div className="max-h-96 overflow-y-auto">
-            {loading && <p className="px-3 py-6 text-center text-sm text-slate-400">불러오는 중...</p>}
+            {loading && <p className="px-3 py-6 text-center text-sm text-ink-400">불러오는 중...</p>}
             {!loading && notifications.length === 0 && (
-              <p className="px-3 py-6 text-center text-sm text-slate-400">아직 알림이 없어요</p>
+              <p className="px-3 py-6 text-center text-sm text-ink-400">아직 알림이 없어요</p>
             )}
             {!loading &&
               notifications.map((n) => (
                 <button
                   key={n.id}
                   onClick={() => handleClickNotification(n)}
-                  className={`block w-full border-b border-slate-50 px-3 py-2.5 text-left text-sm hover:bg-slate-50 ${
+                  className={`block w-full border-b border-hairline px-3 py-2.5 text-left text-sm hover:bg-surface ${
                     n.isRead ? 'opacity-60' : ''
                   }`}
                 >
                   <div className="flex items-start gap-2">
-                    {!n.isRead && <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-brand-teal" />}
+                    {!n.isRead && <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-brand-clay" />}
                     <div className={n.isRead ? 'pl-3.5' : ''}>
-                      <p className="font-medium text-slate-900">{n.title}</p>
-                      <p className="mt-0.5 text-xs text-slate-500">{n.message}</p>
-                      <p className="mt-1 text-[11px] text-slate-400">
+                      <p className="font-medium text-ink-900">{n.title}</p>
+                      <p className="mt-0.5 text-xs text-ink-500">{n.message}</p>
+                      <p className="mt-1 text-[11px] text-ink-400">
                         {new Date(n.createdAt).toLocaleString('ko-KR')}
                       </p>
                     </div>

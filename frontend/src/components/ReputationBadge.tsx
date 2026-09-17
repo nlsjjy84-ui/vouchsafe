@@ -35,12 +35,12 @@ export function ReputationBadge({ expertId }: { expertId: string }) {
   }, [expertId]);
 
   if (!summary || summary.reputationScore === null) {
-    return <span className="text-xs text-slate-400">신규 전문가 (완료 이력 없음)</span>;
+    return <span className="text-xs text-ink-400">신규 전문가 (완료 이력 없음)</span>;
   }
 
   return (
-    <span className="text-xs text-slate-500">
-      신뢰도 점수 <span className="font-semibold text-brand-teal">{summary.reputationScore}</span>
+    <span className="text-xs text-ink-500">
+      신뢰도 점수 <span className="font-semibold text-brand-clay">{summary.reputationScore}</span>
       {' · '}완료율 {summary.completionRate}%{' · '}완료 {summary.totalCompleted}건
     </span>
   );

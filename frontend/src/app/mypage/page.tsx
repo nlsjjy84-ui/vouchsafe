@@ -26,7 +26,7 @@ const CERT_STATUS_LABEL: Record<'PENDING' | 'APPROVED' | 'REJECTED', string> = {
 
 const CERT_STATUS_STYLE: Record<'PENDING' | 'APPROVED' | 'REJECTED', string> = {
   PENDING: 'bg-surface-raised text-ink-500',
-  APPROVED: 'bg-tint-teal text-brand-teal',
+  APPROVED: 'bg-tint-clay text-brand-clay',
   REJECTED: 'bg-tint-red text-brand-red',
 };
 
@@ -69,7 +69,7 @@ export default function MyPage() {
 
   return (
     <div className="space-y-8">
-      <div className="overflow-hidden rounded-4xl border border-hairline bg-brand-navy text-white">
+      <div className="overflow-hidden rounded-4xl border border-hairline bg-brand-ink text-white">
         <div className="flex items-center gap-4 p-5">
           <AvatarModule name={profile.name || profile.email} role={profile.role} size={48} />
           <div className="min-w-0 flex-1">
@@ -81,7 +81,7 @@ export default function MyPage() {
               (기존엔 다른 모든 버튼과 똑같이 teal이라 구분이 안 됐다). */}
           <Link
             href="/insights"
-            className="flex flex-shrink-0 items-center gap-1.5 rounded-full bg-brand-blue px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-90"
+            className="flex flex-shrink-0 items-center gap-1.5 rounded-full bg-brand-sage px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:brightness-90"
           >
             <Sparkles size={14} /> AI 인사이트 보기
           </Link>
@@ -191,12 +191,14 @@ function SummaryTile({
   value: number;
   tone: 'blue' | 'teal' | 'amber' | 'red';
 }) {
-  // 어두운 헤더(bg-brand-navy) 위에 얹히는 스탯 바라서, 일반 브랜드 색보다 한 단계 밝은 색으로 대비를 맞췄다.
+  // 어두운 헤더(bg-brand-ink) 위에 얹히는 스탯 바라서, 일반 브랜드 색보다 한 단계 밝은 색으로 대비를 맞췄다.
+  // (2026-09-17: 팔레트 전면 교체에 맞춰 파랑/청록/노랑 계열 대신 세이지/클레이/골드 계열의
+  // 밝은 변형으로 - 여기는 색상 리터럴이라 tailwind.config.ts 토큰이 자동 적용되지 않는 자리다)
   const toneClass = {
-    blue: 'text-[#7dabff]',
-    teal: 'text-[#2dd4bf]',
-    amber: 'text-[#fbbf24]',
-    red: 'text-[#f87171]',
+    blue: 'text-[#9ab37f]',
+    teal: 'text-[#f0834c]',
+    amber: 'text-[#e8b84b]',
+    red: 'text-[#e0847d]',
   }[tone];
 
   return (
@@ -215,7 +217,7 @@ function EmptyRow({ href, text, cta }: { href: string; text: string; cta: string
   return (
     <Link
       href={href}
-      className="flex items-center justify-between rounded-4xl border border-dashed border-hairline-strong p-5 text-sm text-ink-500 hover:border-brand-teal hover:text-brand-teal"
+      className="flex items-center justify-between rounded-4xl border border-dashed border-hairline-strong p-5 text-sm text-ink-500 hover:border-brand-clay hover:text-brand-clay"
     >
       <span>{text}</span>
       <span className="flex items-center gap-1 font-medium">

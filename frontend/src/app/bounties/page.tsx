@@ -28,9 +28,9 @@ const DOMAIN_CATEGORY: Record<DomainType, 'A' | 'B' | 'C'> = {
 };
 
 const CATEGORY_BAR: Record<'A' | 'B' | 'C', string> = {
-  A: 'bg-brand-teal',
-  B: 'bg-brand-amber',
-  C: 'bg-brand-blue',
+  A: 'bg-brand-clay',
+  B: 'bg-brand-gold',
+  C: 'bg-brand-sage',
 };
 
 /**
@@ -63,7 +63,7 @@ export default function BountiesPage() {
         </div>
         <Link
           href="/bounties/new"
-          className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand-teal px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-tealDeep hover:shadow-md"
+          className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand-clay px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-clayDeep hover:shadow-md"
         >
           <PlusCircle size={16} /> 바운티 등록
         </Link>
@@ -83,7 +83,7 @@ export default function BountiesPage() {
           <p className="text-sm text-ink-500">아직 등록된 바운티가 없어요.</p>
           <Link
             href="/bounties/new"
-            className="mt-1 text-sm font-semibold text-brand-teal hover:underline"
+            className="mt-1 text-sm font-semibold text-brand-clay hover:underline"
           >
             첫 바운티를 등록해보세요 →
           </Link>
@@ -109,7 +109,7 @@ export default function BountiesPage() {
                 </span>
                 <BountyStatusBadge status={b.status} />
               </div>
-              <h2 className="text-base font-semibold text-ink-900 group-hover:text-brand-teal">
+              <h2 className="text-base font-semibold text-ink-900 group-hover:text-brand-clay">
                 {b.title}
               </h2>
               <p className="mt-1 line-clamp-2 text-sm text-ink-500">{b.description}</p>

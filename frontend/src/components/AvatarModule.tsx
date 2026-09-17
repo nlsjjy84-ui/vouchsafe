@@ -6,10 +6,10 @@
  */
 
 const ROLE_COLORS: Record<string, string> = {
-  CLIENT: 'bg-brand-blue',
-  EXPERT: 'bg-brand-teal',
-  HYBRID: 'bg-brand-amber',
-  ADMIN: 'bg-brand-navy',
+  CLIENT: 'bg-brand-sage',
+  EXPERT: 'bg-brand-clay',
+  HYBRID: 'bg-brand-gold',
+  ADMIN: 'bg-brand-ink',
 };
 
 const ROLE_TITLES: Record<string, string> = {
@@ -29,7 +29,7 @@ export function AvatarModule({
   size?: number;
 }) {
   const initial = name?.trim()?.[0]?.toUpperCase() ?? '?';
-  const colorClass = ROLE_COLORS[role] ?? 'bg-slate-400';
+  const colorClass = ROLE_COLORS[role] ?? 'bg-ink-400';
 
   return (
     <div
