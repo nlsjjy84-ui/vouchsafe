@@ -2,13 +2,32 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import {
+  Users,
+  CreditCard,
+  Phone,
+  PhoneCall,
+  FileUp,
+  ShieldAlert,
+  CheckCircle2,
+  Send,
+} from 'lucide-react';
 import { api, extractErrorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { Bounty, BountyApplication, DOMAIN_LABELS, SERVICE_TYPE_LABELS, Transaction } from '@/lib/types';
 import { BountyStatusBadge, EscrowStatusBadge } from '@/components/StatusBadge';
 import { AvatarModule } from '@/components/AvatarModule';
 import { ReputationBadge } from '@/components/ReputationBadge';
+import { SuccessPulse } from '@/components/SuccessPulse';
 import { payForBounty } from '@/lib/portone';
+import { FIELD_INPUT_CLASS, FormErrorText } from '@/components/FormControls';
+import { Button } from '@/components/Button';
+import { jangdanDelay } from '@/lib/motion';
+
+const CARD_CLASS = 'rounded-4xl border border-hairline bg-surface-canvas p-5';
+/* 부가 기능(핵심 콘텐츠가 아닌 유틸리티성 카드)은 표면을 한 단계 낮춰서
+   "이건 메인이 아니라 도구"라는 걸 카드 단계에서부터 구분되게 한다. */
+const UTILITY_CARD_CLASS = 'rounded-4xl border border-hairline bg-surface-raised p-5';
 
 /**
  * =========================================================================
@@ -20,7 +39,8 @@ import { payForBounty } from '@/lib/portone';
  *   - 선택된 전문가 + LOCKED 상태 → "결과물 제출" 폼
  *   - 의뢰인 + SUBMITTED 상태 → 제출된 결과물 + "승인(정산)" / "이의제기" 버튼
  * 그래서 화면 로직은 "지금 상태 + 지금 보는 사람이 누구인지" 두 가지 조건을
- * 조합해서 보여줄 UI를 결정하는 방식으로 짰다.
+ * 조합해서 보여줄 UI를 결정하는 방식으로 짰다. (UI 리뉴얼에서는 이 분기 로직은
+ * 그대로 두고 스타일만 새 디자인 토큰에 맞춰 다듬었다.)
  * =========================================================================
  */
 export default function BountyDetailPage() {
@@ -54,7 +74,14 @@ export default function BountyDetailPage() {
     load().catch((err) => setError(extractErrorMessage(err)));
   }, [load]);
 
-  if (!bounty) return <p className="text-sm text-slate-500">불러오는 중...</p>;
+  if (!bounty) {
+    return (
+      <div className="space-y-4">
+        <div className="h-8 w-2/3 animate-pulse rounded-xl bg-surface-raised" />
+        <div className="h-24 animate-pulse rounded-4xl bg-surface-raised" />
+      </div>
+    );
+  }
 
   const isOwner = user?.id === bounty.clientId;
   const isAssignedExpert = user?.id === bounty.assignedExpertId;
@@ -73,16 +100,16 @@ export default function BountyDetailPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <div className="mb-2 flex items-center gap-3">
-          <span className="text-xs font-medium text-slate-400">{DOMAIN_LABELS[bounty.domainType]}</span>
+      <div className={CARD_CLASS}>
+        <div className="mb-2 flex flex-wrap items-center gap-3">
+          <span className="text-xs font-medium text-ink-400">{DOMAIN_LABELS[bounty.domainType]}</span>
           <BountyStatusBadge status={bounty.status} />
           {transaction && <EscrowStatusBadge status={transaction.escrowStatus} />}
         </div>
-        <h1 className="text-2xl font-semibold">{bounty.title}</h1>
+        <h1 className="font-display text-xl tracking-wide text-ink-900">{bounty.title}</h1>
 
         {bounty.serviceType === 'COMPANION' && (
-          <div className="mt-3 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <div className="mt-3 rounded-xl bg-tint-amber px-3 py-2 text-sm text-brand-amber">
             <span className="font-medium">{SERVICE_TYPE_LABELS.COMPANION}</span>
             {bounty.scheduledAt && (
               <span> · {new Date(bounty.scheduledAt).toLocaleString('ko-KR')} 예정</span>
@@ -91,56 +118,63 @@ export default function BountyDetailPage() {
           </div>
         )}
 
-        <p className="mt-2 whitespace-pre-wrap text-slate-600">{bounty.description}</p>
-        <p className="mt-3 text-xl font-semibold text-brand-navy">
-          {bounty.bountyAmount.toLocaleString()}원
+        <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-ink-700">{bounty.description}</p>
+        <p className="mt-4 font-display text-2xl tracking-wide text-ink-900">
+          {bounty.bountyAmount.toLocaleString('ko-KR')}원
         </p>
         {transaction && transaction.platformFeeAmount > 0 && (
-          <p className="text-sm text-slate-400">
-            (플랫폼 수수료 {transaction.platformFeeAmount.toLocaleString()}원 반영됨)
+          <p className="text-xs text-ink-400">
+            (플랫폼 수수료 {transaction.platformFeeAmount.toLocaleString('ko-KR')}원 반영됨)
           </p>
         )}
       </div>
 
-      {error && <p className="rounded bg-red-50 p-3 text-sm text-brand-red">{error}</p>}
-      {message && <p className="rounded bg-teal-50 p-3 text-sm text-brand-teal">{message}</p>}
+      {error && <FormErrorText>{error}</FormErrorText>}
+      {message && <SuccessPulse>{message}</SuccessPulse>}
 
       {/* ── 의뢰인 시점: PENDING 상태 → 지원자 목록에서 한 명 선택 ── */}
       {isOwner && bounty.status === 'PENDING' && (
         <section>
-          <h2 className="mb-3 text-lg font-semibold">지원자 목록</h2>
+          <h2 className="mb-3 flex items-center gap-2 text-base font-semibold text-ink-900">
+            <Users size={16} /> 지원자 목록
+          </h2>
           {applicants.length === 0 && (
-            <p className="text-sm text-slate-500">아직 지원한 전문가가 없어요.</p>
+            <p className="rounded-4xl border border-dashed border-hairline-strong p-6 text-center text-sm text-ink-500">
+              아직 지원한 전문가가 없어요.
+            </p>
           )}
-          <ul className="space-y-2">
-            {applicants.map((a) => (
-              <li
+          <div className="divide-y divide-hairline overflow-hidden rounded-4xl border border-hairline bg-surface-canvas">
+            {applicants.map((a, i) => (
+              <div
                 key={a.id}
-                className="flex items-center justify-between rounded border border-slate-200 bg-white p-4"
+                style={jangdanDelay(i)}
+                className="animate-stagger-in flex items-center justify-between gap-3 p-4"
               >
                 <div className="flex items-center gap-3">
                   <AvatarModule name={a.expert?.name ?? '전문가'} role="EXPERT" />
                   <div>
-                    <p className="font-medium">{a.expert?.name ?? '검증된 전문가'}</p>
-                    {a.message && <p className="text-sm text-slate-500">{a.message}</p>}
+                    <p className="font-medium text-ink-900">{a.expert?.name ?? '검증된 전문가'}</p>
+                    {a.message && <p className="text-sm text-ink-500">{a.message}</p>}
                     <div className="mt-1">
                       <ReputationBadge expertId={a.expertId} />
                     </div>
                   </div>
                 </div>
-                <button
+                <Button
+                  size="sm"
+                  tone="blue"
+                  variant="solid"
                   onClick={() =>
                     runAction(() => api.post(`/bounties/${id}/select/${a.id}`)).then(() =>
-                      setMessage('전문가를 선택했어요. 이제 결제를 완료하면 에스크로에 자금이 잠깁니다.'),
+                      setMessage('전문가를 선택했어요. 결제를 완료하면 에스크로에 자금이 잠깁니다.'),
                     )
                   }
-                  className="rounded bg-brand-teal px-3 py-1.5 text-sm font-medium text-white hover:opacity-90"
                 >
                   이 사람으로 결정
-                </button>
-              </li>
+                </Button>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
       )}
 
@@ -149,7 +183,9 @@ export default function BountyDetailPage() {
         <ApplyForm bountyId={id} onDone={() => runAction(async () => {})} />
       )}
       {!isOwner && alreadyApplied && bounty.status === 'PENDING' && (
-        <p className="text-sm text-slate-500">이미 지원했어요. 의뢰인의 선택을 기다리는 중입니다.</p>
+        <p className="rounded-4xl border border-dashed border-hairline-strong p-4 text-center text-sm text-ink-500">
+          이미 지원했어요. 의뢰인의 선택을 기다리는 중입니다.
+        </p>
       )}
 
       {/* ── 의뢰인 시점: PAYMENT_PENDING 상태 → 실제 결제 진행 ──
@@ -187,31 +223,34 @@ export default function BountyDetailPage() {
 
       {/* ── 의뢰인 시점: SUBMITTED 상태 → 승인 또는 이의제기 ── */}
       {isOwner && bounty.status === 'SUBMITTED' && (
-        <section className="space-y-3 rounded border border-slate-200 bg-white p-5">
-          <h2 className="text-lg font-semibold">결과물이 제출됐어요</h2>
-          <p className="text-sm text-slate-500">
+        <section className={`space-y-3 ${CARD_CLASS}`}>
+          <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
+            <CheckCircle2 size={16} className="text-brand-teal" /> 결과물이 제출됐어요
+          </h2>
+          <p className="text-sm text-ink-500">
             결과물을 확인한 뒤 문제가 없으면 승인해서 정산을 진행하세요. 문제가 있다면
             이의제기를 통해 자금을 동결하고 중재를 요청할 수 있어요.
           </p>
-          <div className="flex gap-2">
-            <button
+          <div className="flex flex-wrap gap-2">
+            <Button
+              tone="teal"
+              variant="solid"
               onClick={() =>
                 runAction(() => api.post(`/bounties/${id}/approve`)).then(() =>
                   setMessage('승인 완료! 전문가에게 정산됐습니다.'),
                 )
               }
-              className="rounded bg-brand-teal px-4 py-2 text-sm font-medium text-white hover:opacity-90"
             >
               승인하고 정산하기
-            </button>
+            </Button>
             <DisputeButton bountyId={id} onDone={() => runAction(async () => {})} />
           </div>
         </section>
       )}
 
       {isOwner && bounty.status === 'DISPUTED' && (
-        <p className="rounded bg-red-50 p-4 text-sm text-brand-red">
-          이의제기가 접수되어 자금이 동결됐어요. 관리자 중재 결과를 기다려주세요.
+        <p className="flex items-center gap-2 rounded-xl bg-tint-red px-4 py-3 text-sm text-brand-red">
+          <ShieldAlert size={16} /> 이의제기가 접수되어 자금이 동결됐어요. 관리자 중재 결과를 기다려주세요.
         </p>
       )}
     </div>
@@ -238,22 +277,20 @@ function ApplyForm({ bountyId, onDone }: { bountyId: string; onDone: () => void 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded border border-slate-200 bg-white p-5">
-      <h2 className="text-lg font-semibold">이 바운티에 지원하기</h2>
+    <form onSubmit={handleSubmit} className={`space-y-3 ${CARD_CLASS}`}>
+      <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
+        <Send size={16} className="text-brand-teal" /> 이 바운티에 지원하기
+      </h2>
       <textarea
-        className="h-24 w-full rounded border border-slate-300 px-3 py-2 text-sm"
+        className={`${FIELD_INPUT_CLASS} h-24`}
         placeholder="관련 경험이나 접근 방법을 간단히 소개해주세요 (선택)"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
       />
-      {error && <p className="text-sm text-brand-red">{error}</p>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded bg-brand-teal px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-      >
+      {error && <FormErrorText>{error}</FormErrorText>}
+      <Button type="submit" disabled={submitting} tone="teal" variant="solid">
         {submitting ? '지원중...' : '지원하기'}
-      </button>
+      </Button>
     </form>
   );
 }
@@ -288,27 +325,30 @@ function SubmitForm({ bountyId, onDone }: { bountyId: string; onDone: () => void
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded border border-slate-200 bg-white p-5">
-      <h2 className="text-lg font-semibold">결과물 제출</h2>
-      <input
-        type="file"
-        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-        accept=".pdf,.png,.jpg,.jpeg,.zip"
-      />
+    <form onSubmit={handleSubmit} className={`space-y-3 ${CARD_CLASS}`}>
+      <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
+        <FileUp size={16} className="text-brand-teal" /> 결과물 제출
+      </h2>
+      <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-hairline-strong px-3 py-2.5 text-sm text-ink-500 hover:border-brand-teal hover:text-brand-teal">
+        <FileUp size={16} />
+        {file ? file.name : '파일 선택 (PDF, 이미지, ZIP)'}
+        <input
+          type="file"
+          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          accept=".pdf,.png,.jpg,.jpeg,.zip"
+          className="hidden"
+        />
+      </label>
       <textarea
-        className="h-24 w-full rounded border border-slate-300 px-3 py-2 text-sm"
+        className={`${FIELD_INPUT_CLASS} h-24`}
         placeholder="어떤 작업을 했는지 간단히 설명해주세요"
         value={note}
         onChange={(e) => setNote(e.target.value)}
       />
-      {error && <p className="text-sm text-brand-red">{error}</p>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded bg-brand-teal px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-      >
+      {error && <FormErrorText>{error}</FormErrorText>}
+      <Button type="submit" disabled={submitting} tone="teal" variant="solid">
         {submitting ? '제출중...' : '결과물 제출'}
-      </button>
+      </Button>
     </form>
   );
 }
@@ -358,19 +398,17 @@ function PaymentSection({
   }
 
   return (
-    <section className="space-y-3 rounded border border-amber-200 bg-amber-50 p-5">
-      <h2 className="text-lg font-semibold">결제를 완료해주세요</h2>
-      <p className="text-sm text-slate-600">
+    <section className="space-y-3 rounded-4xl bg-tint-amber p-5">
+      <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
+        <CreditCard size={16} className="text-brand-amber" /> 결제를 완료해주세요
+      </h2>
+      <p className="text-sm text-ink-700">
         전문가를 선택했어요. 결제가 완료되어야 에스크로에 자금이 잠기고 작업이 시작됩니다.
       </p>
-      {error && <p className="text-sm text-brand-red">{error}</p>}
-      <button
-        onClick={handlePay}
-        disabled={processing}
-        className="rounded bg-brand-amber px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-      >
-        {processing ? '결제 진행중...' : `${amount.toLocaleString()}원 결제하기`}
-      </button>
+      {error && <FormErrorText>{error}</FormErrorText>}
+      <Button onClick={handlePay} disabled={processing} tone="amber" variant="solid">
+        {processing ? '결제 진행중...' : `${amount.toLocaleString('ko-KR')}원 결제하기`}
+      </Button>
     </section>
   );
 }
@@ -441,54 +479,46 @@ function SafeNumberSection({ bountyId }: { bountyId: string }) {
   const needsPhoneRegistration = !!error && error.includes('전화번호를 등록하지');
 
   return (
-    <section className="space-y-2 rounded border border-slate-200 bg-white p-5">
-      <h2 className="text-lg font-semibold">안심번호</h2>
-      <p className="text-sm text-slate-500">
+    <section className={`space-y-2 ${UTILITY_CARD_CLASS}`}>
+      <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
+        <Phone size={16} className="text-brand-teal" /> 안심번호
+      </h2>
+      <p className="text-sm text-ink-500">
         서로의 실제 전화번호를 알리지 않고, 안심번호 하나로만 연락을 주고받을 수 있어요.
       </p>
 
-      {error && <p className="text-sm text-brand-red">{error}</p>}
+      {error && <FormErrorText>{error}</FormErrorText>}
 
       {needsPhoneRegistration && (
-        <div className="flex flex-wrap items-center gap-2 rounded border border-amber-200 bg-amber-50 p-3">
+        <div className="flex flex-wrap items-center gap-2 rounded-xl bg-tint-amber p-3">
           <input
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
+            className={`${FIELD_INPUT_CLASS} w-auto flex-1 bg-surface-canvas`}
             placeholder="내 휴대폰 번호 (010-1234-5678)"
             value={myPhone}
             onChange={(e) => setMyPhone(e.target.value)}
           />
-          <button
-            onClick={handleRegisterPhone}
-            disabled={busy || !myPhone}
-            className="rounded bg-brand-teal px-3 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-          >
+          <Button size="sm" onClick={handleRegisterPhone} disabled={busy || !myPhone} tone="navy" variant="solid">
             내 번호 등록하고 다시 시도
-          </button>
+          </Button>
         </div>
       )}
 
       {safeNumber ? (
         <div className="flex flex-wrap items-center gap-3">
-          <span className="rounded bg-slate-100 px-3 py-2 font-mono text-base">{safeNumber}</span>
-          <button
-            onClick={handleCall}
-            disabled={busy}
-            className="rounded bg-brand-teal px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-          >
+          <span className="rounded-xl bg-surface-raised px-3 py-2 font-mono text-base text-ink-900">
+            {safeNumber}
+          </span>
+          <Button onClick={handleCall} disabled={busy} tone="navy" variant="outline" icon={<PhoneCall size={14} />}>
             통화 연결해보기
-          </button>
+          </Button>
         </div>
       ) : (
-        <button
-          onClick={handleIssue}
-          disabled={busy}
-          className="rounded bg-brand-teal px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-        >
+        <Button onClick={handleIssue} disabled={busy} tone="navy" variant="soft">
           안심번호 발급받기
-        </button>
+        </Button>
       )}
 
-      {callNote && <p className="text-xs text-slate-400">{callNote}</p>}
+      {callNote && <p className="text-xs text-ink-400">{callNote}</p>}
     </section>
   );
 }
@@ -511,30 +541,24 @@ function DisputeButton({ bountyId, onDone }: { bountyId: string; onDone: () => v
 
   if (!open) {
     return (
-      <button
-        onClick={() => setOpen(true)}
-        className="rounded border border-brand-red px-4 py-2 text-sm font-medium text-brand-red hover:bg-red-50"
-      >
+      <Button onClick={() => setOpen(true)} tone="red" variant="outline" icon={<ShieldAlert size={14} />}>
         이의제기
-      </button>
+      </Button>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-2">
       <textarea
-        className="h-20 w-full rounded border border-slate-300 px-3 py-2 text-sm"
+        className={`${FIELD_INPUT_CLASS} h-20`}
         placeholder="이의제기 사유를 10자 이상 구체적으로 작성해주세요"
         value={reason}
         onChange={(e) => setReason(e.target.value)}
       />
-      {error && <p className="text-sm text-brand-red">{error}</p>}
-      <button
-        type="submit"
-        className="rounded bg-brand-red px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-      >
+      {error && <FormErrorText>{error}</FormErrorText>}
+      <Button type="submit" tone="red" variant="solid">
         이의제기 접수
-      </button>
+      </Button>
     </form>
   );
 }

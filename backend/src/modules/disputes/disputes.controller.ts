@@ -48,6 +48,17 @@ export class DisputesController {
   }
 
   /**
+   * [관리자] 처리 대기중(OPEN)인 분쟁 전체 목록. GET /api/disputes/open
+   * 관리자 대시보드에서 "지금 판단이 필요한 건"만 모아 보여주기 위함.
+   */
+  @Get('open')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  findOpen() {
+    return this.disputesService.findOpenWithBounty();
+  }
+
+  /**
    * [관리자] 이의제기 중재 결과 반영
    * POST /api/disputes/:id/resolve
    * body: { adminNote: "판단 근거", refund: true|false }

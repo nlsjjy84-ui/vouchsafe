@@ -19,6 +19,7 @@ import { SettlementSchedulerService } from './settlement-scheduler.service';
 import { SafeNumberService } from '../safe-number/safe-number.service';
 import { CreateBountyDto } from './dto/create-bounty.dto';
 import { ApplyBountyDto } from './dto/apply-bounty.dto';
+import { RateBountyDto } from './dto/rate-bounty.dto';
 import { CreateMilestonesDto } from './dto/create-milestones.dto';
 import { SubmitMilestoneDto } from './dto/submit-milestone.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -131,6 +132,16 @@ export class BountiesController {
   }
 
   /**
+   * [의뢰인] 결제 확인 (Task #14). POST /api/bounties/:id/confirm-payment
+   * 프론트가 포트원 결제창을 통과한 직후 호출한다 - 서버가 PG에 직접 재확인한
+   * 뒤에야 에스크로가 잠기고 바운티가 LOCKED로 넘어간다 (BountiesService.confirmPayment 참고).
+   */
+  @Post(':id/confirm-payment')
+  confirmPayment(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.bountiesService.confirmPayment(id, user.userId);
+  }
+
+  /**
    * [전문가] 결과물 제출 (파일 업로드)
    * POST /api/bounties/:id/submit (multipart/form-data)
    *   - resultFile: 실제 결과물 파일 (코드 zip, 진단서 PDF 등)
@@ -185,6 +196,15 @@ export class BountiesController {
   @Post(':id/approve')
   approve(@Param('id') id: string, @CurrentUser() user: AuthUser) {
     return this.bountiesService.approve(id, user.userId);
+  }
+
+  /**
+   * [의뢰인] 공개 거래 사례용 평가 등록 (정산 완료 후 1회).
+   * POST /api/bounties/:id/rate  body: { rating: 1.0~10.0 (0.5단위), note?: string }
+   */
+  @Post(':id/rate')
+  rate(@Param('id') id: string, @CurrentUser() user: AuthUser, @Body() dto: RateBountyDto) {
+    return this.bountiesService.rate(id, user.userId, dto);
   }
 
   // =========================================================================

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { AvatarModule } from './AvatarModule';
 import { NotificationBell } from './NotificationBell';
+import { JangdanMark } from './JangdanMark';
 
 export function Navbar() {
   const { user, logout, loading } = useAuth();
@@ -11,14 +12,17 @@ export function Navbar() {
   return (
     <header className="border-b border-slate-200 bg-brand-navy text-white">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-        <Link href="/bounties" className="flex items-center gap-2">
-          <span className="h-2 w-6 rounded-full bg-brand-teal" />
+        <Link href="/bounties" className="flex items-center gap-2.5">
+          <JangdanMark size={18} variant="dark" />
           <span className="text-lg font-semibold">CredoBounty</span>
         </Link>
 
         <nav className="flex items-center gap-4 text-sm">
           <Link href="/bounties" className="hover:text-brand-teal">
             바운티 둘러보기
+          </Link>
+          <Link href="/cases" className="hover:text-brand-teal">
+            거래 사례
           </Link>
 
           {!loading && user && (

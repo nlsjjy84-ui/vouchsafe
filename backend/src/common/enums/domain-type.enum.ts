@@ -30,6 +30,29 @@ export enum DomainType {
   REAL_ESTATE_TITLE_ANALYSIS = 'REAL_ESTATE_TITLE_ANALYSIS', // 15 부동산 권리분석
 }
 
+/**
+ * 화면/AI 인사이트 문구에 쓰는 한글 라벨.
+ * 프론트(frontend/src/lib/types.ts)의 DOMAIN_LABELS와 반드시 같은 문구를 유지해야 한다 —
+ * 이 프로젝트는 프론트/백엔드가 코드 공유 없는 분리 구조라 값만 복제해서 맞춘다.
+ */
+export const DOMAIN_LABELS: Record<DomainType, string> = {
+  [DomainType.BACKEND_DB_TUNING]: '백엔드/DB 쿼리 튜닝',
+  [DomainType.WEB3_SECURITY_AUDIT]: 'Web3 보안 코드 감사',
+  [DomainType.DEV_CODE_REVIEW]: 'IT 개발 및 코드 리뷰',
+  [DomainType.CRAWLING_ARCHITECTURE]: '크롤링/파싱 아키텍처 설계',
+  [DomainType.MOBILE_QA_AUTOMATION]: '모바일 멀티 QA 및 자동화 테스트',
+  [DomainType.TECH_CREATOR_CONSULTING]: '테크 크리에이터 채널 자문',
+  [DomainType.AUDIO_MASTERING_REVIEW]: '음원 믹싱/마스터링 검증',
+  [DomainType.INDIE_GAME_QA]: '인디 게임 구조적 QA',
+  [DomainType.GRAPHICS_3D_OPTIMIZATION]: '3D 에셋 및 그래픽 최적화',
+  [DomainType.VEHICLE_DIAGNOSTICS]: '차량 정밀 기술 진단',
+  [DomainType.BUILDING_DEFECT_INSPECTION]: '주택/건축물 하자 진단',
+  [DomainType.FIRE_SAFETY_INSPECTION]: '소방/안전시설물 진단',
+  [DomainType.STARTUP_CONTRACT_REVIEW]: '스타트업 계약서 검토 (법률)',
+  [DomainType.TAX_STRUCTURE_FACTCHECK]: '절세 구조 팩트체크 (세무)',
+  [DomainType.REAL_ESTATE_TITLE_ANALYSIS]: '부동산 권리분석',
+};
+
 export const DOMAIN_CATEGORY: Record<DomainType, 'A' | 'B' | 'C'> = {
   [DomainType.BACKEND_DB_TUNING]: 'A',
   [DomainType.WEB3_SECURITY_AUDIT]: 'A',

@@ -43,6 +43,16 @@ export class Transaction {
   @Column({ type: 'enum', enum: EscrowStatus, default: EscrowStatus.LOCKED })
   escrowStatus: EscrowStatus;
 
+  /**
+   * 포트원(PG) merchant_uid에 해당하는 결제 식별자 (2026-09-16 추가, Task #14).
+   * TransactionsService.initiatePayment()가 전문가 선택 시점에 미리 발급해서 채워두고,
+   * 프론트(portone.ts)는 이 값을 그대로 결제창에 넘긴다. confirmPayment()가 이 값으로
+   * PaymentGatewayService.verifyPayment를 호출해 "진짜 결제됐는지"를 재확인한다.
+   * PENDING_PAYMENT 단계 이전(구 즉시-락업 데이터)에는 없을 수 있어 nullable.
+   */
+  @Column({ type: 'varchar', nullable: true })
+  paymentId: string | null;
+
   @Column({ type: 'bigint' })
   amount: number;
 

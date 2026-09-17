@@ -16,18 +16,38 @@ import { BountySubmission } from './entities/bounty-submission.entity';
 import { BountyMilestone } from './entities/bounty-milestone.entity';
 import { CreateBountyDto } from './dto/create-bounty.dto';
 import { ApplyBountyDto } from './dto/apply-bounty.dto';
+import { RateBountyDto } from './dto/rate-bounty.dto';
 import { CreateMilestonesDto } from './dto/create-milestones.dto';
 import { BountyStatus } from '../../common/enums/bounty-status.enum';
 import { MilestoneStatus } from '../../common/enums/milestone-status.enum';
 import { CertificationsService } from '../certifications/certifications.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import { UsersService } from '../users/users.service';
-import { DomainType } from '../../common/enums/domain-type.enum';
+import { ReputationService } from '../users/reputation.service';
+import { DomainType, DOMAIN_LABELS } from '../../common/enums/domain-type.enum';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '../../common/enums/notification-type.enum';
 
 /** 8장 "무이의 기간": 결과물 제출 후 이 기간이 지나도록 승인/이의제기가 없으면 자동 정산 */
 export const NO_OBJECTION_PERIOD_DAYS = 5;
+
+/**
+ * 공개 거래 사례(투명성 신뢰 지표) 한 건. GET /api/cases (PublicCasesController)의
+ * 응답 형태 - 의뢰인/전문가 실명, 정확한 금액, 바운티 제목은 절대 담지 않는다
+ * (익명화 원칙 - 사용자 요청 "익명화로 하자"를 그대로 반영).
+ */
+export interface PublicBountyCase {
+  id: string;
+  domainType: DomainType;
+  domainLabel: string;
+  durationDays: number; // 등록(createdAt) ~ 정산(updatedAt) 며칠 걸렸는지
+  amountBand: string; // 정확한 금액 대신 구간으로만 공개
+  systemScore: number; // 0~10, ReputationService가 자동 계산 - 조작 불가
+  clientRating: number | null; // 1.0~10.0, 의뢰인이 직접 매긴 점수 (아직 안 매겼으면 null)
+  clientRatingNote: string | null;
+  expertHandle: string; // 익명화된 전문가 표기 (예: "김전문가-A1B2")
+  settledAt: string;
+}
 
 @Injectable()
 export class BountiesService {
@@ -45,6 +65,7 @@ export class BountiesService {
     private readonly certificationsService: CertificationsService,
     private readonly transactionsService: TransactionsService,
     private readonly usersService: UsersService,
+    private readonly reputationService: ReputationService,
     private readonly notificationsService: NotificationsService,
     @InjectDataSource()
     private readonly dataSource: DataSource,
@@ -71,6 +92,28 @@ export class BountiesService {
       .orderBy('bounty.updatedAt', 'DESC')
       .take(limit)
       .getMany();
+  }
+
+  /** 마이페이지 "내가 등록한 바운티" — 의뢰인으로서 등록한 바운티만 (DashboardModule용) */
+  findMyAsClient(userId: string, limit = 10): Promise<Bounty[]> {
+    return this.bountyRepository.find({
+      where: { clientId: userId },
+      order: { updatedAt: 'DESC' },
+      take: limit,
+    });
+  }
+
+  /**
+   * 마이페이지 "내가 지원한 바운티" — 전문가로서 지원한 내역을 대상 바운티 정보와
+   * 함께 내려준다 (DashboardModule용 - lib/types.ts의 BountyApplication.bounty 참고).
+   */
+  findMyApplications(userId: string, limit = 10): Promise<BountyApplication[]> {
+    return this.applicationRepository.find({
+      where: { expertId: userId },
+      relations: ['bounty'],
+      order: { createdAt: 'DESC' },
+      take: limit,
+    });
   }
 
   async findOneOrThrow(id: string): Promise<Bounty> {
@@ -121,13 +164,17 @@ export class BountiesService {
   }
 
   /**
-   * 기획서 8장 LOCKED: "양측 협상 타결 + CI 실명 확인 후 에스크로에 자금 락업".
+   * 기획서 8장 "양측 협상 타결" 단계 (Task #14로 결제 확인 게이트 추가, 2026-09-16).
+   * 예전에는 이 시점에 바로 에스크로를 잠갔지만, 지금은 "전문가를 정했다"와 "돈을
+   * 실제로 냈다"를 같은 순간으로 취급하지 않는다 - 여기서는 결제 식별자(paymentId)만
+   * 미리 발급해서 바운티를 PAYMENT_PENDING으로 옮겨두고, 실제 에스크로 락업은 의뢰인이
+   * 결제창을 통과하고 confirmPayment()가 PG에 재확인한 뒤에야 일어난다.
    *
-   * Phase 2: 검증(읽기)은 트랜잭션 밖에서 먼저 끝내고, 실제 쓰기 4단계
-   * (지원자 상태 일괄 변경 → 바운티 상태 전환 → 에스크로 락업 기록 생성)는
+   * Phase 2: 검증(읽기)은 트랜잭션 밖에서 먼저 끝내고, 실제 쓰기 단계
+   * (지원자 상태 일괄 변경 → 바운티 상태 전환 → 결제 대기 트랜잭션 생성)는
    * DataSource.transaction()으로 묶는다. 예를 들어 지원자 상태는 다 바뀌었는데
-   * 에스크로 락업(외부 연동)만 실패하는 경우, 트랜잭션 전체가 롤백돼서
-   * "지원자는 SELECTED인데 에스크로는 비어있는" 불일치 상태가 DB에 남지 않는다.
+   * 결제 식별자 발급(외부 연동)만 실패하는 경우, 트랜잭션 전체가 롤백돼서
+   * "지원자는 SELECTED인데 결제 대기 기록은 없는" 불일치 상태가 DB에 남지 않는다.
    */
   async selectApplicant(bountyId: string, applicationId: string, clientId: string) {
     const bounty = await this.findOneOrThrow(bountyId);
@@ -159,19 +206,40 @@ export class BountiesService {
       await applicationRepo.save(allApplications);
 
       bounty.assignedExpertId = selected.expertId;
-      bounty.status = BountyStatus.LOCKED;
+      bounty.status = BountyStatus.PAYMENT_PENDING;
       await bountyRepo.save(bounty);
 
-      await this.transactionsService.lockEscrow(bounty, client, selected.expertId, manager);
+      await this.transactionsService.initiatePayment(bounty, client, selected.expertId, manager);
       return bounty;
     }).then(async (result) => {
       await this.notificationsService.notify(
         selected.expertId,
         NotificationType.BOUNTY_SELECTED,
-        `"${bounty.title}" 바운티의 담당 전문가로 선택되었습니다.`,
+        `"${bounty.title}" 바운티의 담당 전문가로 선택되었습니다. (의뢰인 결제 확인 대기중)`,
         bountyId,
       );
       return result;
+    });
+  }
+
+  /**
+   * Task #14 결제 확인 게이트: 의뢰인이 결제창(포트원 SDK)에서 결제를 마친 뒤 호출한다.
+   * 프론트가 "결제 성공했다"고 알려와도 그 말을 그대로 믿지 않고, TransactionsService가
+   * PG에 직접 재확인한 뒤에야(위변조 방지) 에스크로를 잠그고 바운티를 LOCKED로 옮긴다.
+   */
+  async confirmPayment(bountyId: string, clientId: string) {
+    const bounty = await this.findOneOrThrow(bountyId);
+    if (bounty.clientId !== clientId) {
+      throw new ForbiddenException('본인이 등록한 바운티만 결제를 확인할 수 있습니다');
+    }
+    if (bounty.status !== BountyStatus.PAYMENT_PENDING) {
+      throw new BadRequestException('결제 대기 중인 바운티가 아닙니다');
+    }
+
+    return this.dataSource.transaction(async (manager: EntityManager) => {
+      await this.transactionsService.confirmPayment(bountyId, manager);
+      bounty.status = BountyStatus.LOCKED;
+      return manager.getRepository(Bounty).save(bounty);
     });
   }
 
@@ -221,6 +289,104 @@ export class BountiesService {
       throw new ForbiddenException('본인이 등록한 바운티만 승인할 수 있습니다');
     }
     return this.settleSubmittedBounty(bounty, false);
+  }
+
+  /**
+   * [의뢰인] 공개 거래 사례용 평가 등록. 정산(SETTLED)이 끝난 뒤에만, 그리고 딱 한 번만
+   * 매길 수 있다(이미 값이 있으면 재작성 불가 - 평가를 나중에 바꿔치기해서 조작하는 걸 막는다).
+   * 시스템 점수(ReputationService)와 별개로 저장·공개된다.
+   */
+  async rate(bountyId: string, clientId: string, dto: RateBountyDto) {
+    const bounty = await this.findOneOrThrow(bountyId);
+    if (bounty.clientId !== clientId) {
+      throw new ForbiddenException('본인이 등록한 바운티만 평가할 수 있습니다');
+    }
+    if (bounty.status !== BountyStatus.SETTLED) {
+      throw new BadRequestException('정산이 완료된 거래만 평가할 수 있습니다');
+    }
+    if (bounty.clientRating !== null) {
+      throw new BadRequestException('이미 평가를 남긴 거래입니다');
+    }
+    bounty.clientRating = dto.rating.toFixed(1);
+    bounty.clientRatingNote = dto.note ?? null;
+    return this.bountyRepository.save(bounty);
+  }
+
+  /**
+   * 공개 거래 사례 목록. GET /api/cases (PublicCasesController, 로그인 불필요)에서 호출한다.
+   * "무조건 거래하면 사례 메뉴에 등록된다"는 요청대로 별도 등록 절차 없이, 정산(SETTLED)이
+   * 끝난 거래는 전부 자동으로 이 목록에 나타난다 - 의뢰인/전문가가 따로 "공개할지 말지"를
+   * 고를 수 없다(그래야 사례가 편집되지 않은 전수 데이터라는 신뢰가 생긴다).
+   * 시스템 점수(ReputationService, 전문가별 1회만 계산해 재사용)와 의뢰인 점수(rate())는
+   * 합치지 않고 나란히 따로 반환한다.
+   */
+  async listPublicCases(): Promise<PublicBountyCase[]> {
+    const settled = await this.bountyRepository.find({
+      where: { status: BountyStatus.SETTLED },
+      order: { updatedAt: 'DESC' },
+    });
+
+    const systemScoreCache = new Map<string, number>();
+    const cases: PublicBountyCase[] = [];
+
+    for (const bounty of settled) {
+      if (!bounty.assignedExpertId) continue;
+      const expert = await this.usersService.findById(bounty.assignedExpertId);
+      if (!expert) continue;
+
+      let systemScore = systemScoreCache.get(bounty.assignedExpertId);
+      if (systemScore === undefined) {
+        const reputation = await this.reputationService.getExpertReputation(
+          bounty.assignedExpertId,
+        );
+        systemScore = reputation.score10;
+        systemScoreCache.set(bounty.assignedExpertId, systemScore);
+      }
+
+      const durationDays = Math.max(
+        0,
+        Math.round(
+          (new Date(bounty.updatedAt).getTime() - new Date(bounty.createdAt).getTime()) /
+            (1000 * 60 * 60 * 24),
+        ),
+      );
+
+      cases.push({
+        id: bounty.id,
+        domainType: bounty.domainType,
+        domainLabel: DOMAIN_LABELS[bounty.domainType],
+        durationDays,
+        amountBand: this.amountBand(Number(bounty.bountyAmount)),
+        systemScore,
+        clientRating: bounty.clientRating !== null ? Number(bounty.clientRating) : null,
+        clientRatingNote: bounty.clientRatingNote,
+        expertHandle: this.anonymizeExpertHandle(expert.name, expert.id),
+        settledAt: new Date(bounty.updatedAt).toISOString(),
+      });
+    }
+
+    return cases;
+  }
+
+  /** 정확한 금액 대신 구간으로만 공개한다 (익명화 원칙 - 정확한 액수는 역추적 단서가 될 수 있음) */
+  private amountBand(amount: number): string {
+    if (amount < 100_000) return '10만원 미만';
+    if (amount < 300_000) return '10만원~30만원';
+    if (amount < 500_000) return '30만원~50만원';
+    if (amount < 1_000_000) return '50만원~100만원';
+    if (amount < 3_000_000) return '100만원~300만원';
+    return '300만원 이상';
+  }
+
+  /**
+   * 실명 대신 "성 이니셜 + 전문가 + id 앞 4자리" 형태로 익명 표기한다.
+   * 같은 전문가는 항상 같은 표기가 나와서(expertId 기반) 사례 목록에서
+   * "이 사람이 여러 건을 잘 처리했구나"는 알아볼 수 있되, 누구인지는 알 수 없다.
+   */
+  private anonymizeExpertHandle(name: string, expertId: string): string {
+    const initial = name.trim().charAt(0) || '전';
+    const suffix = expertId.replace(/-/g, '').slice(0, 4).toUpperCase();
+    return `${initial}전문가-${suffix}`;
   }
 
   /**

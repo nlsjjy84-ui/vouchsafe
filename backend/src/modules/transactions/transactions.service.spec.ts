@@ -26,10 +26,16 @@ describe('TransactionsService', () => {
         .fn()
         .mockImplementation((amount: number) => Math.floor(amount * 0.03)),
     };
+    // Task #14: PG 검증은 항상 성공한다고 가정 (검증 실패 케이스는 별도 테스트에서 다룬다)
+    const paymentGateway = {
+      verifyPayment: jest.fn().mockResolvedValue({ paid: true }),
+      cancelPayment: jest.fn().mockResolvedValue({ cancelled: true }),
+    };
     return {
-      service: new TransactionsService(transactionRepository as any, mockEscrow as any),
+      service: new TransactionsService(transactionRepository as any, mockEscrow as any, paymentGateway as any),
       transactionRepository,
       mockEscrow,
+      paymentGateway,
       saved,
     };
   }
@@ -96,9 +102,44 @@ describe('TransactionsService', () => {
       findOne: jest.fn().mockResolvedValue(null),
     };
     const mockEscrow = { calculatePlatformFee: jest.fn() };
-    const service = new TransactionsService(transactionRepository as any, mockEscrow as any);
+    const paymentGateway = { verifyPayment: jest.fn(), cancelPayment: jest.fn() };
+    const service = new TransactionsService(
+      transactionRepository as any,
+      mockEscrow as any,
+      paymentGateway as any,
+    );
     await expect(service.settleNormally('nonexistent', { name: 'x' } as any)).rejects.toThrow(
       '해당 바운티의 거래 내역을 찾을 수 없습니다',
     );
+  });
+
+  it('confirmPayment는 PG 검증에 실패하면 락업하지 않고 예외를 던진다', async () => {
+    const { service, saved, mockEscrow } = buildService({
+      bountyId: 'b1',
+      amount: 100000,
+      paymentId: 'bounty-b1-123',
+      escrowStatus: EscrowStatus.PENDING_PAYMENT,
+    });
+    const failingGateway = { verifyPayment: jest.fn().mockResolvedValue({ paid: false, reason: '금액 불일치' }) };
+    (service as any).paymentGateway = failingGateway;
+
+    await expect(service.confirmPayment('b1')).rejects.toThrow('금액 불일치');
+    expect(mockEscrow.lock).not.toHaveBeenCalled();
+    expect(saved.length).toBe(0);
+  });
+
+  it('confirmPayment는 PG 검증에 성공하면 에스크로를 잠그고 LOCKED로 전이한다', async () => {
+    const { service, saved, mockEscrow } = buildService({
+      bountyId: 'b1',
+      amount: 100000,
+      payerCi: 'ci-hash',
+      paymentId: 'bounty-b1-123',
+      escrowStatus: EscrowStatus.PENDING_PAYMENT,
+    });
+
+    await service.confirmPayment('b1');
+
+    expect(mockEscrow.lock).toHaveBeenCalledWith(100000, 'ci-hash');
+    expect(saved[0].escrowStatus).toBe(EscrowStatus.LOCKED);
   });
 });

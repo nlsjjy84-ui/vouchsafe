@@ -19,11 +19,21 @@ export async function payForBounty(params: {
   const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID;
   const channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY;
 
+  /**
+   * 포트원 "채널"(admin.portone.io > 결제 연동 > 채널 관리)이 아직 등록되지 않은
+   * 개발/데모 환경 - 채널이 없으면 결제창 자체를 못 띄운다(portone-payment-gateway.service.ts
+   * 주석 참고). 여기서 그냥 에러로 막아버리면 결제 확인 게이트 전체를 시연할 방법이
+   * 없어지므로, 백엔드의 PAYMENT_GATEWAY_DRIVER=mock과 같은 원칙으로 [MOCK] 라벨을 달고
+   * 결제창 없이 바로 성공 처리한다. 실제 채널 키를 .env.local에 채우면 이 분기를 안 타고
+   * 진짜 결제창이 뜬다.
+   */
   if (!storeId || !channelKey) {
-    return {
-      success: false,
-      message: '결제 채널이 아직 설정되지 않았어요 (관리자에게 문의해주세요).',
-    };
+    console.warn(
+      '[MOCK] 포트원 결제 채널이 설정되지 않아 결제창 없이 결제 성공으로 처리합니다. ' +
+        '실제 결제창을 보려면 frontend/.env.local에 NEXT_PUBLIC_PORTONE_STORE_ID / ' +
+        'NEXT_PUBLIC_PORTONE_CHANNEL_KEY를 채워주세요.',
+    );
+    return { success: true };
   }
 
   const response = await PortOne.requestPayment({

@@ -7,8 +7,10 @@ import { UsersService } from '../modules/users/users.service';
 import { UserRole } from '../common/enums/user-role.enum';
 
 const SALT_ROUNDS = 10;
-// Security 5탄과 동일한 정책(16자 이상 + 대/소문자 + 특수문자) — 관리자 계정이라고 예외를 두지 않는다.
-const STRONG_PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~`]).+$/;
+// Security 5탄과 동일한 정책(10자 이상 + 대/소문자 + 숫자 + 특수문자) — 관리자 계정이라고 예외를 두지 않는다.
+const PASSWORD_MIN_LENGTH = 10;
+const STRONG_PASSWORD_REGEX =
+  /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~`]).+$/;
 
 /**
  * 관리자 계정 생성 전용 서버 콘솔 스크립트.
@@ -26,8 +28,10 @@ async function bootstrap() {
     console.error('사용법: npm run create-admin -- <email> <password> [name]');
     process.exit(1);
   }
-  if (password.length < 16 || !STRONG_PASSWORD_REGEX.test(password)) {
-    console.error('비밀번호는 16자 이상이며 대문자/소문자/특수문자를 각각 1개 이상 포함해야 합니다');
+  if (password.length < PASSWORD_MIN_LENGTH || !STRONG_PASSWORD_REGEX.test(password)) {
+    console.error(
+      `비밀번호는 ${PASSWORD_MIN_LENGTH}자 이상이며 대문자/소문자/숫자/특수문자를 각각 1개 이상 포함해야 합니다`,
+    );
     process.exit(1);
   }
 

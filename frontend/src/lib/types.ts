@@ -77,7 +77,7 @@ export type EscrowStatus = 'PENDING_PAYMENT' | 'LOCKED' | 'FROZEN' | 'SETTLED' |
 export interface User {
   id: string;
   email: string;
-  role: 'CLIENT' | 'EXPERT' | 'HYBRID';
+  role: 'CLIENT' | 'EXPERT' | 'HYBRID' | 'ADMIN';
   name?: string;
 }
 
@@ -144,17 +144,22 @@ export interface Certification {
   createdAt?: string;
 }
 
+/**
+ * 백엔드 common/enums/notification-type.enum.ts와 값을 맞췄다 (이전엔 프론트가
+ * 추측으로 다른 문자열 세트를 써서 실제 API가 내려주는 값과 하나도 안 맞았음 -
+ * 지금은 n.type을 직접 분기하는 화면이 없어서 런타임 영향은 없었지만, 타입
+ * 자체가 거짓말을 하고 있었던 것이라 바로잡는다).
+ */
 export type NotificationType =
-  | 'APPLICATION_SELECTED'
-  | 'APPLICATION_REJECTED'
-  | 'PAYMENT_LOCKED'
-  | 'SUBMISSION_RECEIVED'
+  | 'BOUNTY_APPLICATION_RECEIVED'
+  | 'BOUNTY_SELECTED'
+  | 'BOUNTY_SUBMITTED'
   | 'BOUNTY_SETTLED'
+  | 'BOUNTY_AUTO_SETTLED'
   | 'MILESTONE_SETTLED'
   | 'DISPUTE_FILED'
   | 'DISPUTE_RESOLVED'
-  | 'CERTIFICATION_APPROVED'
-  | 'CERTIFICATION_REJECTED';
+  | 'CERTIFICATION_REVIEWED';
 
 export interface AppNotification {
   id: string;
@@ -164,6 +169,96 @@ export interface AppNotification {
   relatedBountyId: string | null;
   isRead: boolean;
   createdAt: string;
+}
+
+/**
+ * GET /ai-insights/me 응답 형태.
+ * "AI 기반 개인화 예산/소비패턴 분석" + "AI & 마이데이터 기반 개인화 금융관리"
+ * 두 부제 주제를 구현한 API - 백엔드 AiInsightsService와 필드를 맞춰뒀다.
+ */
+export interface DomainBreakdownItem {
+  domainType: DomainType;
+  domainLabel: string;
+  amount: number;
+  count: number;
+  percentage: number;
+}
+
+export interface MonthlyTrendItem {
+  month: string;
+  spent: number;
+  earned: number;
+}
+
+/** 기능1: 예산 목표 대비 소비 */
+export interface BudgetInsight {
+  goal: number | null;
+  thisMonthSpent: number;
+  usageRate: number | null; // 0~100+, goal이 없으면 null
+}
+
+/** 기능2: 소비 이상탐지 하이라이트 */
+export interface SpendingAnomaly {
+  domainType: DomainType;
+  domainLabel: string;
+  thisMonthAmount: number;
+  avgPrevAmount: number;
+  increasePct: number;
+}
+
+/** 기능3: 다음 달 지출/수익 예측 */
+export interface NextMonthForecast {
+  nextMonthSpent: number;
+  nextMonthEarned: number;
+}
+
+export interface MyInsightsResponse {
+  role: 'CLIENT' | 'EXPERT' | 'HYBRID' | 'ADMIN';
+  summary: {
+    totalSpent: number;
+    totalEarned: number;
+    activeAsClient: number;
+    activeAsExpert: number;
+    settledCount: number;
+    disputedCount: number;
+    approvedCertificationCount: number;
+  };
+  spendingByDomain: DomainBreakdownItem[];
+  earningByDomain: DomainBreakdownItem[];
+  monthlyTrend: MonthlyTrendItem[];
+  budget: BudgetInsight;
+  spendingAnomaly: SpendingAnomaly | null;
+  forecast: NextMonthForecast | null;
+  insights: string[];
+}
+
+/** GET /disputes/open (관리자 분쟁 목록) 응답 형태 */
+export interface AdminDispute {
+  id: string;
+  bountyId: string;
+  reason: string;
+  status: 'OPEN' | 'RESOLVED_REFUND' | 'RESOLVED_SETTLE';
+  adminActionLog: string | null;
+  createdAt: string;
+  bounty?: Bounty;
+}
+
+/**
+ * GET /cases (PublicCasesController, 로그인 불필요) 응답 형태 - "공개 거래 사례".
+ * 백엔드 BountiesService.listPublicCases()와 필드를 맞췄다. 의뢰인/전문가 실명,
+ * 정확한 금액, 바운티 제목은 절대 내려오지 않는다 (익명화 원칙).
+ */
+export interface PublicBountyCase {
+  id: string;
+  domainType: DomainType;
+  domainLabel: string;
+  durationDays: number;
+  amountBand: string;
+  systemScore: number; // 0~10, 자동 계산(완료율/분쟁승률/처리속도) - 조작 불가
+  clientRating: number | null; // 1.0~10.0, 의뢰인이 직접 매긴 점수 (아직 없으면 null)
+  clientRatingNote: string | null;
+  expertHandle: string;
+  settledAt: string;
 }
 
 /** GET /dashboard/me (마이페이지 통합 대시보드, Task #31) 응답 형태 */

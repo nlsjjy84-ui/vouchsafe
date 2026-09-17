@@ -2,7 +2,16 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Mail } from 'lucide-react';
 import { api, extractErrorMessage } from '@/lib/api';
+import {
+  AuthCard,
+  AuthField,
+  AUTH_INPUT_CLASS,
+  AuthSubmitButton,
+  AuthErrorText,
+  AuthSuccessBox,
+} from '@/components/AuthCard';
 
 /**
  * 비밀번호 재설정 "요청" 화면.
@@ -32,47 +41,42 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md">
-      <h1 className="mb-2 text-2xl font-semibold">비밀번호 재설정</h1>
-      <p className="mb-6 text-sm text-slate-500">
-        가입할 때 쓴 이메일을 입력하면 재설정 링크를 보내드려요.
-      </p>
-
-      {sent ? (
-        <div className="rounded border border-teal-200 bg-teal-50 p-4 text-sm text-brand-teal">
-          가입된 이메일이라면 비밀번호 재설정 메일이 발송되었습니다. 메일함을 확인해주세요.
-          {/* 개발 단계라 실제 메일 발송 대신 백엔드 콘솔 로그에 링크가 남는다 (Mock) */}
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium">이메일</label>
-            <input
-              type="email"
-              className="w-full rounded border border-slate-300 px-3 py-2"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          {error && <p className="text-sm text-brand-red">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full rounded bg-brand-teal py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
-          >
-            {submitting ? '처리중...' : '재설정 링크 보내기'}
-          </button>
-        </form>
-      )}
-
-      <p className="mt-4 text-sm text-slate-500">
-        <Link href="/login" className="text-brand-teal underline">
+    <AuthCard
+      title="비밀번호 재설정"
+      subtitle="가입할 때 쓴 이메일을 입력하면 재설정 링크를 보내드려요"
+      footer={
+        <Link href="/login" className="font-medium text-brand-teal hover:underline">
           로그인으로 돌아가기
         </Link>
-      </p>
-    </div>
+      }
+    >
+      {sent ? (
+        <AuthSuccessBox>
+          가입된 이메일이라면 비밀번호 재설정 메일이 발송되었습니다. 메일함을 확인해주세요.
+          {/* 개발 단계라 실제 메일 발송 대신 백엔드 콘솔 로그에 링크가 남는다 (Mock) */}
+        </AuthSuccessBox>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <AuthField label="이메일">
+            <div className="relative">
+              <Mail size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+              <input
+                type="email"
+                className={`${AUTH_INPUT_CLASS} pl-9`}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+          </AuthField>
+
+          {error && <AuthErrorText>{error}</AuthErrorText>}
+
+          <AuthSubmitButton disabled={submitting}>
+            {submitting ? '처리중...' : '재설정 링크 보내기'}
+          </AuthSubmitButton>
+        </form>
+      )}
+    </AuthCard>
   );
 }

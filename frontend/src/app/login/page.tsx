@@ -3,8 +3,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Mail, Lock } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { api, extractErrorMessage, hasErrorCode } from '@/lib/api';
+import {
+  AuthCard,
+  AuthField,
+  AUTH_INPUT_CLASS,
+  AuthSubmitButton,
+  AuthErrorText,
+} from '@/components/AuthCard';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -53,36 +61,54 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md">
-      <h1 className="mb-6 text-2xl font-semibold">로그인</h1>
-
+    <AuthCard
+      title="로그인"
+      subtitle="검증된 전문가와 의뢰인을 잇는 CredoBounty에 오신 걸 환영해요"
+      footer={
+        <div className="flex items-center justify-between">
+          <span>
+            계정이 없다면{' '}
+            <Link href="/register" className="font-medium text-brand-teal hover:underline">
+              회원가입
+            </Link>
+          </span>
+          <Link href="/forgot-password" className="text-ink-400 hover:underline">
+            비밀번호를 잊으셨나요?
+          </Link>
+        </div>
+      }
+    >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="mb-1 block text-sm font-medium">이메일</label>
-          <input
-            type="email"
-            className="w-full rounded border border-slate-300 px-3 py-2"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
+        <AuthField label="이메일">
+          <div className="relative">
+            <Mail size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+            <input
+              type="email"
+              className={`${AUTH_INPUT_CLASS} pl-9`}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+        </AuthField>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium">비밀번호</label>
-          <input
-            type="password"
-            className="w-full rounded border border-slate-300 px-3 py-2"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+        <AuthField label="비밀번호">
+          <div className="relative">
+            <Lock size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+            <input
+              type="password"
+              className={`${AUTH_INPUT_CLASS} pl-9`}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+        </AuthField>
 
-        {error && <p className="text-sm text-brand-red">{error}</p>}
+        {error && <AuthErrorText>{error}</AuthErrorText>}
 
         {needsVerification && (
-          <div className="rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700">
+          <div className="rounded-2xl bg-tint-amber p-3 text-sm text-brand-amber">
             {resendMessage ?? (
               <>
                 <p className="mb-2">아직 이메일 인증을 안 하셨다면 링크를 다시 보내드릴 수 있어요.</p>
@@ -90,7 +116,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleResend}
                   disabled={resending || !email}
-                  className="rounded border border-amber-300 bg-white px-3 py-1.5 text-sm font-medium text-amber-700 hover:bg-amber-100 disabled:opacity-50"
+                  className="rounded-full border border-brand-amber/40 bg-surface-canvas px-3 py-1.5 text-sm font-medium text-brand-amber hover:bg-surface-canvas/70 disabled:opacity-50"
                 >
                   {resending ? '발송 중...' : '인증 메일 재발송'}
                 </button>
@@ -99,26 +125,8 @@ export default function LoginPage() {
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full rounded bg-brand-teal py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
-        >
-          {submitting ? '처리중...' : '로그인'}
-        </button>
+        <AuthSubmitButton disabled={submitting}>{submitting ? '처리중...' : '로그인'}</AuthSubmitButton>
       </form>
-
-      <div className="mt-4 flex items-center justify-between text-sm text-slate-500">
-        <span>
-          계정이 없다면{' '}
-          <Link href="/register" className="text-brand-teal underline">
-            회원가입
-          </Link>
-        </span>
-        <Link href="/forgot-password" className="text-slate-400 underline">
-          비밀번호를 잊으셨나요?
-        </Link>
-      </div>
-    </div>
+    </AuthCard>
   );
 }

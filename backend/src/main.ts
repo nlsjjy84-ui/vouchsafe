@@ -1,3 +1,11 @@
+// 반드시 가장 먼저 로드한다: 아래 getJwtSecretOrThrow()가 NestFactory.create()보다도 먼저
+// process.env.JWT_SECRET을 검사하는데, .env 파일을 실제로 process.env에 읽어들이는 건
+// 원래 AppModule 안의 ConfigModule.forRoot()가 하는 일이라 NestFactory.create() 시점에야
+// 일어난다. 즉 이 줄이 없으면 .env에 JWT_SECRET이 멀쩡히 적혀 있어도 그보다 먼저 실행되는
+// getJwtSecretOrThrow()엔 항상 "설정 안 됨"으로 보여 매번 fail-fast가 발동해버린다
+// (테스트/CI에서는 항상 셸 환경변수로 JWT_SECRET을 미리 주입했기 때문에 이 버그가
+// 가려져 있었다 — 로컬에서 .env 파일만 믿고 npm run start:dev로 띄울 때만 드러난다).
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';

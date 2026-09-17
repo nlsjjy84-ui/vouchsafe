@@ -3,7 +3,9 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import { api, extractErrorMessage } from '@/lib/api';
+import { AuthCard } from '@/components/AuthCard';
 
 type Status = 'checking' | 'success' | 'error';
 
@@ -41,17 +43,16 @@ function VerifyEmailInner() {
   }, [token]);
 
   if (status === 'checking') {
-    return <p className="text-sm text-slate-500">인증 확인 중...</p>;
+    return <p className="text-sm text-ink-500">인증 확인 중...</p>;
   }
 
   return (
     <div
-      className={`rounded border p-4 text-sm ${
-        status === 'success'
-          ? 'border-teal-200 bg-teal-50 text-brand-teal'
-          : 'border-red-200 bg-red-50 text-brand-red'
+      className={`flex items-center gap-2 rounded-xl px-4 py-3 text-sm ${
+        status === 'success' ? 'bg-tint-teal text-brand-teal' : 'bg-tint-red text-brand-red'
       }`}
     >
+      {status === 'success' ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
       {message}
     </div>
   );
@@ -59,19 +60,20 @@ function VerifyEmailInner() {
 
 export default function VerifyEmailPage() {
   return (
-    <div className="mx-auto max-w-md">
-      <h1 className="mb-6 text-2xl font-semibold">이메일 인증</h1>
-      <Suspense fallback={<p className="text-sm text-slate-500">불러오는 중...</p>}>
-        <VerifyEmailInner />
-      </Suspense>
-      {/* [보안 강화] 이메일 인증 전 로그인 차단이 생기면서, 인증 직후 자동 로그인
-          상태가 아니게 됐다 - 이제 인증을 마쳐도 로그인은 따로 해야 하므로,
-          "바운티 목록으로"(로그인이 필요한 화면) 대신 로그인 화면으로 안내한다. */}
-      <p className="mt-4 text-sm text-slate-500">
-        <Link href="/login" className="text-brand-teal underline">
+    <AuthCard
+      title="이메일 인증"
+      footer={
+        // [보안 강화] 이메일 인증 전 로그인 차단이 생기면서, 인증 직후 자동 로그인
+        // 상태가 아니게 됐다 - 이제 인증을 마쳐도 로그인은 따로 해야 하므로,
+        // "바운티 목록으로"(로그인이 필요한 화면) 대신 로그인 화면으로 안내한다.
+        <Link href="/login" className="font-medium text-brand-teal hover:underline">
           로그인하러 가기
         </Link>
-      </p>
-    </div>
+      }
+    >
+      <Suspense fallback={<p className="text-sm text-ink-500">불러오는 중...</p>}>
+        <VerifyEmailInner />
+      </Suspense>
+    </AuthCard>
   );
 }

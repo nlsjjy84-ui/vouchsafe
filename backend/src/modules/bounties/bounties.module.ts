@@ -6,6 +6,7 @@ import { BountySubmission } from './entities/bounty-submission.entity';
 import { BountyMilestone } from './entities/bounty-milestone.entity';
 import { BountiesService } from './bounties.service';
 import { BountiesController } from './bounties.controller';
+import { PublicCasesController } from './public-cases.controller';
 import { SettlementSchedulerService } from './settlement-scheduler.service';
 import { CertificationsModule } from '../certifications/certifications.module';
 import { TransactionsModule } from '../transactions/transactions.module';
@@ -25,7 +26,7 @@ import { SafeNumberModule } from '../safe-number/safe-number.module';
     SafeNumberModule,
   ],
   providers: [BountiesService, SettlementSchedulerService],
-  controllers: [BountiesController],
+  controllers: [BountiesController, PublicCasesController],
   exports: [BountiesService, SettlementSchedulerService],
 })
 export class BountiesModule {}

@@ -10,8 +10,12 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  /**
+   * 이메일은 대소문자를 구분하지 않고 찾는다 (일반적인 서비스 관례).
+   * create()에서 항상 소문자로 저장하므로, 조회할 때도 소문자로 맞춰서 비교한다.
+   */
   findByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { email } });
+    return this.userRepository.findOne({ where: { email: email.trim().toLowerCase() } });
   }
 
   findById(id: string): Promise<User | null> {
@@ -19,7 +23,10 @@ export class UsersService {
   }
 
   create(partial: Partial<User>): Promise<User> {
-    const user = this.userRepository.create(partial);
+    const normalized = partial.email
+      ? { ...partial, email: partial.email.trim().toLowerCase() }
+      : partial;
+    const user = this.userRepository.create(normalized);
     return this.userRepository.save(user);
   }
 
@@ -36,5 +43,13 @@ export class UsersService {
   /** 비밀번호 재설정 완료 처리. 호출 전에 이미 새 비밀번호를 해시해서 넘겨야 한다 */
   async updatePasswordHash(userId: string, passwordHash: string): Promise<void> {
     await this.userRepository.update({ id: userId }, { passwordHash });
+  }
+
+  /**
+   * "AI 기반 개인화 예산 및 소비패턴 분석" 기능용 - 월 지출 예산 목표 설정/해제.
+   * null을 넘기면 예산 목표를 해제한다 (AiInsightsService가 이 경우 예산 인사이트를 건너뛴다).
+   */
+  async updateMonthlyBudgetGoal(userId: string, monthlyBudgetGoal: number | null): Promise<void> {
+    await this.userRepository.update({ id: userId }, { monthlyBudgetGoal });
   }
 }

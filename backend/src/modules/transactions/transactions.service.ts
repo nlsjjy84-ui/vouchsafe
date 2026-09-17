@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { MockEscrowService } from '../../mocks/mock-escrow.service';
+import { PaymentGatewayService } from '../../mocks/payment-gateway.interface';
 import { EscrowStatus } from '../../common/enums/escrow-status.enum';
 import { Bounty } from '../bounties/entities/bounty.entity';
 import { User } from '../users/entities/user.entity';
@@ -25,12 +26,19 @@ export class TransactionsService {
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
     private readonly mockEscrow: MockEscrowService,
+    private readonly paymentGateway: PaymentGatewayService,
   ) {}
 
   private repo(manager?: EntityManager): Repository<Transaction> {
     return manager ? manager.getRepository(Transaction) : this.transactionRepository;
   }
 
+  /**
+   * (2026-09-16 이전의 옛 흐름) 결제 확인 단계 없이 곧바로 에스크로를 잠그던 메서드.
+   * 지금은 selectApplicant → initiatePayment → confirmPayment 3단계로 나뉘어서
+   * BountiesService에서는 더 이상 이 메서드를 직접 부르지 않지만, 시그니처는 남겨둔다
+   * (마일스톤처럼 "결제 단계 없이 바로 잠가야" 하는 다른 흐름이 Phase 2에서 필요해질 수 있음).
+   */
   async lockEscrow(
     bounty: Bounty,
     payer: User,
@@ -47,6 +55,59 @@ export class TransactionsService {
       escrowStatus: EscrowStatus.LOCKED,
     });
     return repo.save(transaction);
+  }
+
+  /**
+   * Task #14 결제 확인 게이트 1단계: 전문가를 선택한 직후, 아직 돈은 움직이지 않은 채로
+   * "이 거래의 결제 식별자(paymentId)"만 미리 발급해서 Transaction을 PENDING_PAYMENT로
+   * 만들어둔다. 프론트(lib/portone.ts)는 이 paymentId를 그대로 포트원 결제창에 넘기고,
+   * 결제창이 끝나면 confirmPayment()가 같은 paymentId로 PG에 재확인한다.
+   */
+  async initiatePayment(
+    bounty: Bounty,
+    payer: User,
+    receiverId: string,
+    manager?: EntityManager,
+  ): Promise<Transaction> {
+    const paymentId = `bounty-${bounty.id}-${Date.now()}`;
+    const repo = this.repo(manager);
+    const transaction = repo.create({
+      bountyId: bounty.id,
+      payerCi: payer.ciHash,
+      receiverId,
+      amount: bounty.bountyAmount,
+      paymentId,
+      escrowStatus: EscrowStatus.PENDING_PAYMENT,
+    });
+    return repo.save(transaction);
+  }
+
+  /**
+   * Task #14 결제 확인 게이트 2단계: 프론트가 "결제창에서 성공했다"고 알려와도 그 말을
+   * 그대로 믿지 않고, 서버가 PaymentGatewayService로 PG에 직접 재확인한다 (결제 위변조
+   * 방지 핵심 원칙 - payment-gateway.interface.ts 주석 참고). 검증에 성공해야만
+   * 그제서야 실제로 에스크로를 잠근다(mockEscrow.lock) + LOCKED로 전이한다.
+   */
+  async confirmPayment(bountyId: string, manager?: EntityManager): Promise<Transaction> {
+    const transaction = await this.findByBountyIdOrThrow(bountyId, manager);
+    if (transaction.escrowStatus !== EscrowStatus.PENDING_PAYMENT) {
+      throw new BadRequestException('결제 대기 중인 거래가 아닙니다');
+    }
+    if (!transaction.paymentId) {
+      throw new BadRequestException('결제 식별자가 없는 거래입니다');
+    }
+
+    const verified = await this.paymentGateway.verifyPayment(
+      transaction.paymentId,
+      Number(transaction.amount),
+    );
+    if (!verified.paid) {
+      throw new BadRequestException(verified.reason ?? '결제 확인에 실패했습니다');
+    }
+
+    await this.mockEscrow.lock(transaction.amount, transaction.payerCi);
+    transaction.escrowStatus = EscrowStatus.LOCKED;
+    return this.repo(manager).save(transaction);
   }
 
   private async findByBountyIdOrThrow(

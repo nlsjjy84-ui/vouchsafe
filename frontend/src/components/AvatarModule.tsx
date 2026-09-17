@@ -9,6 +9,14 @@ const ROLE_COLORS: Record<string, string> = {
   CLIENT: 'bg-brand-blue',
   EXPERT: 'bg-brand-teal',
   HYBRID: 'bg-brand-amber',
+  ADMIN: 'bg-brand-navy',
+};
+
+const ROLE_TITLES: Record<string, string> = {
+  CLIENT: '의뢰인',
+  EXPERT: '검증된 전문가',
+  HYBRID: '하이브리드',
+  ADMIN: '관리자',
 };
 
 export function AvatarModule({
@@ -17,7 +25,7 @@ export function AvatarModule({
   size = 40,
 }: {
   name: string;
-  role: 'CLIENT' | 'EXPERT' | 'HYBRID';
+  role: 'CLIENT' | 'EXPERT' | 'HYBRID' | 'ADMIN';
   size?: number;
 }) {
   const initial = name?.trim()?.[0]?.toUpperCase() ?? '?';
@@ -27,7 +35,7 @@ export function AvatarModule({
     <div
       className={`flex items-center justify-center rounded-full font-semibold text-white ${colorClass}`}
       style={{ width: size, height: size, fontSize: size * 0.4 }}
-      title={role === 'EXPERT' ? '검증된 전문가' : role === 'CLIENT' ? '의뢰인' : '하이브리드'}
+      title={ROLE_TITLES[role] ?? role}
     >
       {initial}
     </div>

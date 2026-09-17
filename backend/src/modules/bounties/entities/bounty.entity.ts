@@ -70,6 +70,19 @@ export class Bounty {
   @Column({ type: 'timestamptz', nullable: true })
   submittedAt: Date | null;
 
+  /**
+   * 공개 거래 사례(투명성 신뢰 지표) - 의뢰인이 직접 매기는 평가.
+   * 1.0~10.0, 0.5점 단위 (프론트/백엔드 모두 0.5 step으로 검증한다).
+   * "시스템 점수"(ReputationService, 자동 계산 · 조작 불가)와는 별개로 나란히 공개한다 -
+   * 완료율/분쟁승률/처리속도처럼 실데이터 기반은 아니지만, "실제로 거래해본 사람의
+   * 주관적 평가"라는 다른 종류의 신호라 의도적으로 분리해서 보여준다.
+   */
+  @Column({ type: 'decimal', precision: 3, scale: 1, nullable: true })
+  clientRating: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  clientRatingNote: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

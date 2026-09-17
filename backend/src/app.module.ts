@@ -13,6 +13,7 @@ import { DisputesModule } from './modules/disputes/disputes.module';
 import { PaymentsModule } from './payments/payments.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { AiInsightsModule } from './modules/ai-insights/ai-insights.module';
 import { HealthController } from './health.controller';
 
 @Module({
@@ -67,6 +68,7 @@ import { HealthController } from './health.controller';
     PaymentsModule,
     WebhooksModule,
     DashboardModule,
+    AiInsightsModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

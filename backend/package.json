@@ -14,7 +14,11 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "create-admin": "ts-node -r tsconfig-paths/register src/scripts/create-admin.ts"
+    "create-admin": "ts-node -r tsconfig-paths/register src/scripts/create-admin.ts",
+    "seed-demo": "ts-node -r tsconfig-paths/register src/scripts/seed-demo.ts",
+    "seed-demo-more": "ts-node -r tsconfig-paths/register src/scripts/seed-demo-more.ts",
+    "seed-anomaly-test": "ts-node -r tsconfig-paths/register src/scripts/seed-anomaly-test.ts",
+    "check-columns": "ts-node -r tsconfig-paths/register src/scripts/check-columns.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1132.0",
@@ -30,6 +34,7 @@
     "@nestjs/typeorm": "^10.0.2",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
+    "dotenv": "^16.4.5",
     "class-validator": "^0.14.1",
     "helmet": "^8.3.0",
     "multer": "^2.4.0",

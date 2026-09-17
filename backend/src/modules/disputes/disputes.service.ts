@@ -64,6 +64,15 @@ export class DisputesService {
     return this.disputeRepository.find({ where: { bountyId }, order: { createdAt: 'DESC' } });
   }
 
+  /** [관리자] 아직 처리되지 않은(OPEN) 분쟁 전체 목록 - 관리자 대시보드용 */
+  findOpenWithBounty() {
+    return this.disputeRepository.find({
+      where: { status: DisputeStatus.OPEN },
+      relations: ['bounty'],
+      order: { createdAt: 'ASC' },
+    });
+  }
+
   /**
    * 관리자 1차 중재 결과 반영.
    * refund=true  → 9장 "전문가 귀책(먹튀) 환불": 의뢰인 전액 환불 + 전문가 자격 제재는 Phase 2

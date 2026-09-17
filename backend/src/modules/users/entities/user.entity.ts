@@ -44,6 +44,14 @@ export class User {
   @Column({ type: 'timestamptz', nullable: true })
   emailVerifiedAt: Date | null;
 
+  /**
+   * "AI 기반 개인화 예산 및 소비패턴 분석" 기능용 - 사용자가 직접 설정하는
+   * 월 지출 예산 목표(원). 설정 전에는 null이며, AiInsightsService가 이번 달
+   * 지출과 비교해서 예산 대비 소비 인사이트를 만들 때 쓴다.
+   */
+  @Column({ name: 'monthly_budget_goal', type: 'bigint', nullable: true })
+  monthlyBudgetGoal: number | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { PlusCircle, MapPin, CalendarClock, Wallet } from 'lucide-react';
 import { api, extractErrorMessage } from '@/lib/api';
 import { DOMAIN_LABELS, DomainType, ServiceType, SERVICE_TYPE_LABELS } from '@/lib/types';
+import { FIELD_INPUT_CLASS, FormField, FormSubmitButton, FormErrorText } from '@/components/FormControls';
 
 const DOMAIN_OPTIONS = Object.entries(DOMAIN_LABELS) as [DomainType, string][];
 const SERVICE_TYPE_OPTIONS = Object.entries(SERVICE_TYPE_LABELS) as [ServiceType, string][];
@@ -50,13 +52,15 @@ export default function NewBountyPage() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <h1 className="mb-6 text-2xl font-semibold">바운티 등록</h1>
+      <div className="mb-6 flex items-center gap-2">
+        <PlusCircle size={20} className="text-brand-teal" />
+        <h1 className="text-xl font-bold text-ink-900">바운티 등록</h1>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="mb-1 block text-sm font-medium">도메인</label>
+      <form onSubmit={handleSubmit} className="space-y-5 rounded-4xl border border-hairline bg-surface-canvas p-6">
+        <FormField label="도메인">
           <select
-            className="w-full rounded border border-slate-300 px-3 py-2"
+            className={FIELD_INPUT_CLASS}
             value={domainType}
             onChange={(e) => setDomainType(e.target.value as DomainType)}
           >
@@ -66,12 +70,11 @@ export default function NewBountyPage() {
               </option>
             ))}
           </select>
-        </div>
+        </FormField>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium">진행 방식</label>
+        <FormField label="진행 방식" hint="현장 동행: 부동산 임장, 중고차 점검처럼 전문가가 실제 현장에 함께 가야 하는 경우">
           <select
-            className="w-full rounded border border-slate-300 px-3 py-2"
+            className={FIELD_INPUT_CLASS}
             value={serviceType}
             onChange={(e) => setServiceType(e.target.value as ServiceType)}
           >
@@ -81,80 +84,75 @@ export default function NewBountyPage() {
               </option>
             ))}
           </select>
-          <p className="mt-1 text-xs text-slate-400">
-            현장 동행: 부동산 임장, 중고차 점검처럼 전문가가 실제 현장에 함께 가야 하는 경우
-          </p>
-        </div>
+        </FormField>
 
         {serviceType === 'COMPANION' && (
-          <div className="space-y-4 rounded border border-amber-200 bg-amber-50 p-4">
-            <div>
-              <label className="mb-1 block text-sm font-medium">예약 일시</label>
-              <input
-                type="datetime-local"
-                className="w-full rounded border border-slate-300 px-3 py-2"
-                value={scheduledAt}
-                onChange={(e) => setScheduledAt(e.target.value)}
-                required={serviceType === 'COMPANION'}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium">장소</label>
-              <input
-                className="w-full rounded border border-slate-300 px-3 py-2"
-                placeholder="예: 서울시 강남구 OO공인중개사"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                required={serviceType === 'COMPANION'}
-              />
-            </div>
+          <div className="space-y-4 rounded-xl bg-tint-amber p-4">
+            <FormField label="예약 일시">
+              <div className="relative">
+                <CalendarClock size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+                <input
+                  type="datetime-local"
+                  className={`${FIELD_INPUT_CLASS} bg-surface-canvas pl-9`}
+                  value={scheduledAt}
+                  onChange={(e) => setScheduledAt(e.target.value)}
+                  required={serviceType === 'COMPANION'}
+                />
+              </div>
+            </FormField>
+            <FormField label="장소">
+              <div className="relative">
+                <MapPin size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+                <input
+                  className={`${FIELD_INPUT_CLASS} bg-surface-canvas pl-9`}
+                  placeholder="예: 서울시 강남구 OO공인중개사"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  required={serviceType === 'COMPANION'}
+                />
+              </div>
+            </FormField>
           </div>
         )}
 
-        <div>
-          <label className="mb-1 block text-sm font-medium">제목</label>
+        <FormField label="제목">
           <input
-            className="w-full rounded border border-slate-300 px-3 py-2"
+            className={FIELD_INPUT_CLASS}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             minLength={5}
             required
           />
-        </div>
+        </FormField>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium">상세 내용 (20자 이상)</label>
+        <FormField label="상세 내용" hint="(20자 이상)">
           <textarea
-            className="h-32 w-full rounded border border-slate-300 px-3 py-2"
+            className={`${FIELD_INPUT_CLASS} h-32`}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             minLength={20}
             required
           />
-        </div>
+        </FormField>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium">바운티 금액 (원)</label>
-          <input
-            type="number"
-            min={10000}
-            step={10000}
-            className="w-full rounded border border-slate-300 px-3 py-2"
-            value={bountyAmount}
-            onChange={(e) => setBountyAmount(Number(e.target.value))}
-            required
-          />
-        </div>
+        <FormField label="바운티 금액" hint="(원)">
+          <div className="relative">
+            <Wallet size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+            <input
+              type="number"
+              min={10000}
+              step={10000}
+              className={`${FIELD_INPUT_CLASS} pl-9`}
+              value={bountyAmount}
+              onChange={(e) => setBountyAmount(Number(e.target.value))}
+              required
+            />
+          </div>
+        </FormField>
 
-        {error && <p className="text-sm text-brand-red">{error}</p>}
+        {error && <FormErrorText>{error}</FormErrorText>}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full rounded bg-brand-teal py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
-        >
-          {submitting ? '등록중...' : '바운티 등록'}
-        </button>
+        <FormSubmitButton disabled={submitting}>{submitting ? '등록중...' : '바운티 등록'}</FormSubmitButton>
       </form>
     </div>
   );

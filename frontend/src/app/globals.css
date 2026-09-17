@@ -3,6 +3,172 @@
 @tailwind utilities;
 
 body {
-  background-color: #f5f7f6; /* 기획서 슬라이드 배경과 동일한 톤의 밝은 회색 */
+  background-color: #f7f8f9; /* surface.DEFAULT 디자인 토큰과 동일 톤 */
   color: #0f172a;
+  font-family: 'Gothic A1', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+}
+
+/* Do Hyeon은 자간을 살짝 넓혀야 로고체처럼 보인다 - font-display 유틸과 항상 같이 쓴다 */
+.font-display {
+  letter-spacing: 0.01em;
+}
+
+/* 스크롤바를 살짝만 얇게 - 과하지 않게 다듬어 대시보드 톤에 맞춘다 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/*
+ * ============================================================
+ * 장단(jangdan) 리듬 모션 키프레임
+ * ============================================================
+ * lib/motion.ts의 jangdanDelay()와 짝을 이룬다. 리스트 항목이
+ * "일정한 간격"이 아니라 "점점 좁아지는 간격"으로 쌓이듯 나타나서,
+ * 사물놀이 장단이 느린 박에서 빠른 박으로 몰아치는 구조를 은은하게 반영한다.
+ */
+@keyframes stagger-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-stagger-in {
+  opacity: 0;
+  animation: stagger-in 420ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* JangdanMark의 animated=true 버전 - 로딩 인디케이터용 막대 펄스 */
+@keyframes jangdan-bar {
+  0%,
+  100% {
+    transform: scaleY(0.55);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+.animate-jangdan-bar {
+  transform-origin: bottom;
+  animation: jangdan-bar 900ms ease-in-out infinite;
+}
+
+/* SuccessPulse - 성공 액션에서 한 번만 은은하게 번지는 링 */
+@keyframes success-ring {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+.animate-success-ring {
+  animation: success-ring 900ms cubic-bezier(0.16, 1, 0.3, 1) 1;
+}
+
+/* ChatWidget "입력중" 표시 - 3개 점이 장단처럼 순서대로 튀어오른다 */
+@keyframes typing-dot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+.animate-typing-dot {
+  animation: typing-dot 900ms ease-in-out infinite;
+}
+
+/*
+ * 가로 마퀴(marquee) - 라이브 티커 바 / 전문 분야 스트립용.
+ * marquee: 콘텐츠를 2번 이어붙인 트랙 전용 (-50%에서 이음선 없이 순환).
+ * marquee-3: 콘텐츠를 3번 이어붙인 트랙 전용 (-33.3333%에서 순환).
+ */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes marquee-3 {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-33.3333%);
+  }
+}
+
+/*
+ * concept-b/c 합의(v4) - "형태는 c" 반영: Blob/RippleRings 장식이 아주 은은하게
+ * 떠다니는 느낌을 주는 블롭 플로트 애니메이션. 징/북소리가 퍼지는 동심원 파동
+ * 모티프(concept-c)를 정적으로 두지 않고 아주 느리게 숨쉬듯 움직이게 했다.
+ */
+@keyframes blob-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(0, -10px) scale(1.03);
+  }
+}
+.animate-blob-float {
+  animation: blob-float 7s ease-in-out infinite;
+}
+
+@keyframes ripple-pulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(0.92);
+  }
+}
+.animate-ripple-pulse {
+  animation: ripple-pulse 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-stagger-in,
+  .animate-jangdan-bar,
+  .animate-success-ring,
+  .animate-typing-dot,
+  .animate-blob-float,
+  .animate-ripple-pulse {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  [class*='animate-[marquee'] {
+    animation: none !important;
+    transform: none !important;
+  }
 }

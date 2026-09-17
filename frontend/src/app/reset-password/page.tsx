@@ -3,7 +3,16 @@
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Lock } from 'lucide-react';
 import { api, extractErrorMessage } from '@/lib/api';
+import {
+  AuthCard,
+  AuthField,
+  AUTH_INPUT_CLASS,
+  AuthSubmitButton,
+  AuthErrorText,
+} from '@/components/AuthCard';
+import { SuccessPulse } from '@/components/SuccessPulse';
 
 /**
  * 비밀번호 재설정 "실행" 화면. 이메일에 담긴 링크
@@ -44,63 +53,52 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <p className="text-sm text-brand-red">
+      <AuthErrorText>
         링크에 재설정 토큰이 없어요.{' '}
         <Link href="/forgot-password" className="underline">
           다시 요청하기
         </Link>
-      </p>
+      </AuthErrorText>
     );
   }
 
   if (done) {
-    return (
-      <div className="rounded border border-teal-200 bg-teal-50 p-4 text-sm text-brand-teal">
-        비밀번호가 변경되었습니다. 잠시 후 로그인 화면으로 이동해요.
-      </div>
-    );
+    return <SuccessPulse>비밀번호가 변경되었습니다. 잠시 후 로그인 화면으로 이동해요.</SuccessPulse>;
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        {/* [보안 강화] register 페이지와 동일한 정책으로 강화 (16자 이상 +
-            대/소문자 + 특수문자 조합 필수) - backend password-policy.ts 참고. */}
-        <label className="mb-1 block text-sm font-medium">
-          새 비밀번호 <span className="font-normal text-slate-400">(16자 이상 · 대문자·소문자·특수문자 포함)</span>
-        </label>
-        <input
-          type="password"
-          className="w-full rounded border border-slate-300 px-3 py-2"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          minLength={16}
-          pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[^A-Za-z0-9]).{16,}"
-          title="16자 이상이며 대문자, 소문자, 특수문자를 각각 최소 1개 이상 포함해야 합니다"
-          required
-        />
-      </div>
+      {/* [보안 강화] register 페이지와 동일한 정책 (10자 이상 +
+          대/소문자 + 숫자 + 특수문자 조합 필수) - backend strong-password.decorator.ts 참고. */}
+      <AuthField label="새 비밀번호" hint="(10자 이상 · 대문자·소문자·숫자·특수문자 포함)">
+        <div className="relative">
+          <Lock size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+          <input
+            type="password"
+            className={`${AUTH_INPUT_CLASS} pl-9`}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            minLength={10}
+            pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{10,}"
+            title="10자 이상이며 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 이상 포함해야 합니다"
+            required
+          />
+        </div>
+      </AuthField>
 
-      {error && <p className="text-sm text-brand-red">{error}</p>}
+      {error && <AuthErrorText>{error}</AuthErrorText>}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded bg-brand-teal py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
-      >
-        {submitting ? '처리중...' : '비밀번호 변경'}
-      </button>
+      <AuthSubmitButton disabled={submitting}>{submitting ? '처리중...' : '비밀번호 변경'}</AuthSubmitButton>
     </form>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <div className="mx-auto max-w-md">
-      <h1 className="mb-6 text-2xl font-semibold">새 비밀번호 설정</h1>
-      <Suspense fallback={<p className="text-sm text-slate-500">불러오는 중...</p>}>
+    <AuthCard title="새 비밀번호 설정">
+      <Suspense fallback={<p className="text-sm text-ink-500">불러오는 중...</p>}>
         <ResetPasswordForm />
       </Suspense>
-    </div>
+    </AuthCard>
   );
 }
