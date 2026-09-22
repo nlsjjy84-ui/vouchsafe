@@ -2,9 +2,9 @@
  * =========================================================================
  * 비밀번호 정책 - 회원가입(RegisterDto)과 비밀번호 재설정(ResetPasswordDto)
  * 둘 다 같은 규칙을 써야 해서, 정규식/메시지를 한 곳에 모아 공유한다
- * (file-validation.util.ts를 MockStorageService/S3StorageService가
- * 공유하는 것과 같은 이유 - 규칙이 두 군데로 복사되면 한쪽만 나중에
- * 고치고 잊어버리는 사고가 나기 쉽다).
+ * (storage/magic-byte-validator.ts와 storage/upload-limits.const.ts를
+ * MockStorageService/S3StorageService가 공유하는 것과 같은 이유 - 규칙이
+ * 두 군데로 복사되면 한쪽만 나중에 고치고 잊어버리는 사고가 나기 쉽다).
  *
  * 요구사항: 16자 이상 + 대문자 최소 1개 + 소문자 최소 1개 + 특수문자 최소 1개.
  * (숫자 포함은 별도로 강제하지 않는다 - 요청받은 조건 그대로.)

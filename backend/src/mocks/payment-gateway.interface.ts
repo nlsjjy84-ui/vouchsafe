@@ -1,7 +1,7 @@
 /**
  * 결제대행사(PG) 연동을 위한 공통 인터페이스.
  *
- * StorageService(mocks/storage.interface.ts)와 완전히 같은 원칙: 이 인터페이스에만
+ * StorageService(storage/storage.interface.ts)와 완전히 같은 원칙: 이 인터페이스에만
  * 의존하게 만들어두면, Mock 구현체 <-> 실제 포트원 구현체를 mocks.module.ts의
  * provider 설정 하나만 바꿔서 교체할 수 있다. 나머지 코드(TransactionsService,
  * BountiesService)는 어떤 구현체가 실제로 쓰이는지 전혀 몰라도 된다.

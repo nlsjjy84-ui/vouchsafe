@@ -10,13 +10,13 @@ import { User } from '../users/entities/user.entity';
 
 /**
  * 에스크로 자금의 상태(LOCKED/FROZEN/SETTLED/REFUNDED)만 책임지는 서비스.
- * "바운티가 지금 어느 단계인지"는 BountiesService가, "그 바운티에 걸린 돈이 지금
+ * "프로젝트가 지금 어느 단계인지"는 BountiesService가, "그 프로젝트에 걸린 돈이 지금
  * 어디 있는지"는 여기가 책임진다 — 기획서 10장 ERD가 Bounties/Transactions를
  * 분리한 이유와 같은 관심사 분리 원칙을 서비스 레이어에도 그대로 적용했다.
  *
  * Phase 2: 모든 쓰기 메서드가 선택적 `manager: EntityManager`를 받는다.
  * 호출하는 쪽(BountiesService, DisputesService)이 DataSource.transaction() 콜백
- * 안에서 이 메서드들을 부르면, 그 트랜잭션에 그대로 합류한다 — 바운티/지원서/에스크로가
+ * 안에서 이 메서드들을 부르면, 그 트랜잭션에 그대로 합류한다 — 프로젝트/지원서/에스크로가
  * 여러 테이블에 걸쳐 바뀌는 다단계 작업 중 하나라도 실패하면 전부 롤백되게 하기 위함.
  * manager를 안 넘기면(단독 호출) 기존처럼 기본 리포지토리로 즉시 커밋된다.
  */
@@ -87,9 +87,14 @@ export class TransactionsService {
    * 그대로 믿지 않고, 서버가 PaymentGatewayService로 PG에 직접 재확인한다 (결제 위변조
    * 방지 핵심 원칙 - payment-gateway.interface.ts 주석 참고). 검증에 성공해야만
    * 그제서야 실제로 에스크로를 잠근다(mockEscrow.lock) + LOCKED로 전이한다.
+   *
+   * (2026-09-23 동시성 점검) 웹훅(WebhooksService)과 프론트엔드의 결제 확인 요청이
+   * 같은 결제에 대해 거의 동시에 들어올 수 있다(포트원 웹훅은 재시도 정책까지 있다).
+   * 트랜잭션 안에서 호출될 때(manager가 있을 때)는 행 잠금으로 다시 읽어, 다른 경로가
+   * 이미 먼저 LOCKED로 바꿔놓지 않았는지 확인한 뒤에만 진행한다.
    */
   async confirmPayment(bountyId: string, manager?: EntityManager): Promise<Transaction> {
-    const transaction = await this.findByBountyIdOrThrow(bountyId, manager);
+    const transaction = await this.findByBountyIdOrThrow(bountyId, manager, true);
     if (transaction.escrowStatus !== EscrowStatus.PENDING_PAYMENT) {
       throw new BadRequestException('결제 대기 중인 거래가 아닙니다');
     }
@@ -110,12 +115,21 @@ export class TransactionsService {
     return this.repo(manager).save(transaction);
   }
 
+  /**
+   * lockForUpdate: pessimistic_write 행 잠금은 실제 트랜잭션(QueryRunner) 안에서만
+   * 유효하므로, manager가 없는 단독 호출(예: 유닛 테스트에서 서비스만 직접 호출하는
+   * 경우)에서는 조용히 무시하고 기존과 동일하게 동작한다.
+   */
   private async findByBountyIdOrThrow(
     bountyId: string,
     manager?: EntityManager,
+    lockForUpdate = false,
   ): Promise<Transaction> {
-    const transaction = await this.repo(manager).findOne({ where: { bountyId } });
-    if (!transaction) throw new NotFoundException('해당 바운티의 거래 내역을 찾을 수 없습니다');
+    const transaction = await this.repo(manager).findOne({
+      where: { bountyId },
+      ...(lockForUpdate && manager ? { lock: { mode: 'pessimistic_write' as const } } : {}),
+    });
+    if (!transaction) throw new NotFoundException('해당 프로젝트의 거래 내역을 찾을 수 없습니다');
     return transaction;
   }
 

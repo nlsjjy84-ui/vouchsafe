@@ -16,7 +16,7 @@ import { EscrowStatus } from '../../../common/enums/escrow-status.enum';
  *
  * payerCi: ERD 원안 그대로 - 실명 대사(마이데이터 실명 대조, 7장)를 위해
  * 계좌 명의가 아니라 "누구 명의로 결제됐는지"의 CI 해시를 남긴다.
- * platformFeeAmount: 9장 "정상 정산 = 바운티 금액 - 플랫폼 기본 수수료" 계산 결과를 감사 로그처럼 남겨둔다.
+ * platformFeeAmount: 9장 "정상 정산 = 프로젝트 금액 - 플랫폼 기본 수수료" 계산 결과를 감사 로그처럼 남겨둔다.
  */
 @Entity('transactions')
 export class Transaction {
@@ -27,7 +27,10 @@ export class Transaction {
   @JoinColumn({ name: 'bounty_id' })
   bounty: Bounty;
 
-  @Column({ name: 'bounty_id' })
+  // (2026-09-23 동시성 점검) 프로젝트 하나에는 거래(Transaction) 행이 항상 하나여야
+  // 한다 - selectApplicant의 행 잠금이 애플리케이션 레벨에서 중복 생성을 막지만,
+  // DB 레벨에도 같은 원칙을 명시해 두 번째 안전장치로 둔다.
+  @Column({ name: 'bounty_id', unique: true })
   bountyId: string;
 
   @Column({ name: 'payer_ci' })

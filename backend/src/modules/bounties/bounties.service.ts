@@ -211,6 +211,21 @@ export class BountiesService {
       const applicationRepo = manager.getRepository(BountyApplication);
       const bountyRepo = manager.getRepository(Bounty);
 
+      // (2026-09-23 동시성 점검) 위에서 트랜잭션 밖에 미리 읽어둔 `bounty.status`만 믿고
+      // 진행하면, 같은 프로젝트에 대해 selectApplicant가 거의 동시에 두 번 호출될 때
+      // (더블 클릭, 중복 요청 등) 둘 다 PENDING을 보고 통과해버려 결제 대기(Transaction)
+      // 행이 프로젝트 하나에 2개 생기는 경합이 이론적으로 가능했다. 여기서 행 잠금
+      // (pessimistic_write)으로 다시 읽어, 그 사이 다른 요청이 먼저 커밋해 상태가
+      // 바뀌지 않았는지 확인한 뒤에만 진행한다 — 두 번째 요청은 여기서 안전하게 막힌다.
+      const lockedBounty = await bountyRepo.findOne({
+        where: { id: bountyId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!lockedBounty) throw new NotFoundException('프로젝트를 찾을 수 없습니다');
+      if (lockedBounty.status !== BountyStatus.PENDING) {
+        throw new BadRequestException('이미 진행 중인 프로젝트입니다');
+      }
+
       // 선택된 지원자는 SELECTED, 나머지는 REJECTED로 일괄 처리
       const allApplications = await applicationRepo.find({ where: { bountyId } });
       for (const app of allApplications) {
@@ -219,12 +234,12 @@ export class BountiesService {
       }
       await applicationRepo.save(allApplications);
 
-      bounty.assignedExpertId = selected.expertId;
-      bounty.status = BountyStatus.PAYMENT_PENDING;
-      await bountyRepo.save(bounty);
+      lockedBounty.assignedExpertId = selected.expertId;
+      lockedBounty.status = BountyStatus.PAYMENT_PENDING;
+      await bountyRepo.save(lockedBounty);
 
-      await this.transactionsService.initiatePayment(bounty, client, selected.expertId, manager);
-      return bounty;
+      await this.transactionsService.initiatePayment(lockedBounty, client, selected.expertId, manager);
+      return lockedBounty;
     }).then(async (result) => {
       await this.notificationsService.notify(
         selected.expertId,
