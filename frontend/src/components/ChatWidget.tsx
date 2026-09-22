@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
-import { JangdanMark } from './JangdanMark';
 
 /**
  * =========================================================================
@@ -32,12 +31,12 @@ const RULES: Array<{ keywords: string[]; answer: string }> = [
   {
     keywords: ['이의제기', '분쟁', 'dispute', '환불'],
     answer:
-      '제출된 결과물에 문제가 있다고 생각되면 바운티 상세 화면에서 이의제기를 접수할 수 있어요. 접수 즉시 에스크로 자금이 동결(FROZEN)되고, 관리자가 내용을 검토해 환불 또는 정산 유지로 중재해요.',
+      '제출된 결과물에 문제가 있다고 생각되면 프로젝트 상세 화면에서 이의제기를 접수할 수 있어요. 접수 즉시 에스크로 자금이 동결(FROZEN)되고, 관리자가 내용을 검토해 환불 또는 정산 유지로 중재해요.',
   },
   {
     keywords: ['자격', '인증', 'certification', '검증', '전문가 등록'],
     answer:
-      '전문가 자격은 4개 트랙(국가 공인 자격증 / 사업자 경력 / 실무 경력·교육 / 크리에이터) 중 하나로 증빙을 제출하면, 형식 검증과 대조를 거쳐 자동으로 승인/반려돼요. 승인된 분야의 바운티에만 지원할 수 있어요.',
+      '전문가 자격은 4개 트랙(국가 공인 자격증 / 사업자 경력 / 실무 경력·교육 / 크리에이터) 중 하나로 증빙을 제출하면, 형식 검증과 대조를 거쳐 자동으로 승인/반려돼요. 승인된 분야의 프로젝트에만 지원할 수 있어요.',
   },
   {
     keywords: ['인사이트', 'ai', '분석', '소비', '지출', '예산', '마이데이터'],
@@ -45,9 +44,9 @@ const RULES: Array<{ keywords: string[]; answer: string }> = [
       '좌측 메뉴의 "AI 인사이트"에 들어가면 내 활동 데이터(지출/수입/분야별 분포/월별 추이)를 기반으로 한 맞춤 분석과, 지출 경향에 대한 인사이트 문장을 볼 수 있어요.',
   },
   {
-    keywords: ['바운티', '등록', '올리기', '의뢰'],
+    keywords: ['프로젝트', '등록', '올리기', '의뢰'],
     answer:
-      '"바운티 등록" 메뉴에서 분야(도메인)와 예산, 원하는 결과물을 적어 올리면, 해당 분야에 인증된 전문가들이 지원할 수 있어요. 지원자 중 한 명을 선택하면 에스크로에 자금이 잠기고 작업이 시작돼요.',
+      '"프로젝트 등록" 메뉴에서 분야(도메인)와 예산, 원하는 결과물을 적어 올리면, 해당 분야에 인증된 전문가들이 지원할 수 있어요. 지원자 중 한 명을 선택하면 에스크로에 자금이 잠기고 작업이 시작돼요.',
   },
   {
     keywords: ['정산', '수수료', 'fee', '수익'],
@@ -56,7 +55,7 @@ const RULES: Array<{ keywords: string[]; answer: string }> = [
   },
   {
     keywords: ['안녕', 'hi', 'hello', '반가'],
-    answer: '안녕하세요! CredoBounty 도우미예요. 바운티, 에스크로, 전문가 인증, AI 인사이트 등 무엇이든 물어보세요.',
+    answer: '안녕하세요! Vouchsafe 도우미예요. 프로젝트, 에스크로, 전문가 인증, AI 인사이트 등 무엇이든 물어보세요.',
   },
 ];
 
@@ -75,7 +74,7 @@ export function ChatWidget() {
     {
       id: 0,
       role: 'bot',
-      text: '안녕하세요! CredoBounty AI 도우미예요. 에스크로, 이의제기, 전문가 인증, AI 인사이트 등 궁금한 걸 물어보세요.',
+      text: '안녕하세요! Vouchsafe AI 도우미예요. 에스크로, 이의제기, 전문가 인증, AI 인사이트 등 궁금한 걸 물어보세요.',
     },
   ]);
   const [input, setInput] = useState('');
@@ -109,8 +108,9 @@ export function ChatWidget() {
       {open && (
         <div className="fixed bottom-24 right-6 z-40 flex h-[28rem] w-80 flex-col overflow-hidden rounded-2xl border border-hairline bg-surface-canvas shadow-float">
           <div className="flex items-center gap-2.5 bg-brand-ink px-4 py-3 text-white">
-            <JangdanMark size={14} variant="dark" />
-            <span className="text-sm font-semibold">CredoBounty AI 도우미</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/logo-icon-white.png" alt="" aria-hidden="true" style={{ height: 14, width: 'auto' }} />
+            <span className="text-sm font-semibold">Vouchsafe AI 도우미</span>
           </div>
           <div className="flex-1 space-y-2 overflow-y-auto px-3 py-3">
             {messages.map((m) => (

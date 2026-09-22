@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { ReactNode } from 'react';
-import { JangdanMark } from './JangdanMark';
 import { Button } from './Button';
 
 /**
@@ -23,9 +22,10 @@ export function AuthCard({
     <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center py-10">
       <Link href="/" className="mb-8 flex items-center justify-center gap-2.5">
         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-ink">
-          <JangdanMark size={18} variant="dark" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/logo-icon-white.png" alt="" aria-hidden="true" style={{ height: 18, width: 'auto' }} />
         </span>
-        <span className="font-display text-xl tracking-wide text-ink-900">CredoBounty</span>
+        <span className="font-display text-xl tracking-wide text-ink-900">Vouchsafe</span>
       </Link>
 
       <div className="rounded-4xl border border-hairline bg-surface-canvas p-8 shadow-bloom">

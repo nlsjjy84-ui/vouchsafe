@@ -14,7 +14,6 @@ import {
   ChevronsRight,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
-import { JangdanMark } from './JangdanMark';
 import { jangdanDelay } from '@/lib/motion';
 
 /**
@@ -85,7 +84,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: '탐색',
     tone: 'teal',
     items: [
-      { href: '/bounties', label: '바운티 둘러보기', icon: Compass, match: (p) => p === '/bounties' },
+      { href: '/bounties', label: '프로젝트 둘러보기', icon: Compass, match: (p) => p === '/bounties' },
       { href: '/cases', label: '거래 사례', icon: ScrollText, match: (p) => p.startsWith('/cases') },
     ],
   },
@@ -100,7 +99,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: '내 활동',
     tone: 'amber',
     items: [
-      { href: '/bounties/new', label: '바운티 등록', icon: PlusCircle, match: (p) => p === '/bounties/new' },
+      { href: '/bounties/new', label: '프로젝트 등록', icon: PlusCircle, match: (p) => p === '/bounties/new' },
       { href: '/certifications', label: '전문가 인증', icon: ShieldCheck, match: (p) => p.startsWith('/certifications') },
       { href: '/mypage', label: '마이페이지', icon: LayoutDashboard, match: (p) => p.startsWith('/mypage') },
     ],
@@ -127,8 +126,9 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
       className={`fixed inset-y-0 left-0 z-30 flex ${width} flex-col border-r border-hairline bg-surface-canvas transition-[width] duration-200`}
     >
       <div className="flex h-14 items-center gap-2.5 border-b border-hairline px-4">
-        <JangdanMark size={18} />
-        {!collapsed && <span className="truncate font-display text-base tracking-wide text-ink-900">CredoBounty</span>}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand/logo-icon-ink.png" alt="" aria-hidden="true" style={{ height: 18, width: 'auto' }} />
+        {!collapsed && <span className="truncate font-display text-base tracking-wide text-ink-900">Vouchsafe</span>}
       </div>
 
       <nav className="flex-1 space-y-5 overflow-y-auto px-2 py-4">
