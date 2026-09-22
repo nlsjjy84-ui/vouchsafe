@@ -86,7 +86,7 @@ export default function ConceptBPage() {
       <header className="flex items-center justify-between border-b border-[#111]/10 px-6 py-4 sm:px-10">
         <span className="font-display text-lg tracking-wide">CREDOBOUNTY</span>
         <nav className="flex items-center gap-6 text-xs font-medium uppercase tracking-widest">
-          <span>바운티</span>
+          <span>프로젝트</span>
           <span>인사이트</span>
           <span className="border border-[#111] px-3 py-1.5">로그인</span>
         </nav>
@@ -157,7 +157,7 @@ export default function ConceptBPage() {
 
       {/* 핵심 가치 - 에디토리얼 인덱스 */}
       <section className="px-6 py-16 sm:px-10">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#666]">Why CredoBounty</p>
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#666]">Why Vouchsafe</p>
         <div className="mt-6 divide-y divide-[#111] border-t border-[#111]">
           {INDEX_ITEMS.map((item) => (
             <div key={item.n} className="grid grid-cols-[auto,1fr] items-baseline gap-x-6 py-7 sm:grid-cols-[80px,1fr,1fr]">

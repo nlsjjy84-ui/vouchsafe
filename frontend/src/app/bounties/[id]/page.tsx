@@ -31,9 +31,9 @@ const UTILITY_CARD_CLASS = 'rounded-4xl border border-hairline bg-surface-raised
 
 /**
  * =========================================================================
- * 바운티 상세 화면 — 이 프로젝트에서 가장 로직이 많은 화면이다.
+ * 프로젝트 상세 화면 — 이 프로젝트에서 가장 로직이 많은 화면이다.
  * =========================================================================
- * 같은 바운티라도 "보는 사람이 누구냐"에 따라 보여줄 버튼이 완전히 달라진다:
+ * 같은 프로젝트라도 "보는 사람이 누구냐"에 따라 보여줄 버튼이 완전히 달라진다:
  *   - 의뢰인(글쓴이) + PENDING 상태  → 지원자 목록 + "이 사람으로 결정" 버튼
  *   - 전문가 + PENDING 상태 + 아직 지원 안 함 → "지원하기" 버튼
  *   - 선택된 전문가 + LOCKED 상태 → "결과물 제출" 폼
@@ -279,7 +279,7 @@ function ApplyForm({ bountyId, onDone }: { bountyId: string; onDone: () => void 
   return (
     <form onSubmit={handleSubmit} className={`space-y-3 ${CARD_CLASS}`}>
       <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
-        <Send size={16} className="text-brand-clay" /> 이 바운티에 지원하기
+        <Send size={16} className="text-brand-clay" /> 이 프로젝트에 지원하기
       </h2>
       <textarea
         className={`${FIELD_INPUT_CLASS} h-24`}

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
+import { JangdanMark } from './JangdanMark';
 
 /**
  * =========================================================================
@@ -108,8 +109,7 @@ export function ChatWidget() {
       {open && (
         <div className="fixed bottom-24 right-6 z-40 flex h-[28rem] w-80 flex-col overflow-hidden rounded-2xl border border-hairline bg-surface-canvas shadow-float">
           <div className="flex items-center gap-2.5 bg-brand-ink px-4 py-3 text-white">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/logo-icon-white.png" alt="" aria-hidden="true" style={{ height: 14, width: 'auto' }} />
+            <JangdanMark size={14} variant="dark" />
             <span className="text-sm font-semibold">Vouchsafe AI 도우미</span>
           </div>
           <div className="flex-1 space-y-2 overflow-y-auto px-3 py-3">

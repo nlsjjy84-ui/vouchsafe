@@ -52,7 +52,7 @@ export function EscrowStatusBadge({ status }: { status: EscrowStatus }) {
   );
 }
 
-// [Task #31 마이페이지] "내가 지원한 바운티" 목록에서 지원 결과를 한눈에 보여주기 위해 추가.
+// [Task #31 마이페이지] "내가 지원한 프로젝트" 목록에서 지원 결과를 한눈에 보여주기 위해 추가.
 const APPLICATION_STYLES: Record<ApplicationStatus, string> = {
   APPLIED: 'bg-tint-ink text-ink-700 border-hairline-strong',
   SELECTED: 'bg-tint-clay text-brand-clay border-brand-clay/30',

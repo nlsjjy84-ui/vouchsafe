@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ReactNode } from 'react';
 import { Button } from './Button';
+import { JangdanMark } from './JangdanMark';
 
 /**
  * 로그인/회원가입/비밀번호 재설정/이메일 인증 화면이 공통으로 쓰는 카드 레이아웃.
@@ -22,8 +23,7 @@ export function AuthCard({
     <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center py-10">
       <Link href="/" className="mb-8 flex items-center justify-center gap-2.5">
         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-ink">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-icon-white.png" alt="" aria-hidden="true" style={{ height: 18, width: 'auto' }} />
+          <JangdanMark size={18} variant="dark" />
         </span>
         <span className="font-display text-xl tracking-wide text-ink-900">Vouchsafe</span>
       </Link>

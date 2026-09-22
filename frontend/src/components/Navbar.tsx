@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { AvatarModule } from './AvatarModule';
 import { NotificationBell } from './NotificationBell';
+import { JangdanMark } from './JangdanMark';
 
 export function Navbar() {
   const { user, logout, loading } = useAuth();
@@ -12,8 +13,7 @@ export function Navbar() {
     <header className="border-b border-hairline bg-brand-ink text-white">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <Link href="/bounties" className="flex items-center gap-2.5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-icon-white.png" alt="" aria-hidden="true" style={{ height: 18, width: 'auto' }} />
+          <JangdanMark size={18} variant="dark" />
           <span className="text-lg font-semibold">Vouchsafe</span>
         </Link>
 

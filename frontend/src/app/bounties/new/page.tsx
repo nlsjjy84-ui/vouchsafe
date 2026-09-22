@@ -10,7 +10,7 @@ import { FIELD_INPUT_CLASS, FormField, FormSubmitButton, FormErrorText } from '@
 const DOMAIN_OPTIONS = Object.entries(DOMAIN_LABELS) as [DomainType, string][];
 const SERVICE_TYPE_OPTIONS = Object.entries(SERVICE_TYPE_LABELS) as [ServiceType, string][];
 
-/** 의뢰인이 새 바운티(일감)를 등록하는 화면 */
+/** 의뢰인이 새 프로젝트를 등록하는 화면 */
 export default function NewBountyPage() {
   const router = useRouter();
 
@@ -54,7 +54,7 @@ export default function NewBountyPage() {
     <div className="mx-auto max-w-xl">
       <div className="mb-6 flex items-center gap-2">
         <PlusCircle size={20} className="text-brand-clay" />
-        <h1 className="text-xl font-bold text-ink-900">바운티 등록</h1>
+        <h1 className="text-xl font-bold text-ink-900">프로젝트 등록</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5 rounded-4xl border border-hairline bg-surface-canvas p-6">
@@ -135,7 +135,7 @@ export default function NewBountyPage() {
           />
         </FormField>
 
-        <FormField label="바운티 금액" hint="(원)">
+        <FormField label="프로젝트 금액" hint="(원)">
           <div className="relative">
             <Wallet size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
             <input
@@ -152,7 +152,7 @@ export default function NewBountyPage() {
 
         {error && <FormErrorText>{error}</FormErrorText>}
 
-        <FormSubmitButton disabled={submitting}>{submitting ? '등록중...' : '바운티 등록'}</FormSubmitButton>
+        <FormSubmitButton disabled={submitting}>{submitting ? '등록중...' : '프로젝트 등록'}</FormSubmitButton>
       </form>
     </div>
   );

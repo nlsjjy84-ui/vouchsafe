@@ -96,7 +96,7 @@ export default function AdminDisputesPage() {
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
               <div>
                 <p className="text-sm font-semibold text-ink-900">
-                  {d.bounty?.title ?? `바운티 #${d.bountyId.slice(0, 8)}`}
+                  {d.bounty?.title ?? `프로젝트 #${d.bountyId.slice(0, 8)}`}
                 </p>
                 {d.bounty && (
                   <p className="text-xs text-ink-500">

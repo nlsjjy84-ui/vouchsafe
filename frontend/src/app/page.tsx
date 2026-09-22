@@ -12,7 +12,7 @@ import { jangdanDelay } from '@/lib/motion';
 
 // 이용 흐름 섹션의 4단계 - 커넥티드 스테퍼로 그리기 위해 배열로 뽑아뒀다.
 const STEPS = [
-  { step: 1, title: '바운티 등록', description: '의뢰인이 원하는 전문 분야와 예산을 정해 일감을 등록해요.' },
+  { step: 1, title: '프로젝트 등록', description: '의뢰인이 원하는 전문 분야와 예산을 정해 프로젝트를 등록해요.' },
   { step: 2, title: '전문가 지원', description: '자격이 검증된 전문가만 지원할 수 있어요.' },
   { step: 3, title: '선택 및 진행', description: '의뢰인이 전문가를 선택하면 대금이 에스크로에 잠겨요.' },
   { step: 4, title: '검수 및 정산', description: '결과물을 확인하고 승인하면 자동으로 정산돼요.' },
@@ -44,7 +44,7 @@ const DOMAIN_CATEGORY: Record<DomainType, 'A' | 'B' | 'C'> = {
  * 이전에는 '/'로 들어오면 서버 사이드에서 무조건 /bounties로 리다이렉트했다 - 그런데
  * BountiesController는 로그인 없이는 목록 조회 자체가 막혀있어서(JwtAuthGuard),
  * 로그아웃 상태로 처음 들어온 방문자는 "이 서비스가 뭘 하는지" 설명은 하나도 못 보고
- * 텅 빈 바운티 목록만 보게 되는 문제가 있었다. 이제는 클라이언트에서 로그인 여부를
+ * 텅 빈 프로젝트 목록만 보게 되는 문제가 있었다. 이제는 클라이언트에서 로그인 여부를
  * 확인해서, 로그인한 사용자만 /bounties로 자동 이동시키고 로그아웃 상태에서는
  * 서비스 소개 화면을 보여준다.
  *
@@ -86,7 +86,7 @@ export default function HomePage() {
           <span className="font-serifAccent font-normal">안전하게 정산되는</span> 거래.
         </h1>
         <p className="mt-4 max-w-xl text-white/70">
-          CredoBounty는 백엔드 튜닝부터 건축물 하자진단, 계약서 검토까지 — 신뢰가 중요한
+          Vouchsafe는 백엔드 튜닝부터 건축물 하자진단, 계약서 검토까지 — 신뢰가 중요한
           고관여 전문 결과물을 의뢰하고, 에스크로로 안전하게 대금을 주고받는 거래
           플랫폼입니다.
         </p>
@@ -108,14 +108,14 @@ export default function HomePage() {
 
       {/* 핵심 가치 3가지 */}
       <section>
-        <h2 className="text-xl font-bold text-ink-900">왜 CredoBounty인가요</h2>
+        <h2 className="text-xl font-bold text-ink-900">왜 Vouchsafe인가요</h2>
         <div className="mt-5 grid gap-4 sm:grid-cols-3">
           <FeatureCard
             index={0}
             icon={ShieldCheck}
             accent="teal"
             title="전문가 자격 검증"
-            description="국가 공인 자격증, 사업자 경력, 실무 경력 등 4가지 트랙으로 전문가의 실력을 먼저 검증한 뒤에만 바운티에 지원할 수 있어요."
+            description="국가 공인 자격증, 사업자 경력, 실무 경력 등 4가지 트랙으로 전문가의 실력을 먼저 검증한 뒤에만 프로젝트에 지원할 수 있어요."
           />
           <FeatureCard
             index={1}
@@ -213,7 +213,7 @@ export default function HomePage() {
       <section className="overflow-hidden rounded-2xl bg-brand-ink p-8 text-center text-white sm:p-12">
         <h2 className="font-display text-2xl tracking-wide">지금 바로 시작해보세요</h2>
         <p className="mt-2 text-sm text-white/70">
-          의뢰인으로 일감을 등록하거나, 전문가로 지원해보세요.
+          의뢰인으로 프로젝트를 등록하거나, 전문가로 지원해보세요.
         </p>
         <Link
           href="/register"

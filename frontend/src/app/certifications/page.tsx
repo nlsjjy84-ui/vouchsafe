@@ -80,7 +80,7 @@ export default function CertificationsPage() {
         <div>
           <h1 className="text-xl font-bold text-ink-900">전문가 인증 신청</h1>
           <p className="mt-1 text-sm text-ink-500">
-            도메인별로 인증을 받아야 해당 분야의 바운티에 지원할 수 있어요. 증빙 서류를 첨부하면
+            도메인별로 인증을 받아야 해당 분야의 프로젝트에 지원할 수 있어요. 증빙 서류를 첨부하면
             AI OCR이 서류 내용과 자격증 번호를 자동으로 대조해요 (지금은 Mock 심사입니다). 서류를
             첨부하지 않으면 번호 형식만 확인하고, 자동 대조 결과가 애매하면 관리자가 직접 검토할
             때까지 &quot;심사중&quot; 상태로 남아요.

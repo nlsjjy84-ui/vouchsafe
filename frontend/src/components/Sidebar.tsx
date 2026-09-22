@@ -13,6 +13,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from 'lucide-react';
+import { JangdanMark } from './JangdanMark';
 import { useAuth } from '@/lib/auth-context';
 import { jangdanDelay } from '@/lib/motion';
 
@@ -126,8 +127,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
       className={`fixed inset-y-0 left-0 z-30 flex ${width} flex-col border-r border-hairline bg-surface-canvas transition-[width] duration-200`}
     >
       <div className="flex h-14 items-center gap-2.5 border-b border-hairline px-4">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/logo-icon-ink.png" alt="" aria-hidden="true" style={{ height: 18, width: 'auto' }} />
+        <JangdanMark size={18} variant="light" />
         {!collapsed && <span className="truncate font-display text-base tracking-wide text-ink-900">Vouchsafe</span>}
       </div>
 

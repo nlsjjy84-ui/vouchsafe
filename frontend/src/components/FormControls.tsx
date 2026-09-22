@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { Button, ButtonTone } from './Button';
 
 /**
- * 인증 화면 전용이 아닌 "일반 폼"(바운티 등록, 자격 인증 신청 등)에서 공통으로 쓰는
+ * 인증 화면 전용이 아닌 "일반 폼"(프로젝트 등록, 자격 인증 신청 등)에서 공통으로 쓰는
  * 입력 스타일 - AuthCard.tsx의 AUTH_INPUT_CLASS와 톤을 맞추되, 이 파일은 카드
  * 래퍼 없이 필드 스타일만 제공한다.
  */

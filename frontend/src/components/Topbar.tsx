@@ -16,9 +16,9 @@ import { NotificationBell } from './NotificationBell';
  */
 
 const PAGE_TITLES: Array<{ test: (p: string) => boolean; title: string }> = [
-  { test: (p) => p === '/bounties', title: '바운티 둘러보기' },
-  { test: (p) => p === '/bounties/new', title: '바운티 등록' },
-  { test: (p) => p.startsWith('/bounties/'), title: '바운티 상세' },
+  { test: (p) => p === '/bounties', title: '프로젝트 둘러보기' },
+  { test: (p) => p === '/bounties/new', title: '프로젝트 등록' },
+  { test: (p) => p.startsWith('/bounties/'), title: '프로젝트 상세' },
   { test: (p) => p.startsWith('/insights'), title: 'AI 인사이트' },
   { test: (p) => p.startsWith('/certifications'), title: '전문가 인증' },
   { test: (p) => p.startsWith('/mypage'), title: '마이페이지' },
@@ -28,7 +28,7 @@ const PAGE_TITLES: Array<{ test: (p: string) => boolean; title: string }> = [
 export function Topbar({ onMenuClick }: { onMenuClick?: () => void } = {}) {
   const { user, logout } = useAuth();
   const pathname = usePathname() ?? '';
-  const title = PAGE_TITLES.find((p) => p.test(pathname))?.title ?? 'CredoBounty';
+  const title = PAGE_TITLES.find((p) => p.test(pathname))?.title ?? 'Vouchsafe';
 
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-hairline bg-surface-canvas/95 px-4 backdrop-blur">

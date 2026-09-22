@@ -91,12 +91,12 @@ export default function ConceptCPage() {
       <header className="flex items-center justify-between px-6 py-5 sm:px-10">
         <span className="flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#241a14] font-serifAccent text-sm text-[#f7f1e8]">
-            credo
+            VS
           </span>
-          <span className="font-serifAccent text-lg">CredoBounty</span>
+          <span className="font-serifAccent text-lg">Vouchsafe</span>
         </span>
         <nav className="flex items-center gap-3 text-sm">
-          <span className="hidden sm:inline text-[#241a14]/70">바운티</span>
+          <span className="hidden sm:inline text-[#241a14]/70">프로젝트</span>
           <span className="hidden sm:inline text-[#241a14]/70">인사이트</span>
           <span className="rounded-full bg-[#241a14] px-5 py-2 text-xs font-medium text-[#f7f1e8]">로그인</span>
         </nav>
@@ -134,7 +134,7 @@ export default function ConceptCPage() {
           <div className="relative flex items-center justify-center py-6">
             <Blob className="absolute h-64 w-64 opacity-70 sm:h-80 sm:w-80" color="#f4c98b" />
             <RippleRings className="absolute h-72 w-72 sm:h-96 sm:w-96" color="#c2410c" />
-            {/* 떠 있는 바운티 카드 - 둥근 모서리 + 부드러운 그림자 (concept-b의 하드섀도 각진 카드와 대비) */}
+            {/* 떠 있는 프로젝트 카드 - 둥근 모서리 + 부드러운 그림자 (concept-b의 하드섀도 각진 카드와 대비) */}
             <div className="relative w-64 rotate-[2deg] rounded-[28px] bg-white p-5 shadow-[0_20px_45px_-15px_rgba(36,26,20,0.35)]">
               <div className="flex items-center gap-2">
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#5b6b4f]/15 text-[#5b6b4f]">✓</span>
@@ -169,7 +169,7 @@ export default function ConceptCPage() {
 
       {/* 핵심 가치 - 3색 로테이션 카드 (clay/ink/sage) - 한 색만 우려먹지 않기 */}
       <section className="px-6 py-20 sm:px-10">
-        <p className="font-serifAccent text-2xl text-center">왜 CredoBounty일까요</p>
+        <p className="font-serifAccent text-2xl text-center">왜 Vouchsafe일까요</p>
         <div className="mx-auto mt-10 grid max-w-5xl gap-6 sm:grid-cols-3">
           {FEATURES.map((f) => {
             const tone = TONE_STYLES[f.tone];

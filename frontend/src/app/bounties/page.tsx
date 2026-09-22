@@ -34,7 +34,7 @@ const CATEGORY_BAR: Record<'A' | 'B' | 'C', string> = {
 };
 
 /**
- * 바운티(일감) 목록 화면. 로그인만 하면 누구나 볼 수 있다.
+ * 프로젝트 목록 화면. 로그인만 하면 누구나 볼 수 있다.
  *
  * 참고: 백엔드 GET /api/bounties (BountiesController.findAll)는 페이지네이션 없이
  * 배열(Bounty[])을 그대로 내려준다 - { items, total, totalPages, ... } 형태가 아니다.
@@ -56,16 +56,16 @@ export default function BountiesPage() {
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl tracking-wide text-ink-900">바운티 둘러보기</h1>
+          <h1 className="font-display text-2xl tracking-wide text-ink-900">프로젝트 둘러보기</h1>
           <p className="mt-1 text-sm text-ink-500">
-            검증된 전문가가 지원할 수 있는 일감이에요. 관심있는 분야를 찾아보세요.
+            검증된 전문가가 지원할 수 있는 프로젝트예요. 관심있는 분야를 찾아보세요.
           </p>
         </div>
         <Link
           href="/bounties/new"
           className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand-clay px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-clayDeep hover:shadow-md"
         >
-          <PlusCircle size={16} /> 바운티 등록
+          <PlusCircle size={16} /> 프로젝트 등록
         </Link>
       </div>
 
@@ -80,12 +80,12 @@ export default function BountiesPage() {
       {!loading && bounties.length === 0 && (
         <div className="flex flex-col items-center gap-2 rounded-4xl border border-dashed border-hairline-strong bg-surface-canvas py-16 text-center">
           <PackageSearch size={28} className="text-ink-400" />
-          <p className="text-sm text-ink-500">아직 등록된 바운티가 없어요.</p>
+          <p className="text-sm text-ink-500">아직 등록된 프로젝트가 없어요.</p>
           <Link
             href="/bounties/new"
             className="mt-1 text-sm font-semibold text-brand-clay hover:underline"
           >
-            첫 바운티를 등록해보세요 →
+            첫 프로젝트를 등록해보세요 →
           </Link>
         </div>
       )}

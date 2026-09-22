@@ -32,7 +32,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      setCollapsed(window.localStorage.getItem('credobounty_sidebar_collapsed') === '1');
+      setCollapsed(window.localStorage.getItem('vouchsafe_sidebar_collapsed') === '1');
     } catch {
       // 접힘 상태 기억 실패는 무시 - 기본값(펼침)으로 계속 동작한다.
     }
@@ -42,7 +42,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     setCollapsed((prev) => {
       const next = !prev;
       try {
-        window.localStorage.setItem('credobounty_sidebar_collapsed', next ? '1' : '0');
+        window.localStorage.setItem('vouchsafe_sidebar_collapsed', next ? '1' : '0');
       } catch {
         // 저장 실패는 무시.
       }

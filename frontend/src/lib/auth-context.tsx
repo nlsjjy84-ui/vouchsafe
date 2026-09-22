@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 앱이 처음 뜰 때, 저장해둔 토큰이 있으면 그걸로 "내 정보"를 다시 확인한다.
   useEffect(() => {
-    const saved = window.localStorage.getItem('credobounty_token');
+    const saved = window.localStorage.getItem('vouchsafe_token');
     if (!saved) {
       setLoading(false);
       return;
@@ -53,14 +53,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then((res) => setUser({ id: res.data.userId, email: res.data.email, role: res.data.role }))
       .catch(() => {
         // 토큰이 만료됐거나 유효하지 않으면 로그아웃 처리
-        window.localStorage.removeItem('credobounty_token');
+        window.localStorage.removeItem('vouchsafe_token');
         setToken(null);
       })
       .finally(() => setLoading(false));
   }, []);
 
   function applyAuthResult(data: { accessToken: string; user: User }) {
-    window.localStorage.setItem('credobounty_token', data.accessToken);
+    window.localStorage.setItem('vouchsafe_token', data.accessToken);
     setToken(data.accessToken);
     setUser(data.user);
   }
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // 서버 세션 무효화가 실패해도 로컬 로그아웃은 그대로 진행한다.
     } finally {
-      window.localStorage.removeItem('credobounty_token');
+      window.localStorage.removeItem('vouchsafe_token');
       setToken(null);
       setUser(null);
     }

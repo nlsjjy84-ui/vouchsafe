@@ -32,7 +32,7 @@ const CERT_STATUS_STYLE: Record<'PENDING' | 'APPROVED' | 'REJECTED', string> = {
 
 /**
  * 마이페이지 통합 대시보드 (Task #31).
- * 여러 화면(바운티 목록, 자격 인증, 알림)에 흩어져 있던 "내 활동"을 GET
+ * 여러 화면(프로젝트 목록, 자격 인증, 알림)에 흩어져 있던 "내 활동"을 GET
  * /dashboard/me 응답 하나로 한 번에 모아 보여준다 - dashboard.service.ts
  * (백엔드) 참고. UI 리뉴얼(Phase 2)에서 카드형 요약 타일 + AI 인사이트 바로가기로
  * 다시 다듬었다.
@@ -89,9 +89,9 @@ export default function MyPage() {
         {/* 요약 통계 - 6개의 개별 카드 대신, 헤더와 한 몸인 단일 스탯 바 안에 세로
             구분선만 그어 나열한다 (Toss 계좌 요약 바 패턴 참고). */}
         <div className="flex divide-x divide-white/10 overflow-x-auto border-t border-white/10 bg-white/[0.04]">
-          <SummaryTile index={0} icon={Briefcase} label="등록한 바운티" value={summary.clientBountyCount} tone="blue" />
+          <SummaryTile index={0} icon={Briefcase} label="등록한 프로젝트" value={summary.clientBountyCount} tone="blue" />
           <SummaryTile index={1} icon={ClipboardList} label="진행중" value={summary.clientBountyInProgressCount} tone="amber" />
-          <SummaryTile index={2} icon={Send} label="지원한 바운티" value={summary.expertApplicationCount} tone="blue" />
+          <SummaryTile index={2} icon={Send} label="지원한 프로젝트" value={summary.expertApplicationCount} tone="blue" />
           <SummaryTile index={3} icon={CheckCircle2} label="선정됨" value={summary.expertSelectedCount} tone="teal" />
           <SummaryTile index={4} icon={ShieldCheck} label="승인된 인증" value={summary.certificationApprovedCount} tone="teal" />
           <SummaryTile index={5} icon={Bell} label="안 읽은 알림" value={summary.unreadNotificationCount} tone="red" />
@@ -100,10 +100,10 @@ export default function MyPage() {
 
       <section>
         <h2 className="mb-3 text-base font-semibold text-ink-900">
-          내가 등록한 바운티 <span className="text-ink-400">({clientBounties.length})</span>
+          내가 등록한 프로젝트 <span className="text-ink-400">({clientBounties.length})</span>
         </h2>
         {clientBounties.length === 0 ? (
-          <EmptyRow href="/bounties/new" text="아직 등록한 바운티가 없어요." cta="바운티 등록하러 가기" />
+          <EmptyRow href="/bounties/new" text="아직 등록한 프로젝트가 없어요." cta="프로젝트 등록하러 가기" />
         ) : (
           <div className="divide-y divide-hairline overflow-hidden rounded-4xl border border-hairline bg-surface-canvas">
             {clientBounties.map((b) => (
@@ -126,10 +126,10 @@ export default function MyPage() {
 
       <section>
         <h2 className="mb-3 text-base font-semibold text-ink-900">
-          내가 지원한 바운티 <span className="text-ink-400">({expertApplications.length})</span>
+          내가 지원한 프로젝트 <span className="text-ink-400">({expertApplications.length})</span>
         </h2>
         {expertApplications.length === 0 ? (
-          <EmptyRow href="/bounties" text="아직 지원한 바운티가 없어요." cta="바운티 둘러보러 가기" />
+          <EmptyRow href="/bounties" text="아직 지원한 프로젝트가 없어요." cta="프로젝트 둘러보러 가기" />
         ) : (
           <div className="divide-y divide-hairline overflow-hidden rounded-4xl border border-hairline bg-surface-canvas">
             {expertApplications.map((a) => (
@@ -140,7 +140,7 @@ export default function MyPage() {
               >
                 <div className="min-w-0">
                   {a.bounty && <p className="text-xs text-ink-400">{DOMAIN_LABELS[a.bounty.domainType]}</p>}
-                  <p className="truncate font-medium text-ink-900">{a.bounty?.title ?? '(삭제된 바운티)'}</p>
+                  <p className="truncate font-medium text-ink-900">{a.bounty?.title ?? '(삭제된 프로젝트)'}</p>
                   {a.message && <p className="mt-1 line-clamp-1 text-sm text-ink-500">{a.message}</p>}
                 </div>
                 <ApplicationStatusBadge status={a.status} />

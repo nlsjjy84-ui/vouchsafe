@@ -119,7 +119,7 @@ export interface BountyApplication {
   status: ApplicationStatus;
   createdAt: string;
   expert?: { id: string; name: string; email: string };
-  // 마이페이지 대시보드(GET /dashboard/me)는 지원 목록에 대상 바운티 정보를
+  // 마이페이지 대시보드(GET /dashboard/me)는 지원 목록에 대상 프로젝트 정보를
   // 함께 JOIN해서 내려준다 (dashboard.service.ts 참고) - 그 응답에서만 채워진다.
   bounty?: Bounty;
 }
@@ -246,7 +246,7 @@ export interface AdminDispute {
 /**
  * GET /cases (PublicCasesController, 로그인 불필요) 응답 형태 - "공개 거래 사례".
  * 백엔드 BountiesService.listPublicCases()와 필드를 맞췄다. 의뢰인/전문가 실명,
- * 정확한 금액, 바운티 제목은 절대 내려오지 않는다 (익명화 원칙).
+ * 정확한 금액, 프로젝트 제목은 절대 내려오지 않는다 (익명화 원칙).
  */
 export interface PublicBountyCase {
   id: string;

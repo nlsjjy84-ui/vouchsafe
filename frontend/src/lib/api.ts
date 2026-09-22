@@ -11,7 +11,7 @@ export const api = axios.create({ baseURL: '/api' });
 // (매번 요청마다 헤더를 직접 챙기지 않아도 되게 하는 axios의 "인터셉터" 기능)
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    const token = window.localStorage.getItem('credobounty_token');
+    const token = window.localStorage.getItem('vouchsafe_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

@@ -4,7 +4,7 @@ import { AuthProvider } from '@/lib/auth-context';
 import { AppShell } from '@/components/AppShell';
 
 export const metadata: Metadata = {
-  title: 'CredoBounty',
+  title: 'Vouchsafe',
   description: '검증된 전문가와 의뢰인을 잇는 고관여 전문 결과물 에스크로 거래 플랫폼',
 };
 
