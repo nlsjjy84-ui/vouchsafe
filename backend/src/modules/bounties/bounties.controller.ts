@@ -107,10 +107,13 @@ export class BountiesController {
     return this.bountiesService.apply(id, user.userId, dto);
   }
 
-  /** [의뢰인] 이 프로젝트에 지원한 전문가 목록 확인. GET /api/bounties/:id/applicants */
+  /**
+   * [의뢰인] 이 프로젝트에 지원한 전문가 목록 확인. GET /api/bounties/:id/applicants
+   * 의뢰인 본인이 아니면 서비스 레이어에서 본인 지원 내역만 걸러서 돌려준다.
+   */
   @Get(':id/applicants')
-  listApplicants(@Param('id') id: string) {
-    return this.bountiesService.listApplicants(id);
+  listApplicants(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.bountiesService.listApplicants(id, user.userId);
   }
 
   /**
@@ -181,10 +184,10 @@ export class BountiesController {
     return this.bountiesService.submitResult(id, user.userId, fileUrl, note);
   }
 
-  /** 제출된 결과물 목록 조회. GET /api/bounties/:id/submissions */
+  /** [의뢰인/담당 전문가] 제출된 결과물 목록 조회. GET /api/bounties/:id/submissions */
   @Get(':id/submissions')
-  getSubmissions(@Param('id') id: string) {
-    return this.bountiesService.getSubmissions(id);
+  getSubmissions(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.bountiesService.getSubmissions(id, user.userId);
   }
 
   /**

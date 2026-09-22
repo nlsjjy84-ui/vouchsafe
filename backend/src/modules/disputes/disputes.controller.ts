@@ -30,7 +30,7 @@ export class DisputesController {
    * [의뢰인] 이의제기 접수
    * POST /api/disputes/bounty/:bountyId
    * body: { reason: "왜 문제가 있다고 생각하는지" }
-   * 접수되는 즉시 바운티 상태는 DISPUTED로, 에스크로 자금은 FROZEN으로 바뀐다.
+   * 접수되는 즉시 프로젝트 상태는 DISPUTED로, 에스크로 자금은 FROZEN으로 바뀐다.
    */
   @Post('bounty/:bountyId')
   file(
@@ -41,10 +41,10 @@ export class DisputesController {
     return this.disputesService.file(bountyId, user.userId, dto);
   }
 
-  /** 특정 바운티의 이의제기 이력 조회. GET /api/disputes/bounty/:bountyId */
+  /** [의뢰인/담당 전문가] 특정 프로젝트의 이의제기 이력 조회. GET /api/disputes/bounty/:bountyId */
   @Get('bounty/:bountyId')
-  findByBounty(@Param('bountyId') bountyId: string) {
-    return this.disputesService.findByBounty(bountyId);
+  findByBounty(@Param('bountyId') bountyId: string, @CurrentUser() user: AuthUser) {
+    return this.disputesService.findByBounty(bountyId, user.userId);
   }
 
   /**
