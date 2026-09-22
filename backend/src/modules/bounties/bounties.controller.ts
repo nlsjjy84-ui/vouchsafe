@@ -63,10 +63,10 @@ export class BountiesController {
   ) {}
 
   /**
-   * [의뢰인] 바운티(일감) 등록
+   * [의뢰인] 프로젝트 등록
    * POST /api/bounties
    * body: { domainType, title, description, bountyAmount }
-   * 로그인한 사람이 곧 이 바운티의 의뢰인(client)이 된다.
+   * 로그인한 사람이 곧 이 프로젝트의 의뢰인(client)이 된다.
    */
   @Post()
   create(@CurrentUser() user: AuthUser, @Body() dto: CreateBountyDto) {
@@ -74,7 +74,7 @@ export class BountiesController {
   }
 
   /**
-   * 바운티 목록 조회 (누구나 로그인만 하면 볼 수 있음)
+   * 프로젝트 목록 조회 (누구나 로그인만 하면 볼 수 있음)
    * GET /api/bounties?domainType=BACKEND_DB_TUNING&status=PENDING
    * 쿼리 파라미터는 둘 다 선택사항 - 아무것도 안 넘기면 전체 목록을 최신순으로 준다.
    */
@@ -86,14 +86,14 @@ export class BountiesController {
     return this.bountiesService.findAll({ domainType, status });
   }
 
-  /** 바운티 상세 조회. GET /api/bounties/:id */
+  /** 프로젝트 상세 조회. GET /api/bounties/:id */
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.bountiesService.findOneOrThrow(id);
   }
 
   /**
-   * [전문가] 바운티에 지원
+   * [전문가] 프로젝트에 지원
    * POST /api/bounties/:id/apply
    * 서비스 레이어에서 "이 도메인에 대해 승인된 자격증이 있는지"를 검사한다.
    * (자격이 없으면 여기까지 오지 않고 403 에러가 난다 - BountiesService.apply 참고)
@@ -107,7 +107,7 @@ export class BountiesController {
     return this.bountiesService.apply(id, user.userId, dto);
   }
 
-  /** [의뢰인] 이 바운티에 지원한 전문가 목록 확인. GET /api/bounties/:id/applicants */
+  /** [의뢰인] 이 프로젝트에 지원한 전문가 목록 확인. GET /api/bounties/:id/applicants */
   @Get(':id/applicants')
   listApplicants(@Param('id') id: string) {
     return this.bountiesService.listApplicants(id);
@@ -118,7 +118,7 @@ export class BountiesController {
    * POST /api/bounties/:id/select/:applicationId
    * 이 요청 한 번으로 여러 일이 한꺼번에 일어난다:
    *   1) 선택된 지원자는 SELECTED, 나머지 지원자는 자동으로 REJECTED 처리
-   *   2) 바운티 상태가 PENDING → LOCKED 로 바뀜
+   *   2) 프로젝트 상태가 PENDING → LOCKED 로 바뀜
    *   3) 에스크로(Mock)에 돈이 잠김 (실제로는 여기서 오픈뱅킹 출금이 일어날 자리)
    * 자세한 순서는 BountiesService.selectApplicant 참고.
    */
@@ -134,7 +134,7 @@ export class BountiesController {
   /**
    * [의뢰인] 결제 확인 (Task #14). POST /api/bounties/:id/confirm-payment
    * 프론트가 포트원 결제창을 통과한 직후 호출한다 - 서버가 PG에 직접 재확인한
-   * 뒤에야 에스크로가 잠기고 바운티가 LOCKED로 넘어간다 (BountiesService.confirmPayment 참고).
+   * 뒤에야 에스크로가 잠기고 프로젝트가 LOCKED로 넘어간다 (BountiesService.confirmPayment 참고).
    */
   @Post(':id/confirm-payment')
   confirmPayment(@Param('id') id: string, @CurrentUser() user: AuthUser) {
@@ -191,7 +191,7 @@ export class BountiesController {
    * [의뢰인] 결과물 승인 → 정산
    * POST /api/bounties/:id/approve
    * 승인하는 순간 플랫폼 수수료를 뗀 금액이 전문가에게 정산(Mock)되고,
-   * 바운티 상태가 SUBMITTED → SETTLED 로 바뀐다. (거래 완전 종료)
+   * 프로젝트 상태가 SUBMITTED → SETTLED 로 바뀐다. (거래 완전 종료)
    */
   @Post(':id/approve')
   approve(@Param('id') id: string, @CurrentUser() user: AuthUser) {
@@ -208,8 +208,8 @@ export class BountiesController {
   }
 
   // =========================================================================
-  // 마일스톤 분할 정산 (Phase 2) — 큰 바운티를 여러 단계로 나눠 단계별로 부분 정산한다.
-  // 일반 submit/approve와는 별개 흐름이라, LOCKED 직후 마일스톤을 정의한 바운티는
+  // 마일스톤 분할 정산 (Phase 2) — 큰 프로젝트를 여러 단계로 나눠 단계별로 부분 정산한다.
+  // 일반 submit/approve와는 별개 흐름이라, LOCKED 직후 마일스톤을 정의한 프로젝트는
   // 이후 이 API들만 사용한다.
   // =========================================================================
 
