@@ -144,6 +144,7 @@ async function bootstrap() {
       message: 'SAFE 계약서 검토 다수 진행해봤습니다.',
     });
     await bountiesService.selectApplicant(bLocked.id, appLocked.id, c3.id);
+    await bountiesService.confirmPayment(bLocked.id, c3.id);
     console.log(`[LOCKED] "${bLocked.title}" - ${x4.email} 선택, 에스크로 락업`);
 
     // 7. SUBMITTED - 결과물 제출 완료, 의뢰인 승인 대기 (승인 화면용)
@@ -157,6 +158,7 @@ async function bootstrap() {
       message: 'DB 튜닝 전문입니다. EXPLAIN ANALYZE부터 확인하겠습니다.',
     });
     await bountiesService.selectApplicant(bSubmitted.id, appSubmitted.id, c2.id);
+    await bountiesService.confirmPayment(bSubmitted.id, c2.id);
     await bountiesService.submitResult(
       bSubmitted.id,
       x2.id,
@@ -176,6 +178,7 @@ async function bootstrap() {
       message: '건축물 하자 진단 경험 다수 있습니다. 방문 진단 가능합니다.',
     });
     await bountiesService.selectApplicant(bSettled.id, appSettled.id, c2.id);
+    await bountiesService.confirmPayment(bSettled.id, c2.id);
     await bountiesService.submitResult(
       bSettled.id,
       x3.id,
@@ -196,6 +199,7 @@ async function bootstrap() {
       message: '배치 처리 성능 튜닝 다수 경험 있습니다.',
     });
     await bountiesService.selectApplicant(bDisputed.id, appDisputed.id, c3.id);
+    await bountiesService.confirmPayment(bDisputed.id, c3.id);
     await bountiesService.submitResult(
       bDisputed.id,
       x2.id,

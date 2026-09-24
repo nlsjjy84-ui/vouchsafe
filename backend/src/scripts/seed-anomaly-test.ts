@@ -71,6 +71,7 @@ async function bootstrap() {
         message: '테스트 지원입니다.',
       });
       await bountiesService.selectApplicant(bounty.id, application.id, client.id);
+      await bountiesService.confirmPayment(bounty.id, client.id);
       await bountiesService.submitResult(
         bounty.id,
         expert.id,

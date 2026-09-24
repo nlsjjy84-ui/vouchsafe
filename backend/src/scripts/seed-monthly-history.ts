@@ -138,6 +138,7 @@ async function bootstrap() {
           message: '해당 분야 경험이 있습니다. 진행하겠습니다.',
         });
         await bountiesService.selectApplicant(bounty.id, application.id, client.id);
+        await bountiesService.confirmPayment(bounty.id, client.id);
         await bountiesService.submitResult(
           bounty.id,
           expert.id,

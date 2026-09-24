@@ -305,6 +305,7 @@ async function runScenario(
   }
 
   await bountiesService.selectApplicant(bounty.id, application.id, client.id);
+  await bountiesService.confirmPayment(bounty.id, client.id);
   if (status === 'LOCKED') {
     console.log(`[LOCKED] "${bounty.title}"`);
     return bounty;
