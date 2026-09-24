@@ -47,9 +47,10 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void } = {}) {
         <button
           onClick={logout}
           title="로그아웃"
-          className="flex h-8 w-8 items-center justify-center rounded-full text-ink-400 hover:bg-tint-red hover:text-brand-red"
+          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-ink-400 hover:bg-tint-red hover:text-brand-red"
         >
           <LogOut size={16} strokeWidth={1.75} />
+          <span>로그아웃</span>
         </button>
       </div>
     </header>
