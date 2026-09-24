@@ -53,7 +53,6 @@ type AuthUser = { userId: string; email: string; role: string };
 @ApiTags('bounties')
 @ApiBearerAuth('JWT-auth')
 @Controller('bounties')
-@UseGuards(JwtAuthGuard)
 export class BountiesController {
   constructor(
     private readonly bountiesService: BountiesService,
@@ -68,6 +67,7 @@ export class BountiesController {
    * body: { domainType, title, description, bountyAmount }
    * 로그인한 사람이 곧 이 프로젝트의 의뢰인(client)이 된다.
    */
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@CurrentUser() user: AuthUser, @Body() dto: CreateBountyDto) {
     return this.bountiesService.create(user.userId, dto);
@@ -98,6 +98,7 @@ export class BountiesController {
    * 서비스 레이어에서 "이 도메인에 대해 승인된 자격증이 있는지"를 검사한다.
    * (자격이 없으면 여기까지 오지 않고 403 에러가 난다 - BountiesService.apply 참고)
    */
+  @UseGuards(JwtAuthGuard)
   @Post(':id/apply')
   apply(
     @Param('id') id: string,
@@ -111,6 +112,7 @@ export class BountiesController {
    * [의뢰인] 이 프로젝트에 지원한 전문가 목록 확인. GET /api/bounties/:id/applicants
    * 의뢰인 본인이 아니면 서비스 레이어에서 본인 지원 내역만 걸러서 돌려준다.
    */
+  @UseGuards(JwtAuthGuard)
   @Get(':id/applicants')
   listApplicants(@Param('id') id: string, @CurrentUser() user: AuthUser) {
     return this.bountiesService.listApplicants(id, user.userId);
@@ -125,6 +127,7 @@ export class BountiesController {
    *   3) 에스크로(Mock)에 돈이 잠김 (실제로는 여기서 오픈뱅킹 출금이 일어날 자리)
    * 자세한 순서는 BountiesService.selectApplicant 참고.
    */
+  @UseGuards(JwtAuthGuard)
   @Post(':id/select/:applicationId')
   selectApplicant(
     @Param('id') id: string,
@@ -139,6 +142,7 @@ export class BountiesController {
    * 프론트가 포트원 결제창을 통과한 직후 호출한다 - 서버가 PG에 직접 재확인한
    * 뒤에야 에스크로가 잠기고 프로젝트가 LOCKED로 넘어간다 (BountiesService.confirmPayment 참고).
    */
+  @UseGuards(JwtAuthGuard)
   @Post(':id/confirm-payment')
   confirmPayment(@Param('id') id: string, @CurrentUser() user: AuthUser) {
     return this.bountiesService.confirmPayment(id, user.userId);
@@ -156,6 +160,7 @@ export class BountiesController {
    */
   // Security 2탄: 결과물은 증빙(15MB)보다 여유를 두되 20MB로 상한을 명확히 분리하고,
   // limits.fileSize로 multer 스트림 단계에서부터 차단한다 (증빙 업로드와 동일한 원칙).
+  @UseGuards(JwtAuthGuard)
   @Post(':id/submit')
   @UseInterceptors(
     FileInterceptor('resultFile', {
@@ -185,6 +190,7 @@ export class BountiesController {
   }
 
   /** [의뢰인/담당 전문가] 제출된 결과물 목록 조회. GET /api/bounties/:id/submissions */
+  @UseGuards(JwtAuthGuard)
   @Get(':id/submissions')
   getSubmissions(@Param('id') id: string, @CurrentUser() user: AuthUser) {
     return this.bountiesService.getSubmissions(id, user.userId);
@@ -196,6 +202,7 @@ export class BountiesController {
    * 승인하는 순간 플랫폼 수수료를 뗀 금액이 전문가에게 정산(Mock)되고,
    * 프로젝트 상태가 SUBMITTED → SETTLED 로 바뀐다. (거래 완전 종료)
    */
+  @UseGuards(JwtAuthGuard)
   @Post(':id/approve')
   approve(@Param('id') id: string, @CurrentUser() user: AuthUser) {
     return this.bountiesService.approve(id, user.userId);
@@ -205,6 +212,7 @@ export class BountiesController {
    * [의뢰인] 공개 거래 사례용 평가 등록 (정산 완료 후 1회).
    * POST /api/bounties/:id/rate  body: { rating: 1.0~10.0 (0.5단위), note?: string }
    */
+  @UseGuards(JwtAuthGuard)
   @Post(':id/rate')
   rate(@Param('id') id: string, @CurrentUser() user: AuthUser, @Body() dto: RateBountyDto) {
     return this.bountiesService.rate(id, user.userId, dto);
@@ -217,6 +225,7 @@ export class BountiesController {
   // =========================================================================
 
   /** [의뢰인] 마일스톤 정의. POST /api/bounties/:id/milestones body: { milestones: [{title, amount}, ...] } */
+  @UseGuards(JwtAuthGuard)
   @Post(':id/milestones')
   createMilestones(
     @Param('id') id: string,
@@ -227,12 +236,14 @@ export class BountiesController {
   }
 
   /** 마일스톤 목록 조회. GET /api/bounties/:id/milestones */
+  @UseGuards(JwtAuthGuard)
   @Get(':id/milestones')
   listMilestones(@Param('id') id: string) {
     return this.bountiesService.listMilestones(id);
   }
 
   /** [전문가] 마일스톤 제출. POST /api/bounties/:id/milestones/:milestoneId/submit */
+  @UseGuards(JwtAuthGuard)
   @Post(':id/milestones/:milestoneId/submit')
   submitMilestone(
     @Param('id') id: string,
@@ -244,6 +255,7 @@ export class BountiesController {
   }
 
   /** [의뢰인] 마일스톤 승인 → 그 몫만큼 즉시 부분 정산. POST /api/bounties/:id/milestones/:milestoneId/approve */
+  @UseGuards(JwtAuthGuard)
   @Post(':id/milestones/:milestoneId/approve')
   approveMilestone(
     @Param('id') id: string,
@@ -258,6 +270,7 @@ export class BountiesController {
    * GET /api/bounties/:id/safe-number
    * 실제 전화번호 대신 서로의 안심번호(Mock 가상번호)를 알려준다.
    */
+  @UseGuards(JwtAuthGuard)
   @Get(':id/safe-number')
   async getSafeNumber(@Param('id') id: string, @CurrentUser() user: AuthUser) {
     const bounty = await this.bountiesService.findOneOrThrow(id);
@@ -271,7 +284,7 @@ export class BountiesController {
    * 돌려보고 싶을 때(장애 복구, 수동 확인 등) 쓰는 관리자 전용 엔드포인트.
    */
   @Post('settlement/run-now')
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   runSettlementNow() {
     return this.settlementScheduler.runAutoSettlement();

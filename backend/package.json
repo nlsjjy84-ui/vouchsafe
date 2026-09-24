@@ -18,6 +18,7 @@
     "seed-demo": "ts-node -r tsconfig-paths/register src/scripts/seed-demo.ts",
     "seed-demo-more": "ts-node -r tsconfig-paths/register src/scripts/seed-demo-more.ts",
     "seed-anomaly-test": "ts-node -r tsconfig-paths/register src/scripts/seed-anomaly-test.ts",
+    "seed-monthly-history": "ts-node -r tsconfig-paths/register src/scripts/seed-monthly-history.ts",
     "check-columns": "ts-node -r tsconfig-paths/register src/scripts/check-columns.ts"
   },
   "dependencies": {
