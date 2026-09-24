@@ -7,6 +7,6 @@ import { ApiTags } from '@nestjs/swagger';
 export class HealthController {
   @Get()
   check() {
-    return { status: 'ok', service: 'credobounty-api', time: new Date().toISOString() };
+    return { status: 'ok', service: 'vouchsafe-api', time: new Date().toISOString() };
   }
 }

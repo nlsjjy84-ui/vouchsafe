@@ -8,7 +8,7 @@ import { calculatePlatformFee, calculateClientCancelFee } from './settlement-fee
  */
 describe('settlement-fee.util', () => {
   describe('calculatePlatformFee', () => {
-    it('바운티 금액의 10%를 내림 처리해서 반환한다', () => {
+    it('프로젝트 금액의 10%를 내림 처리해서 반환한다', () => {
       expect(calculatePlatformFee(100000)).toBe(10000);
       expect(calculatePlatformFee(1000000)).toBe(100000);
     });
@@ -18,7 +18,7 @@ describe('settlement-fee.util', () => {
       expect(calculatePlatformFee(100005)).toBe(10000);
     });
 
-    it('0원 바운티는 수수료도 0원이다', () => {
+    it('0원 프로젝트는 수수료도 0원이다', () => {
       expect(calculatePlatformFee(0)).toBe(0);
     });
   });

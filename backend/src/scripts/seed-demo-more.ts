@@ -22,7 +22,7 @@ const EXPERT_PASSWORD = 'ExpertDemo123!@#';
  * =========================================================================
  * seed-demo.ts가 이미 만들어둔 의뢰인 3명 + 전문가 4명(도메인 4개)은 건드리지 않고,
  * 그 위에 의뢰인 12명 + 전문가 11명을 더 만들어 "의뢰인 15명 / 전문가 15명, 15개
- * 도메인에 전문가 1명씩 배치"를 완성한다. 그 다음 도메인마다 바운티를 2건씩(총 30건)
+ * 도메인에 전문가 1명씩 배치"를 완성한다. 그 다음 도메인마다 프로젝트를 2건씩(총 30건)
  * 만들어서 PENDING(지원자 없음/있음)·LOCKED·SUBMITTED·SETTLED·DISPUTED 5가지 상태가
  * 골고루 섞이게 한다 - 목록/상세/마이페이지/AI 인사이트/관리자 분쟁중재 화면이 전부
  * "실제로 쓰이고 있는 서비스"처럼 보이도록 하는 게 목적이다.
@@ -62,7 +62,7 @@ const NEW_EXPERTS: Array<{ email: string; name: string; domain: DomainType; lice
 ];
 
 // 기존 전문가 3명에게 "두 번째 자격 인증"을 하나씩 더 얹어서 인증 상태(승인/보류/반려)가
-// 골고루 보이게 한다 - 이 인증들은 바운티 지원에는 안 쓰고 순수하게 "인증 내역 화면"의
+// 골고루 보이게 한다 - 이 인증들은 프로젝트 지원에는 안 쓰고 순수하게 "인증 내역 화면"의
 // 상태 다양성을 위한 것이다.
 const EXTRA_CERTS: Array<{ expertEmail: string; domain: DomainType; license: string }> = [
   { expertEmail: 'expert2@demo.com', domain: DomainType.MOBILE_QA_AUTOMATION, license: 'EXPERT-LICENSE-012' }, // PENDING
@@ -105,7 +105,7 @@ interface BountySeed {
   amount: number;
 }
 
-// 도메인마다 바운티 2건(A, B)씩 - 총 15 * 2 = 30건
+// 도메인마다 프로젝트 2건(A, B)씩 - 총 15 * 2 = 30건
 const BOUNTY_PLAN: Record<DomainType, [BountySeed, BountySeed]> = {
   [DomainType.BACKEND_DB_TUNING]: [
     { title: '회원 통계 집계 쿼리 응답 지연 개선', description: '관리자 대시보드의 회원 통계 집계 쿼리가 5초 이상 걸립니다. 인덱스와 쿼리 구조를 점검해주세요.', amount: 350000 },
@@ -137,7 +137,7 @@ const BOUNTY_PLAN: Record<DomainType, [BountySeed, BountySeed]> = {
   ],
   [DomainType.INDIE_GAME_QA]: [
     { title: '인디 플랫포머 게임 밸런스 QA', description: '출시 예정 플랫포머 게임의 난이도 밸런스를 QA해주세요.', amount: 260000 },
-    { title: '로그라이크 게임 버그 바운티 QA', description: '얼리액세스 로그라이크 게임의 크리티컬 버그를 찾아주세요.', amount: 240000 },
+    { title: '로그라이크 게임 버그 프로젝트 QA', description: '얼리액세스 로그라이크 게임의 크리티컬 버그를 찾아주세요.', amount: 240000 },
   ],
   [DomainType.GRAPHICS_3D_OPTIMIZATION]: [
     { title: '모바일 3D 캐릭터 폴리곤 최적화', description: '모바일 게임용 3D 캐릭터 에셋의 폴리곤 수를 최적화해주세요.', amount: 310000 },
@@ -242,7 +242,7 @@ async function bootstrap() {
       console.log(`추가 인증 제출: ${ec.expertEmail} - ${ec.domain} - 상태: ${cert.verifiedStatus}`);
     }
 
-    // 4. 전체 의뢰인 15명을 순서대로 순환시키며 도메인별 바운티 2건씩(총 30건) 생성
+    // 4. 전체 의뢰인 15명을 순서대로 순환시키며 도메인별 프로젝트 2건씩(총 30건) 생성
     const allClientEmails = [...existingClientEmails, ...NEW_CLIENTS.map((c) => c.email)];
     const domains = Object.keys(BOUNTY_PLAN) as DomainType[];
 
@@ -262,7 +262,7 @@ async function bootstrap() {
       created++;
     }
 
-    console.log(`\n=== 추가 데모 데이터 생성 완료: 바운티 ${created}건 ===`);
+    console.log(`\n=== 추가 데모 데이터 생성 완료: 프로젝트 ${created}건 ===`);
     console.log(`의뢰인 15명 / 전문가 15명 (도메인 15개 전부 1명씩 커버) 준비 완료.`);
     console.log(`의뢰인 로그인 비밀번호: ${CLIENT_PASSWORD}`);
     console.log(`전문가 로그인 비밀번호: ${EXPERT_PASSWORD}`);

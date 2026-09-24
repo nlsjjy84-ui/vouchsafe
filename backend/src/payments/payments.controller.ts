@@ -30,7 +30,7 @@ export class PaymentsController {
       throw new BadRequestException('결제가 완료되지 않았습니다');
     }
     if (result.amount !== Number(bounty.bountyAmount)) {
-      throw new BadRequestException('결제 금액이 바운티 금액과 일치하지 않습니다');
+      throw new BadRequestException('결제 금액이 프로젝트 금액과 일치하지 않습니다');
     }
 
     return { verified: true, paymentId: dto.paymentId, amount: result.amount };

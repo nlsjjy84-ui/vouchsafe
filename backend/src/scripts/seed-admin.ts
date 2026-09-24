@@ -9,7 +9,7 @@
  *   이 스크립트로 분리했다. → 웹으로는 절대 뚫리지 않는 통로.
  *
  * 실행 방법 (backend 폴더에서):
- *   ADMIN_EMAIL=admin@credobounty.com ADMIN_PASSWORD=원하는비밀번호 ADMIN_NAME=관리자 \
+ *   ADMIN_EMAIL=admin@vouchsafe.com ADMIN_PASSWORD=원하는비밀번호 ADMIN_NAME=관리자 \
  *     npx ts-node -T src/scripts/seed-admin.ts
  *
  * 이미 같은 이메일의 계정이 있으면 새로 만들지 않고, 그 계정의 role만 ADMIN으로
@@ -38,7 +38,7 @@ async function main() {
   if (!email || !password) {
     console.error(
       '[seed-admin] ADMIN_EMAIL, ADMIN_PASSWORD 환경변수가 필요합니다.\n' +
-        '예) ADMIN_EMAIL=admin@credobounty.com ADMIN_PASSWORD=비밀번호 npx ts-node -T src/scripts/seed-admin.ts',
+        '예) ADMIN_EMAIL=admin@vouchsafe.com ADMIN_PASSWORD=비밀번호 npx ts-node -T src/scripts/seed-admin.ts',
     );
     process.exit(1);
   }

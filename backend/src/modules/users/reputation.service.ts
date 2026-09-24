@@ -27,9 +27,9 @@ const DURATION_WEIGHT = 0.25;
 /**
  * 전문가 평판 점수 = 완료율(50%) + 분쟁 승률(25%) + 처리속도(25%) 가중평균.
  *
- * 완료율: 배정받은 바운티(SETTLED 또는 DISPUTED로 끝난 것) 중 SETTLED로 끝난 비율.
+ * 완료율: 배정받은 프로젝트(SETTLED 또는 DISPUTED로 끝난 것) 중 SETTLED로 끝난 비율.
  *   LOCKED/SUBMITTED처럼 아직 진행 중인 건은 "결과가 정해지지 않았으므로" 분모에서 뺀다.
- * 분쟁 승률: 이 전문가가 배정된 바운티에서 발생한 분쟁 중, 전문가 손을 들어준(RESOLVED_SETTLE)
+ * 분쟁 승률: 이 전문가가 배정된 프로젝트에서 발생한 분쟁 중, 전문가 손을 들어준(RESOLVED_SETTLE)
  *   비율. 분쟁 이력이 아예 없으면 "패소한 적도 없다"는 의미로 1.0(만점)을 기본값으로 둔다 —
  *   분쟁이 없는 전문가가 분쟁에서 한 번 이긴 전문가보다 불리해지면 안 되기 때문.
  * 처리속도(2026-09-16 추가): "몇 시간/며칠 빨리 끝내면 가산점을 주자"는 요청을, 없는
@@ -60,7 +60,7 @@ export class ReputationService {
     const decidedCount = settledCount + disputedCount;
     const completionRate = decidedCount > 0 ? settledCount / decidedCount : 0;
 
-    // 이 전문가가 배정된 바운티들의 id를 먼저 구하고, 그 바운티들에 걸린 "해결된" 분쟁을 센다.
+    // 이 전문가가 배정된 프로젝트들의 id를 먼저 구하고, 그 프로젝트들에 걸린 "해결된" 분쟁을 센다.
     const assignedBounties = await this.bountyRepository.find({
       where: { assignedExpertId: expertId },
       select: ['id'],
@@ -106,7 +106,7 @@ export class ReputationService {
   }
 
   /**
-   * 이 전문가의 평균 처리기간(등록~정산, ms)을 플랫폼 전체 SETTLED 바운티의 평균과 비교한다.
+   * 이 전문가의 평균 처리기간(등록~정산, ms)을 플랫폼 전체 SETTLED 프로젝트의 평균과 비교한다.
    * v1은 도메인별로 나누지 않고 플랫폼 전체 평균과 비교한다(도메인별 분리는 Phase 2 후보 -
    * 데이터가 충분히 쌓이기 전에는 도메인별 평균 자체의 표본이 너무 작아 오히려 왜곡될 수 있음).
    * 도메인 평균보다 빠르면 1.0(만점), 느리면 "도메인평균/내평균" 비율만큼 감점된다.

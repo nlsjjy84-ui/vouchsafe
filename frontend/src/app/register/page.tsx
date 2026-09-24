@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { User as UserIcon, Mail, Lock, Phone, Briefcase, Users } from 'lucide-react';
+import { User as UserIcon, Mail, Lock, Briefcase, Users } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { extractErrorMessage } from '@/lib/api';
 import { User } from '@/lib/types';
@@ -27,7 +27,6 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [role, setRole] = useState<User['role']>('CLIENT');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -41,7 +40,7 @@ export default function RegisterPage() {
     setError(null);
     setSubmitting(true);
     try {
-      const result = await register(email, password, name, role, phoneNumber || undefined);
+      const result = await register(email, password, name, role);
       setSuccessMessage(result.message);
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -101,18 +100,6 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-            />
-          </div>
-        </AuthField>
-
-        <AuthField label="휴대폰 번호" hint="(선택 · 안심번호 기능에 필요해요)">
-          <div className="relative">
-            <Phone size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
-            <input
-              className={`${AUTH_INPUT_CLASS} pl-9`}
-              placeholder="010-1234-5678"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
             />
           </div>
         </AuthField>

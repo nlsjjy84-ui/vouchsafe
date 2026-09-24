@@ -7,7 +7,7 @@ import { ApplicationStatus } from '../bounties/entities/bounty-application.entit
 import { BountyStatus } from '../../common/enums/bounty-status.enum';
 import { VerificationStatus } from '../../common/enums/verification-track.enum';
 
-// "진행중"으로 취급할 바운티 상태 (등록만 해둔 PENDING과, 이미 끝난
+// "진행중"으로 취급할 프로젝트 상태 (등록만 해둔 PENDING과, 이미 끝난
 // SETTLED는 제외 - 프론트 SummaryTile "진행중" 항목과 맞춘 기준).
 const IN_PROGRESS_STATUSES: BountyStatus[] = [
   BountyStatus.LOCKED,

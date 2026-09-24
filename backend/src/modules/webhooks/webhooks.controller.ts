@@ -57,7 +57,7 @@ export class WebhooksController {
     }
 
     // 실제로는 여기서 eventType에 따라 결제 상태 갱신 등의 후속 처리를 분기한다.
-    // (예: 'Transaction.Paid' → 해당 바운티/결제 레코드 상태 갱신)
+    // (예: 'Transaction.Paid' → 해당 프로젝트/결제 레코드 상태 갱신)
     return { received: true, duplicate: false };
   }
 }

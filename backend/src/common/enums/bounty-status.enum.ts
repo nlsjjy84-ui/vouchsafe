@@ -13,7 +13,7 @@
  *   DISPUTED        : SUBMITTED 이후 기한 내 이의제기 발생 → 자금 FROZEN, 관리자 중재
  *   REFUNDED        : DISPUTED 상태에서 관리자가 전문가 귀책으로 판단 → 의뢰인 전액 환불로 종결
  *     (2026-09-17 추가) - 프론트(lib/types.ts, StatusBadge.tsx)는 이미 이 값을 쓰고 있었는데
- *     백엔드가 실제로 이 상태로 전환한 적이 없어서, 환불 처리된 바운티가 DISPUTED에
+ *     백엔드가 실제로 이 상태로 전환한 적이 없어서, 환불 처리된 프로젝트가 DISPUTED에
  *     영원히 머무르는 버그가 있었다 (DisputesService.resolve의 refund=true 분기 참고).
  */
 export enum BountyStatus {

@@ -97,7 +97,7 @@ describe('TransactionsService', () => {
     expect(saved[0].platformFeeAmount).toBe(10000); // 4000 + 6000 누적
   });
 
-  it('존재하지 않는 바운티의 거래를 조회하면 NotFoundException을 던진다', async () => {
+  it('존재하지 않는 프로젝트의 거래를 조회하면 NotFoundException을 던진다', async () => {
     const transactionRepository = {
       findOne: jest.fn().mockResolvedValue(null),
     };
@@ -109,7 +109,7 @@ describe('TransactionsService', () => {
       paymentGateway as any,
     );
     await expect(service.settleNormally('nonexistent', { name: 'x' } as any)).rejects.toThrow(
-      '해당 바운티의 거래 내역을 찾을 수 없습니다',
+      '해당 프로젝트의 거래 내역을 찾을 수 없습니다',
     );
   });
 

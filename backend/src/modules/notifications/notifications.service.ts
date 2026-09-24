@@ -11,7 +11,7 @@ import { NotificationType } from '../../common/enums/notification-type.enum';
  */
 const NOTIFICATION_TITLE_MAP: Record<NotificationType, string> = {
   [NotificationType.BOUNTY_APPLICATION_RECEIVED]: '새 지원자가 도착했어요',
-  [NotificationType.BOUNTY_SELECTED]: '바운티에 선정됐어요',
+  [NotificationType.BOUNTY_SELECTED]: '프로젝트에 선정됐어요',
   [NotificationType.BOUNTY_SUBMITTED]: '결과물이 제출됐어요',
   [NotificationType.BOUNTY_SETTLED]: '정산이 완료됐어요',
   [NotificationType.BOUNTY_AUTO_SETTLED]: '무이의 기간 만료로 자동 정산됐어요',

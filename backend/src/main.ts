@@ -67,7 +67,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('CredoBounty API')
+    .setTitle('Vouchsafe API')
     .setDescription(
       '검증된 전문가와 의뢰인을 잇는 에스크로 거래 플랫폼 API 문서. ' +
         '인증이 필요한 요청은 우측 상단 Authorize 버튼에 로그인으로 발급받은 JWT를 입력하세요.',
@@ -83,7 +83,7 @@ async function bootstrap() {
 
   const port = process.env.PORT ?? 8080;
   await app.listen(port);
-  console.log(`CredoBounty API running on http://localhost:${port}/api`);
+  console.log(`Vouchsafe API running on http://localhost:${port}/api`);
   console.log(`Swagger docs on http://localhost:${port}/api/docs`);
 }
 bootstrap();

@@ -4,7 +4,7 @@ import { BountiesService, NO_OBJECTION_PERIOD_DAYS } from './bounties.service';
 
 /**
  * 기획서 8장 "SETTLED: 승인 또는 무이의 기간 만료 → 자동 정산 완료".
- * 매시 정각에 "SUBMITTED 상태로 5일이 지난" 바운티를 찾아 자동으로 정산한다.
+ * 매시 정각에 "SUBMITTED 상태로 5일이 지난" 프로젝트를 찾아 자동으로 정산한다.
  * BountiesService.approve()와 완전히 같은 정산 로직(settleSubmittedBounty)을 재사용해서
  * "수동 승인이든 자동 정산이든 결과가 달라지지 않는다"는 걸 코드 레벨에서 보장한다.
  *

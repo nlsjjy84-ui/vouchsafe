@@ -19,9 +19,9 @@ export enum ApplicationStatus {
 /**
  * 원본 ERD에는 없는 확장 테이블.
  * 기획서 8장 PENDING 단계 설명 "전문가 지원 자격을 제한 → 등록·검증 조건을 충족한
- * 전문가만 해당 바운티에 지원할 수 있다"를 실제로 동작시키려면
+ * 전문가만 해당 프로젝트에 지원할 수 있다"를 실제로 동작시키려면
  * "누가 지원했는지" 목록이 있어야 의뢰인이 그중 한 명을 고를 수 있다.
- * 한 전문가가 같은 바운티에 중복 지원하지 못하도록 (bounty, expert) unique 제약.
+ * 한 전문가가 같은 프로젝트에 중복 지원하지 못하도록 (bounty, expert) unique 제약.
  */
 @Entity('bounty_applications')
 @Unique(['bountyId', 'expertId'])

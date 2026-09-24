@@ -19,7 +19,7 @@ export class MockEmailService {
   sendPasswordResetEmail(email: string, resetLink: string): void {
     this.logger.log(
       `[MOCK EMAIL] 비밀번호 재설정 메일 -> ${email}\n` +
-        `  제목: [CredoBounty] 비밀번호 재설정 안내\n` +
+        `  제목: [Vouchsafe] 비밀번호 재설정 안내\n` +
         `  링크(30분간 유효): ${resetLink}`,
     );
   }
@@ -27,7 +27,7 @@ export class MockEmailService {
   sendVerificationEmail(email: string, verifyLink: string): void {
     this.logger.log(
       `[MOCK EMAIL] 이메일 인증 메일 -> ${email}\n` +
-        `  제목: [CredoBounty] 이메일 인증 안내\n` +
+        `  제목: [Vouchsafe] 이메일 인증 안내\n` +
         `  링크(24시간 유효): ${verifyLink}`,
     );
   }

@@ -23,13 +23,13 @@ export class SafeNumberService {
 
   async getOrCreateForBounty(bounty: Bounty, requesterId: string): Promise<SafeNumberMapping> {
     if (bounty.serviceType !== ServiceType.COMPANION) {
-      throw new BadRequestException('동행(COMPANION) 서비스 바운티만 안심번호를 발급할 수 있습니다');
+      throw new BadRequestException('동행(COMPANION) 서비스 프로젝트만 안심번호를 발급할 수 있습니다');
     }
     if (bounty.status === BountyStatus.PENDING || !bounty.assignedExpertId) {
-      throw new BadRequestException('전문가가 확정(LOCKED 이상)된 바운티만 안심번호를 발급할 수 있습니다');
+      throw new BadRequestException('전문가가 확정(LOCKED 이상)된 프로젝트만 안심번호를 발급할 수 있습니다');
     }
     if (requesterId !== bounty.clientId && requesterId !== bounty.assignedExpertId) {
-      throw new ForbiddenException('이 바운티의 의뢰인 또는 담당 전문가만 조회할 수 있습니다');
+      throw new ForbiddenException('이 프로젝트의 의뢰인 또는 담당 전문가만 조회할 수 있습니다');
     }
 
     let mapping = await this.safeNumberRepository.findOne({ where: { bountyId: bounty.id } });

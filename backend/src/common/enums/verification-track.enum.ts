@@ -12,6 +12,6 @@ export enum VerificationTrack {
 
 export enum VerificationStatus {
   PENDING = 'PENDING', // 제출 완료, 관리자 대조 대기
-  APPROVED = 'APPROVED', // 검증 통과, 해당 도메인 바운티 지원 권한 부여
+  APPROVED = 'APPROVED', // 검증 통과, 해당 도메인 프로젝트 지원 권한 부여
   REJECTED = 'REJECTED',
 }

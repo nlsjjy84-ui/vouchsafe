@@ -22,7 +22,7 @@ import { VerificationStatus } from '../../common/enums/verification-track.enum';
  * 프롬프트로 넘겨 문장을 받아온다"로 바꾸면 컨트롤러/프론트는 변경할 필요가 없다.
  *
  * 마이데이터(MyData) 연동도 마찬가지 원칙: 실제 마이데이터 API 대신 우리 플랫폼
- * 자체에 쌓인 바운티/거래 이력을 "내 지출·수입 데이터"로 취급해 분석한다 —
+ * 자체에 쌓인 프로젝트/거래 이력을 "내 지출·수입 데이터"로 취급해 분석한다 —
  * 사용자 입장에서는 "내 활동 데이터 기반 맞춤 분석"이라는 동일한 가치를 제공한다.
  *
  * 아래 3개 기능은 "AI 해석" 또는 "마이데이터 연결" 둘 중 하나에 반드시 해당해야만
@@ -402,12 +402,12 @@ function generateInsights(input: {
   }
   if (summary.approvedCertificationCount > 0 && earningByDomain.length === 0) {
     insights.push(
-      `보유하신 자격 인증 ${summary.approvedCertificationCount}건에 맞는 바운티에 아직 지원 이력이 없어요. 관련 분야 바운티를 둘러보세요.`,
+      `보유하신 자격 인증 ${summary.approvedCertificationCount}건에 맞는 프로젝트에 아직 지원 이력이 없어요. 관련 분야 프로젝트를 둘러보세요.`,
     );
   }
 
   if (insights.length === 0) {
-    insights.push('아직 분석할 활동 데이터가 충분하지 않아요. 바운티를 등록하거나 지원해보면 맞춤 인사이트를 받아볼 수 있어요.');
+    insights.push('아직 분석할 활동 데이터가 충분하지 않아요. 프로젝트를 등록하거나 지원해보면 맞춤 인사이트를 받아볼 수 있어요.');
   }
 
   return insights;

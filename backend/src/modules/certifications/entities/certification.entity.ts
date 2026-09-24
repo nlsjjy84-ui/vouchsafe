@@ -16,7 +16,7 @@ import {
 /**
  * 기획서 10장 Certifications(자격 및 인증 닥) + 3장 4개 증빙 트랙.
  *
- * verifiedStatus가 APPROVED가 되어야만 해당 domainType 바운티에 지원할 수 있다
+ * verifiedStatus가 APPROVED가 되어야만 해당 domainType 프로젝트에 지원할 수 있다
  * (BountiesService.applyToBounty 에서 이 테이블을 조회해 검사).
  */
 @Entity('certifications')

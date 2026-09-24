@@ -24,7 +24,7 @@ export class CreateBountyDto {
   description: string;
 
   @IsInt()
-  @Min(10000, { message: '최소 바운티 금액은 10,000원입니다' })
+  @Min(10000, { message: '최소 프로젝트 금액은 10,000원입니다' })
   bountyAmount: number;
 
   @IsOptional()

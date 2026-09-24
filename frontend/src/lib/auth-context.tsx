@@ -28,7 +28,6 @@ interface AuthState {
     password: string,
     name: string,
     role: User['role'],
-    phoneNumber?: string,
   ) => Promise<{ email: string; message: string }>;
   logout: () => Promise<void>;
 }
@@ -80,9 +79,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     name: string,
     role: User['role'],
-    phoneNumber?: string,
   ): Promise<{ email: string; message: string }> {
-    const res = await api.post('/auth/register', { email, password, name, role, phoneNumber });
+    const res = await api.post('/auth/register', { email, password, name, role });
     return res.data;
   }
 
