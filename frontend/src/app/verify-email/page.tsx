@@ -31,7 +31,7 @@ function VerifyEmailInner() {
     requestedRef.current = true;
 
     api
-      .post('/auth/verify-email', { token })
+      .post('/auth/verify-email/confirm', { token })
       .then(() => {
         setStatus('success');
         setMessage('이메일 인증이 완료되었습니다.');
