@@ -22,6 +22,7 @@ describe('ReputationService', () => {
   function buildService(opts: {
     settledCount: number;
     disputedCount: number;
+    refundedCount?: number;
     assignedBountyIds: string[];
     disputes: { status: DisputeStatus }[];
     durationScore?: number;
@@ -30,6 +31,7 @@ describe('ReputationService', () => {
       count: jest.fn().mockImplementation(({ where }: { where: { status: BountyStatus } }) => {
         if (where.status === BountyStatus.SETTLED) return Promise.resolve(opts.settledCount);
         if (where.status === BountyStatus.DISPUTED) return Promise.resolve(opts.disputedCount);
+        if (where.status === BountyStatus.REFUNDED) return Promise.resolve(opts.refundedCount ?? 0);
         return Promise.resolve(0);
       }),
       find: jest.fn().mockResolvedValue(opts.assignedBountyIds.map((id) => ({ id }))),
@@ -96,6 +98,33 @@ describe('ReputationService', () => {
     });
     const result = await service.getExpertReputation('expert-1');
     expect(result.completionRate).toBeCloseTo(0.75);
+  });
+
+  it('환불(REFUNDED)로 끝난 건은 실패로 세어 완료율을 깎는다 (정산 3 + 환불 1 → 0.75)', async () => {
+    const service = buildService({
+      settledCount: 3,
+      disputedCount: 0,
+      refundedCount: 1,
+      assignedBountyIds: ['b1', 'b2', 'b3', 'b4'],
+      disputes: [{ status: DisputeStatus.RESOLVED_REFUND }],
+    });
+    const result = await service.getExpertReputation('expert-1');
+    expect(result.completionRate).toBeCloseTo(0.75);
+    expect(result.refundedCount).toBe(1);
+    expect(result.hasEnoughData).toBe(true);
+  });
+
+  it('환불만 있는 전문가도 이력이 있는 것으로 본다(완료율 0)', async () => {
+    const service = buildService({
+      settledCount: 0,
+      disputedCount: 0,
+      refundedCount: 2,
+      assignedBountyIds: ['b1', 'b2'],
+      disputes: [{ status: DisputeStatus.RESOLVED_REFUND }, { status: DisputeStatus.RESOLVED_REFUND }],
+    });
+    const result = await service.getExpertReputation('expert-1');
+    expect(result.hasEnoughData).toBe(true);
+    expect(result.completionRate).toBe(0);
   });
 
   it('분쟁 2건 중 1건 RESOLVED_SETTLE(전문가 승)이면 분쟁승률 0.5', async () => {

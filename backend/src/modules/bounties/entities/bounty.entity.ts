@@ -83,6 +83,22 @@ export class Bounty {
   @Column({ type: 'text', nullable: true })
   clientRatingNote: string | null;
 
+  /** 현장 동행·임장처럼 만나는 지역(동 단위). 의뢰인이 정한 경우에만 값이 있고 지도에 표시된다. */
+  @Column({ name: 'region_sido', type: 'varchar', length: 20, nullable: true })
+  regionSido: string | null;
+
+  @Column({ name: 'region_sigungu', type: 'varchar', length: 40, nullable: true })
+  regionSigungu: string | null;
+
+  @Column({ name: 'region_dong', type: 'varchar', length: 40, nullable: true })
+  regionDong: string | null;
+
+  @Column({ name: 'region_lat', type: 'double precision', nullable: true })
+  regionLat: number | null;
+
+  @Column({ name: 'region_lng', type: 'double precision', nullable: true })
+  regionLng: number | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

@@ -52,6 +52,25 @@ export class User {
   @Column({ name: 'monthly_budget_goal', type: 'bigint', nullable: true })
   monthlyBudgetGoal: number | null;
 
+  /**
+   * 공개 활동 지역(시/군/구/동 단위). 사용자가 직접 설정한 경우에만 값이 있고, 지역별 전문가 찾기와
+   * 지도에 노출된다. 상세 주소는 저장하지 않고 동 단위까지만 둔다.
+   */
+  @Column({ name: 'region_sido', type: 'varchar', length: 20, nullable: true })
+  regionSido: string | null;
+
+  @Column({ name: 'region_sigungu', type: 'varchar', length: 40, nullable: true })
+  regionSigungu: string | null;
+
+  @Column({ name: 'region_dong', type: 'varchar', length: 40, nullable: true })
+  regionDong: string | null;
+
+  @Column({ name: 'region_lat', type: 'double precision', nullable: true })
+  regionLat: number | null;
+
+  @Column({ name: 'region_lng', type: 'double precision', nullable: true })
+  regionLng: number | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

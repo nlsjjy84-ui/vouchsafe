@@ -1,6 +1,8 @@
-import { Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Put, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { NotificationsService } from './notifications.service';
+import { AlertsService } from './alerts.service';
+import { SetAlertPreferenceDto } from './dto/set-alert-preference.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
@@ -11,7 +13,22 @@ type AuthUser = { userId: string };
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(
+    private readonly notificationsService: NotificationsService,
+    private readonly alertsService: AlertsService,
+  ) {}
+
+  /** 맞춤 알림 설정 조회. GET /api/notifications/alerts/me */
+  @Get('alerts/me')
+  getAlerts(@CurrentUser() user: AuthUser) {
+    return this.alertsService.getMine(user.userId);
+  }
+
+  /** 맞춤 알림 설정 저장. PUT /api/notifications/alerts/me */
+  @Put('alerts/me')
+  setAlerts(@CurrentUser() user: AuthUser, @Body() dto: SetAlertPreferenceDto) {
+    return this.alertsService.setMine(user.userId, dto);
+  }
 
   /** 내 알림 최근 20건. GET /api/notifications/me */
   @Get('me')

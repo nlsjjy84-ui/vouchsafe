@@ -19,6 +19,8 @@ const NOTIFICATION_TITLE_MAP: Record<NotificationType, string> = {
   [NotificationType.DISPUTE_FILED]: '이의제기가 접수됐어요',
   [NotificationType.DISPUTE_RESOLVED]: '분쟁 중재 결과가 나왔어요',
   [NotificationType.CERTIFICATION_REVIEWED]: '자격 인증 심사 결과가 나왔어요',
+  [NotificationType.NEW_BOUNTY_IN_FIELD]: '내 분야에 새 프로젝트가 올라왔어요',
+  [NotificationType.APPLICATION_NOT_SELECTED]: '지원한 프로젝트에 다른 전문가가 선정됐어요',
 };
 
 /**

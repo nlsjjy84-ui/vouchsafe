@@ -24,6 +24,15 @@ export function Navbar() {
           <Link href="/cases" className="hover:text-brand-clay">
             거래 사례
           </Link>
+          <Link href="/map" className="hover:text-brand-clay">
+            지역 찾기
+          </Link>
+          <Link href="/community" className="hover:text-brand-clay">
+            커뮤니티
+          </Link>
+          <Link href="/matching" className="hover:text-brand-clay">
+            AI 매칭
+          </Link>
 
           {!loading && user && (
             <>

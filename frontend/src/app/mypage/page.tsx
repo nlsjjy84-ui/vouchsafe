@@ -17,6 +17,8 @@ import { DOMAIN_LABELS, MyDashboard, TRACK_LABELS } from '@/lib/types';
 import { ApplicationStatusBadge, BountyStatusBadge } from '@/components/StatusBadge';
 import { AvatarModule } from '@/components/AvatarModule';
 import { jangdanDelay } from '@/lib/motion';
+import { MyRegionCard } from '@/components/MyRegionCard';
+import { MyAlertCard } from '@/components/MyAlertCard';
 
 const CERT_STATUS_LABEL: Record<'PENDING' | 'APPROVED' | 'REJECTED', string> = {
   PENDING: '심사중',
@@ -97,6 +99,10 @@ export default function MyPage() {
           <SummaryTile index={5} icon={Bell} label="안 읽은 알림" value={summary.unreadNotificationCount} tone="red" />
         </div>
       </div>
+
+      <MyRegionCard canBeFound={certifications.some((c) => c.verifiedStatus === 'APPROVED')} />
+
+      <MyAlertCard />
 
       <section>
         <h2 className="mb-3 text-base font-semibold text-ink-900">

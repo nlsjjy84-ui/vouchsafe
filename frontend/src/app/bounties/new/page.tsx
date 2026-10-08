@@ -5,7 +5,11 @@ import { useRouter } from 'next/navigation';
 import { PlusCircle, MapPin, CalendarClock, Wallet } from 'lucide-react';
 import { api, extractErrorMessage } from '@/lib/api';
 import { DOMAIN_LABELS, DomainType, ServiceType, SERVICE_TYPE_LABELS } from '@/lib/types';
+import { RegionPicker } from '@/components/RegionPicker';
+import { PickedRegion, regionLabel } from '@/lib/region-types';
 import { FIELD_INPUT_CLASS, FormField, FormSubmitButton, FormErrorText } from '@/components/FormControls';
+import { AiBountyDraftCard } from '@/components/AiBountyDraftCard';
+import { RiskCheckBox } from '@/components/RiskCheckBox';
 
 const DOMAIN_OPTIONS = Object.entries(DOMAIN_LABELS) as [DomainType, string][];
 const SERVICE_TYPE_OPTIONS = Object.entries(SERVICE_TYPE_LABELS) as [ServiceType, string][];
@@ -21,6 +25,7 @@ export default function NewBountyPage() {
   const [serviceType, setServiceType] = useState<ServiceType>('REMOTE');
   const [scheduledAt, setScheduledAt] = useState('');
   const [location, setLocation] = useState('');
+  const [region, setRegion] = useState<PickedRegion | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -42,6 +47,14 @@ export default function NewBountyPage() {
           : {}),
         ...(serviceType === 'COMPANION' && location ? { location } : {}),
       });
+      // 만남 지역(동 단위)은 프로젝트가 만들어진 뒤 따로 저장한다. 실패해도 프로젝트 등록은 그대로 유지한다.
+      if (serviceType === 'COMPANION' && region) {
+        try {
+          await api.put(`/regions/bounties/${res.data.id}`, { sido: region.sido, sigungu: region.sigungu || undefined, dong: region.dong || undefined });
+        } catch {
+          // 지역 저장 실패는 무시 - 프로젝트 상세에서 확인할 수 있다.
+        }
+      }
       router.push(`/bounties/${res.data.id}`);
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -56,6 +69,16 @@ export default function NewBountyPage() {
         <PlusCircle size={20} className="text-brand-clay" />
         <h1 className="text-xl font-bold text-ink-900">프로젝트 등록</h1>
       </div>
+
+      <AiBountyDraftCard
+        serviceType={serviceType}
+        onApply={(d) => {
+          if (d.domainType) setDomainType(d.domainType);
+          setTitle(d.title);
+          setDescription(d.description);
+        }}
+        onPickAmount={setBountyAmount}
+      />
 
       <form onSubmit={handleSubmit} className="space-y-5 rounded-4xl border border-hairline bg-surface-canvas p-6">
         <FormField label="도메인">
@@ -111,6 +134,16 @@ export default function NewBountyPage() {
                   required={serviceType === 'COMPANION'}
                 />
               </div>
+              <div className="mt-2 flex flex-wrap items-center gap-3">
+                <RegionPicker
+                  label="주소 검색으로 만남 지역 선택"
+                  onPick={(r) => {
+                    setRegion(r);
+                    if (!location) setLocation(r.address);
+                  }}
+                />
+                {region && <span className="text-xs text-ink-600">지도에 표시될 지역: <b className="text-ink-900">{regionLabel(region)}</b> (동 단위까지만 공개)</span>}
+              </div>
             </FormField>
           </div>
         )}
@@ -149,6 +182,8 @@ export default function NewBountyPage() {
             />
           </div>
         </FormField>
+
+        <RiskCheckBox text={`${title}\n${description}`} kind="BOUNTY" />
 
         {error && <FormErrorText>{error}</FormErrorText>}
 

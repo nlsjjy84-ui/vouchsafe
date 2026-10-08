@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { ScrollText, Gauge, UserCheck } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ScrollText, Gauge, UserCheck, CheckCircle2, ShieldAlert, Undo2, PauseCircle } from 'lucide-react';
 import { api } from '@/lib/api';
 import { PublicBountyCase, DomainType } from '@/lib/types';
 import { JangdanDivider } from '@/components/JangdanDivider';
@@ -51,9 +51,40 @@ const CATEGORY_LABEL_CLASS: Record<'A' | 'B' | 'C', string> = {
   C: 'bg-tint-sage text-brand-sage',
 };
 
+type Outcome = PublicBountyCase['outcome'];
+
+/**
+ * 결과별 표시. 성공만 보여주면 편집된 자료처럼 보이므로 실패·보류도 같은 목록에 공개한다.
+ * 점수가 사람마다 달라지는 이유(환불·분쟁·느린 처리)가 이 표시로 바로 설명된다.
+ */
+const OUTCOME_META: Record<Outcome, { label: string; hint: string; cls: string; icon: React.ReactNode }> = {
+  SUCCESS: { label: '성공', hint: '이의 없이 정산됨', cls: 'bg-tint-sage text-brand-sage', icon: <CheckCircle2 size={13} /> },
+  SUCCESS_AFTER_DISPUTE: { label: '분쟁 후 정산', hint: '이의제기 후 중재에서 전문가 정산 유지', cls: 'bg-tint-gold text-brand-gold', icon: <ShieldAlert size={13} /> },
+  REFUNDED: { label: '환불(실패)', hint: '중재 결과 의뢰인에게 전액 환불', cls: 'bg-tint-red text-brand-red', icon: <Undo2 size={13} /> },
+  ON_HOLD: { label: '보류(분쟁 중)', hint: '자금 동결, 관리자 중재 진행 중', cls: 'bg-tint-clay text-brand-clay', icon: <PauseCircle size={13} /> },
+};
+
+const FILTERS: { key: 'ALL' | Outcome; label: string }[] = [
+  { key: 'ALL', label: '전체' },
+  { key: 'SUCCESS', label: '성공' },
+  { key: 'SUCCESS_AFTER_DISPUTE', label: '분쟁 후 정산' },
+  { key: 'REFUNDED', label: '환불(실패)' },
+  { key: 'ON_HOLD', label: '보류' },
+];
+
 export default function PublicCasesPage() {
   const [cases, setCases] = useState<PublicBountyCase[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<'ALL' | Outcome>('ALL');
+
+  const counts = useMemo(() => {
+    const c: Record<Outcome, number> = { SUCCESS: 0, SUCCESS_AFTER_DISPUTE: 0, REFUNDED: 0, ON_HOLD: 0 };
+    for (const x of cases) c[x.outcome] += 1;
+    return c;
+  }, [cases]);
+  const visible = filter === 'ALL' ? cases : cases.filter((c) => c.outcome === filter);
+  const decided = cases.length - counts.ON_HOLD; // 보류는 아직 결과가 안 난 건이라 비율에서 뺀다
+  const pct = (n: number) => (decided > 0 ? Math.round((n / decided) * 100) : 0);
 
   useEffect(() => {
     setLoading(true);
@@ -72,8 +103,8 @@ export default function PublicCasesPage() {
         <div>
           <h1 className="font-display text-2xl tracking-wide text-ink-900">공개 거래 사례</h1>
           <p className="mt-1 max-w-xl text-sm text-ink-500">
-            정산이 끝난 거래는 예외 없이 여기에 자동으로 공개돼요. 의뢰인·전문가 실명과
-            정확한 금액은 익명화되지만, 처리 기간·점수는 그대로 보여드려요.
+            성공한 거래만이 아니라 분쟁·환불·보류까지 예외 없이 자동으로 공개돼요. 의뢰인·전문가
+            실명과 정확한 금액은 익명화되지만, 결과·처리 기간·점수는 그대로 보여드려요.
           </p>
         </div>
       </div>
@@ -96,8 +127,40 @@ export default function PublicCasesPage() {
       )}
 
       {!loading && cases.length > 0 && (
+        <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-3xl border border-hairline bg-surface-canvas px-5 py-3 text-sm text-ink-700">
+          <span>전체 <b className="font-display text-ink-900">{cases.length}</b>건</span>
+          <span>이의 없이 성공 <b className="font-display text-brand-sage">{pct(counts.SUCCESS)}%</b></span>
+          <span>분쟁 거침 <b className="font-display text-brand-gold">{pct(counts.SUCCESS_AFTER_DISPUTE + counts.REFUNDED)}%</b></span>
+          <span>환불 <b className="font-display text-brand-red">{pct(counts.REFUNDED)}%</b></span>
+          <span className="text-xs text-ink-400">보류 {counts.ON_HOLD}건은 결과가 나기 전이라 비율에서 제외</span>
+        </div>
+      )}
+
+      {!loading && cases.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {FILTERS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              onClick={() => setFilter(f.key)}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                filter === f.key ? 'bg-brand-ink text-white' : 'bg-surface-raised text-ink-700 hover:bg-hairline'
+              }`}
+            >
+              {f.label}
+              {f.key !== 'ALL' && <span className="ml-1 opacity-70">{counts[f.key]}</span>}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {!loading && cases.length > 0 && visible.length === 0 && (
+        <p className="mt-6 text-sm text-ink-500">이 결과에 해당하는 사례가 아직 없어요.</p>
+      )}
+
+      {!loading && visible.length > 0 && (
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-          {cases.map((c, i) => {
+          {visible.map((c, i) => {
             const category = CATEGORY_BY_DOMAIN[c.domainType];
             return (
               <div
@@ -114,9 +177,16 @@ export default function PublicCasesPage() {
                   <span className="text-xs font-medium text-ink-400">{c.expertHandle}</span>
                 </div>
 
+                <div className="flex items-center gap-2">
+                  <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold ${OUTCOME_META[c.outcome].cls}`}>
+                    {OUTCOME_META[c.outcome].icon} {OUTCOME_META[c.outcome].label}
+                  </span>
+                  <span className="text-[11px] text-ink-400">{OUTCOME_META[c.outcome].hint}</span>
+                </div>
+
                 <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm text-ink-700">
                   <span>
-                    처리 기간 <b className="font-display text-ink-900">{c.durationDays}</b>일
+                    {c.outcome === 'ON_HOLD' ? '진행' : '처리 기간'} <b className="font-display text-ink-900">{c.durationDays}</b>일
                   </span>
                   <span>
                     거래 금액 <b className="font-display text-ink-900">{c.amountBand}</b>
@@ -134,7 +204,9 @@ export default function PublicCasesPage() {
                       {c.systemScore.toFixed(1)}
                       <span className="text-xs font-sans font-medium text-brand-sage/70"> / 10</span>
                     </p>
-                    <p className="mt-0.5 text-[10px] text-brand-sage/70">완료율·분쟁승률·처리속도 자동 계산</p>
+                    <p className="mt-0.5 text-[10px] text-brand-sage/70">
+                      이 전문가 누적 · 완료 {c.expertCompletedCount}건{c.expertRefundedCount > 0 ? ` · 환불 ${c.expertRefundedCount}건` : ''} · 완료율·분쟁승률·처리속도 자동 계산
+                    </p>
                   </div>
                   <div className="rounded-2xl bg-tint-ink px-3 py-2.5">
                     <div className="flex items-center gap-1.5 text-[11px] font-bold text-brand-ink">
@@ -145,10 +217,14 @@ export default function PublicCasesPage() {
                         {c.clientRating.toFixed(1)}
                         <span className="text-xs font-sans font-medium text-brand-ink/70"> / 10</span>
                       </p>
+                    ) : c.outcome === 'REFUNDED' ? (
+                      <p className="mt-0.5 text-sm text-brand-ink/60">평가 없음 (환불 종결)</p>
+                    ) : c.outcome === 'ON_HOLD' ? (
+                      <p className="mt-0.5 text-sm text-brand-ink/60">중재 종결 후 평가 가능</p>
                     ) : (
                       <p className="mt-0.5 text-sm text-brand-ink/60">아직 평가 전</p>
                     )}
-                    <p className="mt-0.5 text-[10px] text-brand-ink/70">거래해본 의뢰인의 직접 평가</p>
+                    <p className="mt-0.5 text-[10px] text-brand-ink/70">이 거래 한 건에 대한 의뢰인의 직접 평가</p>
                   </div>
                 </div>
 

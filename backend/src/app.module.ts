@@ -14,6 +14,10 @@ import { PaymentsModule } from './payments/payments.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { AiInsightsModule } from './modules/ai-insights/ai-insights.module';
+import { AiModule } from './modules/ai/ai.module';
+import { CommunityModule } from './modules/community/community.module';
+import { RegionsModule } from './modules/regions/regions.module';
+import { ExpertsModule } from './modules/experts/experts.module';
 import { HealthController } from './health.controller';
 
 @Module({
@@ -69,6 +73,10 @@ import { HealthController } from './health.controller';
     WebhooksModule,
     DashboardModule,
     AiInsightsModule,
+    AiModule,
+    CommunityModule,
+    RegionsModule,
+    ExpertsModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

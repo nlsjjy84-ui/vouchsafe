@@ -6,7 +6,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, LessThanOrEqual, Repository } from 'typeorm';
+import { DataSource, EntityManager, In, LessThanOrEqual, Repository } from 'typeorm';
+import { Dispute } from '../disputes/entities/dispute.entity';
 import { Bounty } from './entities/bounty.entity';
 import {
   ApplicationStatus,
@@ -26,6 +27,7 @@ import { UsersService } from '../users/users.service';
 import { ReputationService } from '../users/reputation.service';
 import { DomainType, DOMAIN_LABELS } from '../../common/enums/domain-type.enum';
 import { NotificationsService } from '../notifications/notifications.service';
+import { AlertsService } from '../notifications/alerts.service';
 import { NotificationType } from '../../common/enums/notification-type.enum';
 
 /** 8장 "무이의 기간": 결과물 제출 후 이 기간이 지나도록 승인/이의제기가 없으면 자동 정산 */
@@ -42,7 +44,17 @@ export interface PublicBountyCase {
   domainLabel: string;
   durationDays: number; // 등록(createdAt) ~ 정산(updatedAt) 며칠 걸렸는지
   amountBand: string; // 정확한 금액 대신 구간으로만 공개
-  systemScore: number; // 0~10, ReputationService가 자동 계산 - 조작 불가
+  /**
+   * 거래 결과. 성공만 골라 보여주면 "편집된 사례"가 되므로 실패·보류도 같은 목록에 공개한다.
+   *   SUCCESS              : 이의 없이 승인(또는 무이의 기간 만료)으로 정산
+   *   SUCCESS_AFTER_DISPUTE: 이의제기가 있었지만 중재 결과 전문가 정산 유지
+   *   REFUNDED             : 중재 결과 의뢰인 전액 환불 (전문가 귀책 실패)
+   *   ON_HOLD              : 분쟁이 진행 중이라 자금이 동결된 보류 상태
+   */
+  outcome: 'SUCCESS' | 'SUCCESS_AFTER_DISPUTE' | 'REFUNDED' | 'ON_HOLD';
+  systemScore: number; // 0~10, ReputationService가 자동 계산 - 조작 불가 (전문가 누적 기준)
+  expertCompletedCount: number; // 이 전문가의 누적 정산 완료 건수 (시스템 점수의 근거)
+  expertRefundedCount: number; // 이 전문가의 누적 환불(실패) 건수
   clientRating: number | null; // 1.0~10.0, 의뢰인이 직접 매긴 점수 (아직 안 매겼으면 null)
   clientRatingNote: string | null;
   expertHandle: string; // 익명화된 전문가 표기 (예: "김전문가-A1B2")
@@ -67,13 +79,17 @@ export class BountiesService {
     private readonly usersService: UsersService,
     private readonly reputationService: ReputationService,
     private readonly notificationsService: NotificationsService,
+    private readonly alertsService: AlertsService,
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
 
-  create(clientId: string, dto: CreateBountyDto) {
+  async create(clientId: string, dto: CreateBountyDto) {
     const bounty = this.bountyRepository.create({ ...dto, clientId });
-    return this.bountyRepository.save(bounty);
+    const saved = await this.bountyRepository.save(bounty);
+    // 내 분야 인증 전문가에게 맞춤 알림 (실패해도 등록은 성공으로 둔다)
+    await this.alertsService.notifyNewBounty(saved);
+    return saved;
   }
 
   findAll(filters: { domainType?: DomainType; status?: BountyStatus }) {
@@ -207,6 +223,7 @@ export class BountiesService {
     const client = await this.usersService.findById(clientId);
     if (!client) throw new NotFoundException('의뢰인 정보를 찾을 수 없습니다');
 
+    let allApplicationsSnapshot: BountyApplication[] = [];
     return this.dataSource.transaction(async (manager: EntityManager) => {
       const applicationRepo = manager.getRepository(BountyApplication);
       const bountyRepo = manager.getRepository(Bounty);
@@ -233,6 +250,7 @@ export class BountiesService {
           app.id === applicationId ? ApplicationStatus.SELECTED : ApplicationStatus.REJECTED;
       }
       await applicationRepo.save(allApplications);
+      allApplicationsSnapshot = allApplications;
 
       lockedBounty.assignedExpertId = selected.expertId;
       lockedBounty.status = BountyStatus.PAYMENT_PENDING;
@@ -247,6 +265,16 @@ export class BountiesService {
         `"${bounty.title}" 프로젝트의 담당 전문가로 선택되었습니다. (의뢰인 결제 확인 대기중)`,
         bountyId,
       );
+      // 선정되지 못한 지원자에게도 결과를 알려준다 (지원 결과 알림)
+      const others = allApplicationsSnapshot.filter((a) => a.id !== applicationId);
+      for (const other of others) {
+        await this.notificationsService.notify(
+          other.expertId,
+          NotificationType.APPLICATION_NOT_SELECTED,
+          `지원한 "${bounty.title}" 프로젝트에는 다른 전문가가 선정되었습니다.`,
+          bountyId,
+        );
+      }
       return result;
     });
   }
@@ -359,27 +387,44 @@ export class BountiesService {
    * 합치지 않고 나란히 따로 반환한다.
    */
   async listPublicCases(): Promise<PublicBountyCase[]> {
-    const settled = await this.bountyRepository.find({
-      where: { status: BountyStatus.SETTLED },
+    const rows = await this.bountyRepository.find({
+      where: [
+        { status: BountyStatus.SETTLED },
+        { status: BountyStatus.REFUNDED },
+        { status: BountyStatus.DISPUTED },
+      ],
       order: { updatedAt: 'DESC' },
     });
 
-    const systemScoreCache = new Map<string, number>();
+    // 정산 건이 "이의 없이" 끝났는지, 분쟁을 거쳤는지 구분하려면 분쟁 기록이 필요하다
+    const disputes = rows.length
+      ? await this.dataSource.getRepository(Dispute).find({ where: { bountyId: In(rows.map((r) => r.id)) } })
+      : [];
+    const disputedIds = new Set(disputes.map((d) => d.bountyId));
+
+    const repCache = new Map<string, { score10: number; completed: number; refunded: number }>();
     const cases: PublicBountyCase[] = [];
 
-    for (const bounty of settled) {
+    for (const bounty of rows) {
       if (!bounty.assignedExpertId) continue;
       const expert = await this.usersService.findById(bounty.assignedExpertId);
       if (!expert) continue;
 
-      let systemScore = systemScoreCache.get(bounty.assignedExpertId);
-      if (systemScore === undefined) {
-        const reputation = await this.reputationService.getExpertReputation(
-          bounty.assignedExpertId,
-        );
-        systemScore = reputation.score10;
-        systemScoreCache.set(bounty.assignedExpertId, systemScore);
+      let rep = repCache.get(bounty.assignedExpertId);
+      if (!rep) {
+        const r = await this.reputationService.getExpertReputation(bounty.assignedExpertId);
+        rep = { score10: r.score10, completed: r.completedCount, refunded: r.refundedCount };
+        repCache.set(bounty.assignedExpertId, rep);
       }
+
+      const outcome: PublicBountyCase['outcome'] =
+        bounty.status === BountyStatus.REFUNDED
+          ? 'REFUNDED'
+          : bounty.status === BountyStatus.DISPUTED
+            ? 'ON_HOLD'
+            : disputedIds.has(bounty.id)
+              ? 'SUCCESS_AFTER_DISPUTE'
+              : 'SUCCESS';
 
       const durationDays = Math.max(
         0,
@@ -395,7 +440,10 @@ export class BountiesService {
         domainLabel: DOMAIN_LABELS[bounty.domainType],
         durationDays,
         amountBand: this.amountBand(Number(bounty.bountyAmount)),
-        systemScore,
+        outcome,
+        systemScore: rep.score10,
+        expertCompletedCount: rep.completed,
+        expertRefundedCount: rep.refunded,
         clientRating: bounty.clientRating !== null ? Number(bounty.clientRating) : null,
         clientRatingNote: bounty.clientRatingNote,
         expertHandle: this.anonymizeExpertHandle(expert.name, expert.id),

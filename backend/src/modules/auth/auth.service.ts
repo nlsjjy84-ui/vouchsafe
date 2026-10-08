@@ -55,6 +55,18 @@ export class AuthService {
       ciHash,
     });
 
+    // 개발/시연용 스위치: EMAIL_VERIFICATION=off 이면 메일 인증을 건너뛰고 바로 인증 처리한다.
+    // (실제 메일 발송 서비스가 없는 환경에서 가입 → 바로 로그인하기 위함. 운영에서는 켜 둘 것.)
+    if (this.emailVerificationOff()) {
+      await this.usersService.markEmailVerified(user.id);
+      return {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        message: '가입이 완료됐어요. 바로 로그인할 수 있어요.',
+      };
+    }
+
     // 가입 직후 이메일 인증 토큰을 바로 발급해서 (Mock) 메일로 보낸다.
     await this.sendEmailVerification(user.id, user.email);
 
@@ -85,7 +97,10 @@ export class AuthService {
     if (!passwordOk) {
       throw new UnauthorizedException(INVALID_CREDENTIALS_MESSAGE);
     }
-    if (!user.emailVerifiedAt) {
+    if (!user.emailVerifiedAt && this.emailVerificationOff()) {
+      // 인증 끔 모드: 이전에 가입해 미인증으로 남은 계정도 로그인 때 인증 처리한다.
+      await this.usersService.markEmailVerified(user.id);
+    } else if (!user.emailVerifiedAt) {
       throw new ForbiddenException({
         statusCode: 403,
         errorCode: 'EMAIL_NOT_VERIFIED',
@@ -111,6 +126,12 @@ export class AuthService {
     if (!user) return; // 존재하지 않는 사용자라도 조용히 반환 (enumeration 방지)
     if (user.emailVerifiedAt) return; // 이미 인증됨 — 재발급할 필요 없음
     await this.sendEmailVerification(user.id, user.email);
+  }
+
+  /** 호출 시점에 읽는다(import 시점 X). 'off' | 'false' | '0' 이면 메일 인증 생략 */
+  private emailVerificationOff(): boolean {
+    const v = (process.env.EMAIL_VERIFICATION ?? '').trim().toLowerCase();
+    return v === 'off' || v === 'false' || v === '0';
   }
 
   private async sendEmailVerification(userId: string, email: string): Promise<void> {

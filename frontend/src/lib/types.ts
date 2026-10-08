@@ -100,6 +100,9 @@ export interface Bounty {
   serviceType: ServiceType;
   scheduledAt: string | null;
   location: string | null;
+  /** 의뢰인이 남긴 후기 점수(1.0~10.0). 서버가 소수 문자열로 내려주므로 숫자로 바꿔 쓴다. 아직 없으면 null */
+  clientRating?: string | number | null;
+  clientRatingNote?: string | null;
   createdAt: string;
 }
 
@@ -254,7 +257,11 @@ export interface PublicBountyCase {
   domainLabel: string;
   durationDays: number;
   amountBand: string;
-  systemScore: number; // 0~10, 자동 계산(완료율/분쟁승률/처리속도) - 조작 불가
+  /** 거래 결과: 성공 / 분쟁 후 정산 / 환불(실패) / 보류(분쟁 진행 중) */
+  outcome: 'SUCCESS' | 'SUCCESS_AFTER_DISPUTE' | 'REFUNDED' | 'ON_HOLD';
+  systemScore: number; // 0~10, 자동 계산(완료율/분쟁승률/처리속도) - 조작 불가 (전문가 누적 기준)
+  expertCompletedCount: number; // 이 전문가의 누적 정산 완료 건수
+  expertRefundedCount: number; // 이 전문가의 누적 환불(실패) 건수
   clientRating: number | null; // 1.0~10.0, 의뢰인이 직접 매긴 점수 (아직 없으면 null)
   clientRatingNote: string | null;
   expertHandle: string;

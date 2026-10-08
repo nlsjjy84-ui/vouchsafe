@@ -8,4 +8,6 @@ export enum NotificationType {
   DISPUTE_FILED = 'DISPUTE_FILED', // 전문가: 이의제기 접수됨 (자금 동결)
   DISPUTE_RESOLVED = 'DISPUTE_RESOLVED', // 양측: 분쟁 중재 결과 반영
   CERTIFICATION_REVIEWED = 'CERTIFICATION_REVIEWED', // 신청자: 자격 인증 심사 결과
+  NEW_BOUNTY_IN_FIELD = 'NEW_BOUNTY_IN_FIELD', // 전문가: 내 인증 분야에 새 프로젝트 등록 (맞춤 알림)
+  APPLICATION_NOT_SELECTED = 'APPLICATION_NOT_SELECTED', // 전문가: 지원한 프로젝트에서 다른 전문가가 선정됨
 }

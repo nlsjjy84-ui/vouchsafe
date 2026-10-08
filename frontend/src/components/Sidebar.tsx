@@ -10,6 +10,9 @@ import {
   Sparkles,
   Gavel,
   ScrollText,
+  MessagesSquare,
+  Handshake,
+  MapPinned,
   ChevronsLeft,
   ChevronsRight,
 } from 'lucide-react';
@@ -87,12 +90,15 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: '/bounties', label: '프로젝트 둘러보기', icon: Compass, match: (p) => p === '/bounties' },
       { href: '/cases', label: '거래 사례', icon: ScrollText, match: (p) => p.startsWith('/cases') },
+      { href: '/map', label: '지역 찾기', icon: MapPinned, match: (p) => p.startsWith('/map') },
+      { href: '/community', label: '커뮤니티', icon: MessagesSquare, match: (p) => p.startsWith('/community') },
     ],
   },
   {
     label: 'AI 도구',
     tone: 'blue',
     items: [
+      { href: '/matching', label: 'AI 매칭', icon: Handshake, match: (p) => p.startsWith('/matching'), badge: 'AI' },
       { href: '/insights', label: 'AI 인사이트', icon: Sparkles, match: (p) => p.startsWith('/insights'), badge: 'AI' },
     ],
   },

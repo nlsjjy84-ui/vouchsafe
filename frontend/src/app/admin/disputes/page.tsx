@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth-context';
 import { AdminDispute, DOMAIN_LABELS } from '@/lib/types';
 import { jangdanDelay } from '@/lib/motion';
 import { GhostPillButton } from '@/components/FormControls';
+import { AiDisputeSummary } from '@/components/AiDisputeSummary';
 
 /**
  * 관리자 전용 "분쟁 중재" 화면 (기획서 9장 관리자 1차 중재).
@@ -108,7 +109,8 @@ export default function AdminDisputesPage() {
                 접수일 {new Date(d.createdAt).toLocaleDateString('ko-KR')}
               </span>
             </div>
-            <p className="mb-4 rounded-xl bg-tint-red px-4 py-3 text-sm text-ink-700">{d.reason}</p>
+            <p className="mb-3 rounded-xl bg-tint-red px-4 py-3 text-sm text-ink-700">{d.reason}</p>
+            <AiDisputeSummary disputeId={d.id} />
             <div className="flex gap-2">
               <GhostPillButton tone="red" disabled={actingId === d.id} onClick={() => resolve(d.id, true)}>
                 의뢰인 환불로 종결

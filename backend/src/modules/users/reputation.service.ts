@@ -9,6 +9,7 @@ export interface ExpertReputation {
   expertId: string;
   completedCount: number;
   disputedCount: number;
+  refundedCount: number;
   completionRate: number; // 0~1
   disputeWinCount: number;
   disputeTotalCount: number;
@@ -27,7 +28,8 @@ const DURATION_WEIGHT = 0.25;
 /**
  * 전문가 평판 점수 = 완료율(50%) + 분쟁 승률(25%) + 처리속도(25%) 가중평균.
  *
- * 완료율: 배정받은 프로젝트(SETTLED 또는 DISPUTED로 끝난 것) 중 SETTLED로 끝난 비율.
+ * 완료율: 배정받은 프로젝트(SETTLED·DISPUTED·REFUNDED로 결과가 난 것) 중 SETTLED로 끝난 비율.
+ *   환불(REFUNDED)은 실패로 센다(2026-10-08 보정: 이전에는 분모에서 빠져 환불이 완료율을 깎지 못했다).
  *   LOCKED/SUBMITTED처럼 아직 진행 중인 건은 "결과가 정해지지 않았으므로" 분모에서 뺀다.
  * 분쟁 승률: 이 전문가가 배정된 프로젝트에서 발생한 분쟁 중, 전문가 손을 들어준(RESOLVED_SETTLE)
  *   비율. 분쟁 이력이 아예 없으면 "패소한 적도 없다"는 의미로 1.0(만점)을 기본값으로 둔다 —
@@ -49,15 +51,19 @@ export class ReputationService {
   ) {}
 
   async getExpertReputation(expertId: string): Promise<ExpertReputation> {
-    const [settledCount, disputedCount] = await Promise.all([
+    const [settledCount, disputedCount, refundedCount] = await Promise.all([
       this.bountyRepository.count({
         where: { assignedExpertId: expertId, status: BountyStatus.SETTLED },
       }),
       this.bountyRepository.count({
         where: { assignedExpertId: expertId, status: BountyStatus.DISPUTED },
       }),
+      // 환불로 끝난 건(REFUNDED)은 "실패"다 — 분모에 넣지 않으면 환불이 완료율을 전혀 깎지 못한다.
+      this.bountyRepository.count({
+        where: { assignedExpertId: expertId, status: BountyStatus.REFUNDED },
+      }),
     ]);
-    const decidedCount = settledCount + disputedCount;
+    const decidedCount = settledCount + disputedCount + refundedCount;
     const completionRate = decidedCount > 0 ? settledCount / decidedCount : 0;
 
     // 이 전문가가 배정된 프로젝트들의 id를 먼저 구하고, 그 프로젝트들에 걸린 "해결된" 분쟁을 센다.
@@ -93,6 +99,7 @@ export class ReputationService {
       expertId,
       completedCount: settledCount,
       disputedCount,
+      refundedCount,
       completionRate,
       disputeWinCount,
       disputeTotalCount,

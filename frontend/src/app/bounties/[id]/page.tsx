@@ -23,6 +23,9 @@ import { payForBounty } from '@/lib/portone';
 import { FIELD_INPUT_CLASS, FormErrorText } from '@/components/FormControls';
 import { Button } from '@/components/Button';
 import { jangdanDelay } from '@/lib/motion';
+import { AiAssistantPanel } from '@/components/AiAssistantPanel';
+import { ReviewComposer } from '@/components/ReviewComposer';
+import { RiskCheckBox } from '@/components/RiskCheckBox';
 
 const CARD_CLASS = 'rounded-4xl border border-hairline bg-surface-canvas p-5';
 /* 부가 기능(핵심 콘텐츠가 아닌 유틸리티성 카드)은 표면을 한 단계 낮춰서
@@ -131,6 +134,26 @@ export default function BountyDetailPage() {
 
       {error && <FormErrorText>{error}</FormErrorText>}
       {message && <SuccessPulse>{message}</SuccessPulse>}
+
+      <AiAssistantPanel
+        bountyId={bounty.id}
+        status={bounty.status}
+        domainType={bounty.domainType}
+        amount={bounty.bountyAmount}
+        isOwner={isOwner}
+        isAssignedExpert={isAssignedExpert}
+        applicantCount={applicants.length}
+      />
+
+      {/* ── 의뢰인 시점: 정산 완료 → 후기 쓰기(1회) / 남긴 후기 보기 ── */}
+      {isOwner && bounty.status === 'SETTLED' && (
+        <ReviewComposer
+          bountyId={bounty.id}
+          existingRating={bounty.clientRating != null ? Number(bounty.clientRating) : null}
+          existingNote={bounty.clientRatingNote ?? null}
+          onDone={() => runAction(async () => {}).then(() => setMessage('후기를 남겼어요. 거래 사례와 전문가 프로필에 공개돼요.'))}
+        />
+      )}
 
       {/* ── 의뢰인 시점: PENDING 상태 → 지원자 목록에서 한 명 선택 ── */}
       {isOwner && bounty.status === 'PENDING' && (
@@ -287,6 +310,7 @@ function ApplyForm({ bountyId, onDone }: { bountyId: string; onDone: () => void 
         value={message}
         onChange={(e) => setMessage(e.target.value)}
       />
+      {message.trim().length > 0 && <RiskCheckBox text={message} kind="APPLICATION" />}
       {error && <FormErrorText>{error}</FormErrorText>}
       <Button type="submit" disabled={submitting} tone="teal" variant="solid">
         {submitting ? '지원중...' : '지원하기'}

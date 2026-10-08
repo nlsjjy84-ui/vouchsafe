@@ -7,6 +7,8 @@ import { api } from '@/lib/api';
 import { Bounty, DOMAIN_LABELS, DomainType } from '@/lib/types';
 import { BountyStatusBadge } from '@/components/StatusBadge';
 import { jangdanDelay } from '@/lib/motion';
+import { useAuth } from '@/lib/auth-context';
+import { AiRecommendedBounties } from '@/components/AiRecommendedBounties';
 
 // 기획서 2장 도메인 카테고리 분류 - 카드 왼쪽 색상 띠로 어떤 영역인지 한눈에 구분하기 위함.
 const DOMAIN_CATEGORY: Record<DomainType, 'A' | 'B' | 'C'> = {
@@ -43,6 +45,7 @@ const CATEGORY_BAR: Record<'A' | 'B' | 'C', string> = {
 export default function BountiesPage() {
   const [bounties, setBounties] = useState<Bounty[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     setLoading(true);
@@ -68,6 +71,8 @@ export default function BountiesPage() {
           <PlusCircle size={16} /> 프로젝트 등록
         </Link>
       </div>
+
+      {user?.role === 'EXPERT' && <AiRecommendedBounties />}
 
       {loading && (
         <div className="space-y-3">
