@@ -17,8 +17,14 @@
     "create-admin": "ts-node -r tsconfig-paths/register src/scripts/create-admin.ts",
     "seed-demo": "ts-node -r tsconfig-paths/register src/scripts/seed-demo.ts",
     "seed-demo-more": "ts-node -r tsconfig-paths/register src/scripts/seed-demo-more.ts",
+    "seed-demo-admin": "ts-node -r tsconfig-paths/register src/scripts/seed-demo-admin.ts",
+    "seed-demo-match": "ts-node -r tsconfig-paths/register src/scripts/seed-demo-match.ts",
+    "seed-demo-cases": "ts-node -r tsconfig-paths/register src/scripts/seed-demo-cases.ts",
+    "seed-demo-community": "ts-node -r tsconfig-paths/register src/scripts/seed-demo-community.ts",
+    "seed-demo-regions": "ts-node -r tsconfig-paths/register src/scripts/seed-demo-regions.ts",
     "seed-anomaly-test": "ts-node -r tsconfig-paths/register src/scripts/seed-anomaly-test.ts",
     "seed-monthly-history": "ts-node -r tsconfig-paths/register src/scripts/seed-monthly-history.ts",
+    "fix-seed-labels": "ts-node -r tsconfig-paths/register src/scripts/fix-seed-labels.ts",
     "check-columns": "ts-node -r tsconfig-paths/register src/scripts/check-columns.ts"
   },
   "dependencies": {
