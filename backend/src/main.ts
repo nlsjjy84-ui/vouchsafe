@@ -15,6 +15,7 @@ import { join } from 'path';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { getJwtSecretOrThrow } from './config/jwt-secret';
+import { registerUploadsRoute } from './storage/uploads-route';
 
 /**
  * 진행상황: Phase 1 - 서버 부트스트랩 / Phase 2 - 전역 예외 처리 + Swagger 문서화
@@ -42,12 +43,19 @@ async function bootstrap() {
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule, { rawBody: true });
 
+  // 시연 안정성: Render/Railway 같은 호스팅은 앞단 프록시를 거쳐 요청이 들어온다. trust proxy를
+  // 켜지 않으면 모든 사용자의 req.ip가 프록시 주소 하나로 보여서, ThrottlerGuard의 "IP당 분당
+  // 5회" 제한(로그인 등)이 접속자 전체에 합산 적용된다 — 시연 중 몇 번만 로그인해도 429가 날 수 있다.
+  app.set('trust proxy', 1);
+
   // Security 1탄: helmet — Content-Security-Policy, X-Frame-Options, HSTS 등
   // 기본적인 보안 HTTP 헤더 세트를 한 번에 적용한다.
   app.use(helmet());
 
   // Mock S3 대체 - 로컬 uploads 폴더를 정적 파일로 서빙 (증빙/결과물 미리보기용)
   app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
+  // 디스크에 없는 파일은 DB(stored_files)에서 찾아 내려준다 — 무료 호스팅 재시작 후에도 미리보기 유지.
+  registerUploadsRoute(app);
 
   app.enableCors({
     origin: process.env.FRONTEND_ORIGIN?.split(',') ?? ['http://localhost:5173'],
