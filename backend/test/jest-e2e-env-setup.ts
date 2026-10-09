@@ -16,3 +16,7 @@ process.env.DB_NAME = process.env.DB_NAME_TEST ?? 'credobounty_test';
 process.env.AUTH_RATE_LIMIT_PER_MIN = '1000';
 process.env.PORTONE_WEBHOOK_SECRET =
   'whsec_dGVzdC1lMmUtd2ViaG9vay1zZWNyZXQtMzJieXRlcyEh';
+
+// 시연용 서버 설정(EMAIL_VERIFICATION=off)이 .env나 환경에 있어도, e2e는 "실제 메일 인증 흐름"을
+// 검증해야 하므로 항상 켠다. (꺼져 있으면 가입 시 메일이 안 나가 인증 토큰을 가로챌 수 없다.)
+process.env.EMAIL_VERIFICATION = 'on';

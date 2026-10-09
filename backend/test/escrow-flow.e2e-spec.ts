@@ -75,7 +75,13 @@ describe('에스크로 거래 흐름 (e2e)', () => {
       .set('Authorization', `Bearer ${client.accessToken}`)
       .expect(201);
 
-    return { client, expert, bountyId, selectStatus: selectRes.body.status };
+    // 선택 직후는 결제 대기 — Mock PG 결제 확인을 거쳐야 에스크로가 LOCKED가 된다.
+    const payRes = await request(http)
+      .post(`/api/bounties/${bountyId}/confirm-payment`)
+      .set('Authorization', `Bearer ${client.accessToken}`)
+      .expect(201);
+
+    return { client, expert, bountyId, selectStatus: payRes.body.status };
   }
 
   beforeAll(async () => {
@@ -88,7 +94,7 @@ describe('에스크로 거래 흐름 (e2e)', () => {
     await app.close();
   });
 
-  it('바운티 등록→지원→선택 직후 상태는 LOCKED로 전이한다', async () => {
+  it('바운티 등록→지원→선택→결제 확인 후 상태는 LOCKED로 전이한다', async () => {
     const { selectStatus } = await createLockedBounty();
     expect(selectStatus).toBe('LOCKED');
   });

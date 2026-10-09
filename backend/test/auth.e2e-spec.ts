@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import { randomUUID } from 'crypto';
 import { AppModule } from '../src/app.module';
 import { AllExceptionsFilter } from '../src/common/filters/all-exceptions.filter';
-import { MockEmailService } from '../src/mocks/mock-email.service';
+import { MockMailService } from '../src/mocks/mock-mail.service';
 import { UserRole } from '../src/common/enums/user-role.enum';
 
 /**
@@ -18,8 +18,8 @@ import { UserRole } from '../src/common/enums/user-role.enum';
  * 이어지는 실제 흐름을, 실제 ValidationPipe/AllExceptionsFilter/JwtStrategy/
  * ThrottlerGuard가 전부 켜진 상태에서 진짜 DB에 값이 남는지까지 확인한다.
  *
- * MockEmailService는 실제로 메일을 보내지 않고 콘솔에 로그만 남기므로
- * (mock-email.service.ts 참고), 그 안의 링크에서 토큰을 꺼내기 위해
+ * MockMailService는 실제로 메일을 보내지 않고 콘솔에 로그만 남기므로
+ * (mock-mail.service.ts 참고), 그 안의 링크에서 토큰을 꺼내기 위해
  * overrideProvider로 "보낸 링크를 배열에 저장해두는" 가짜 구현으로 바꿔치기한다.
  * 이메일 서버 없이도 실제 발급된 토큰 값 그대로 인증/재설정 흐름을 이어갈 수 있다.
  * =========================================================================
@@ -29,12 +29,14 @@ describe('Auth (e2e)', () => {
   let sentVerificationLinks: string[] = [];
   let sentResetLinks: string[] = [];
 
-  const fakeMockEmail = {
-    sendVerificationEmail: (_email: string, link: string) => {
-      sentVerificationLinks.push(link);
+  // AuthService는 MockMailService(sendEmailVerification/sendPasswordReset)로 메일을 보낸다.
+  // 보낸 원문 토큰을 링크 형태로 저장해 두었다가 인증/재설정 흐름을 이어간다.
+  const fakeMockMail = {
+    sendEmailVerification: (_email: string, rawToken: string) => {
+      sentVerificationLinks.push(`http://localhost:3000/verify-email?token=${rawToken}`);
     },
-    sendPasswordResetEmail: (_email: string, link: string) => {
-      sentResetLinks.push(link);
+    sendPasswordReset: (_email: string, rawToken: string) => {
+      sentResetLinks.push(`http://localhost:3000/reset-password?token=${rawToken}`);
     },
   };
 
@@ -44,8 +46,8 @@ describe('Auth (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     })
-      .overrideProvider(MockEmailService)
-      .useValue(fakeMockEmail)
+      .overrideProvider(MockMailService)
+      .useValue(fakeMockMail)
       .compile();
 
     app = moduleRef.createNestApplication();
@@ -89,12 +91,12 @@ describe('Auth (e2e)', () => {
       .send({ email, password })
       .expect(403);
 
-    expect(res.body.error).toBe('EMAIL_NOT_VERIFIED');
+    expect(res.body.errorCode).toBe('EMAIL_NOT_VERIFIED');
   });
 
   it('POST /auth/verify-email - 발급된 토큰으로 인증을 완료한다', async () => {
     const token = extractToken(sentVerificationLinks[0]);
-    await request(app.getHttpServer()).post('/api/auth/verify-email').send({ token }).expect(201);
+    await request(app.getHttpServer()).post('/api/auth/verify-email/confirm').send({ token }).expect(204);
   });
 
   let accessToken: string;
@@ -127,7 +129,7 @@ describe('Auth (e2e)', () => {
     await request(app.getHttpServer())
       .post('/api/auth/logout')
       .set('Authorization', `Bearer ${accessToken}`)
-      .expect(201);
+      .expect(204);
 
     await request(app.getHttpServer())
       .get('/api/auth/me')
@@ -151,16 +153,16 @@ describe('Auth (e2e)', () => {
       .expect(200);
 
     await request(app.getHttpServer())
-      .post('/api/auth/forgot-password')
+      .post('/api/auth/password-reset/request')
       .send({ email })
-      .expect(201);
+      .expect(204);
     expect(sentResetLinks.length).toBe(1);
 
     const resetToken = extractToken(sentResetLinks[0]);
     await request(app.getHttpServer())
-      .post('/api/auth/reset-password')
+      .post('/api/auth/password-reset/confirm')
       .send({ token: resetToken, newPassword })
-      .expect(201);
+      .expect(204);
 
     // 비밀번호를 바꾸기 전에 발급되어 있던 세션은 이제 무효화되어야 한다.
     await request(app.getHttpServer())

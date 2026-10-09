@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import { randomUUID } from 'crypto';
 import { AppModule } from '../src/app.module';
 import { AllExceptionsFilter } from '../src/common/filters/all-exceptions.filter';
-import { MockEmailService } from '../src/mocks/mock-email.service';
+import { MockMailService } from '../src/mocks/mock-mail.service';
 import { UserRole } from '../src/common/enums/user-role.enum';
 import { DomainType } from '../src/common/enums/domain-type.enum';
 import { VerificationTrack } from '../src/common/enums/verification-track.enum';
@@ -32,11 +32,13 @@ describe('Bounty escrow flow (e2e)', () => {
   let app: INestApplication;
   const verificationLinksByEmail = new Map<string, string>();
 
-  const fakeMockEmail = {
-    sendVerificationEmail: (email: string, link: string) => {
-      verificationLinksByEmail.set(email, link);
+  // AuthService는 MockMailService(sendEmailVerification/sendPasswordReset)를 쓴다.
+  // 구버전 메일 mock을 override하면 실제 호출을 가로채지 못해 인증 링크를 받을 수 없다.
+  const fakeMockMail = {
+    sendEmailVerification: (email: string, rawToken: string) => {
+      verificationLinksByEmail.set(email, `http://localhost:3000/verify-email?token=${rawToken}`);
     },
-    sendPasswordResetEmail: () => {
+    sendPasswordReset: () => {
       /* 이 테스트에서는 쓰지 않음 */
     },
   };
@@ -45,8 +47,8 @@ describe('Bounty escrow flow (e2e)', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
-      .overrideProvider(MockEmailService)
-      .useValue(fakeMockEmail)
+      .overrideProvider(MockMailService)
+      .useValue(fakeMockMail)
       .compile();
 
     app = moduleRef.createNestApplication();
@@ -74,9 +76,9 @@ describe('Bounty escrow flow (e2e)', () => {
     const link = verificationLinksByEmail.get(email);
     expect(link).toBeDefined();
     await api()
-      .post('/api/auth/verify-email')
+      .post('/api/auth/verify-email/confirm')
       .send({ token: extractToken(link!) })
-      .expect(201);
+      .expect(204);
 
     const loginRes = await api().post('/api/auth/login').send({ email, password: strongPassword }).expect(201);
     return { email, userId: loginRes.body.user.id, token: loginRes.body.accessToken };
@@ -177,13 +179,9 @@ describe('Bounty escrow flow (e2e)', () => {
       .set('Authorization', `Bearer ${client.token}`)
       .expect(201);
 
-    expect(res.body.paymentId).toEqual(expect.any(String));
-    // amount는 DB의 bigint 컬럼이라 TypeORM/pg가 JS number 정밀도 손실을 피하려고
-    // 문자열로 내려준다 (transactions.service.ts의 settleMilestone 주석과 동일한 이유) -
-    // 그래서 비교 전에 Number()로 변환한다.
-    expect(Number(res.body.amount)).toBe(BOUNTY_AMOUNT);
-    expect(res.body.bounty.status).toBe('PAYMENT_PENDING');
-    paymentAmount = Number(res.body.amount);
+    // 선택 응답은 이제 결제 대기 상태가 된 바운티 자체를 돌려준다 (결제 금액은 바운티 금액과 같다).
+    expect(res.body.status).toBe('PAYMENT_PENDING');
+    paymentAmount = BOUNTY_AMOUNT;
   });
 
   it('결제 확인 후 에스크로가 LOCKED 상태로 전환된다 (Mock PG는 항상 결제 성공 처리)', async () => {
