@@ -46,7 +46,8 @@ async function bootstrap() {
   // 시연 안정성: Render/Railway 같은 호스팅은 앞단 프록시를 거쳐 요청이 들어온다. trust proxy를
   // 켜지 않으면 모든 사용자의 req.ip가 프록시 주소 하나로 보여서, ThrottlerGuard의 "IP당 분당
   // 5회" 제한(로그인 등)이 접속자 전체에 합산 적용된다 — 시연 중 몇 번만 로그인해도 429가 날 수 있다.
-  app.set('trust proxy', 1);
+  // 프록시 단계 수: 브라우저 → Vercel(rewrite) → Render 이므로 기본 2. 백엔드를 직접 호출하는 구성이면 TRUST_PROXY_HOPS=1.
+  app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS ?? 2));
 
   // Security 1탄: helmet — Content-Security-Policy, X-Frame-Options, HSTS 등
   // 기본적인 보안 HTTP 헤더 세트를 한 번에 적용한다.
