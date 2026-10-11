@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
@@ -29,6 +30,11 @@ import { ChatWidget } from './ChatWidget';
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
+  // 2026-10-11: 폰에서는 왼쪽 고정 메뉴(256px)가 본문을 거의 다 가렸다. 768px 미만에서는
+  // 메뉴를 숨기고 위쪽 메뉴 버튼으로 서랍처럼 꺼내 쓴다.
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+  useEffect(() => setMobileOpen(false), [pathname]);
 
   useEffect(() => {
     try {
@@ -61,11 +67,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-surface">
-      <Sidebar collapsed={collapsed} onToggle={toggleCollapsed} />
-      <div className={collapsed ? 'pl-16' : 'pl-64'} style={{ transition: 'padding-left 200ms' }}>
-        <Topbar />
-        <main className="mx-auto max-w-6xl px-6 py-6">
-          <div className="rounded-4xl bg-surface-canvas p-6 shadow-sm ring-1 ring-hairline sm:p-8">{children}</div>
+      <Sidebar collapsed={collapsed} onToggle={toggleCollapsed} mobileOpen={mobileOpen} onNavigate={() => setMobileOpen(false)} />
+      {mobileOpen && (
+        <div className="fixed inset-0 z-20 bg-black/40 md:hidden" aria-hidden="true" onClick={() => setMobileOpen(false)} />
+      )}
+      <div className={collapsed ? 'md:pl-16' : 'md:pl-64'} style={{ transition: 'padding-left 200ms' }}>
+        <Topbar onMenuClick={() => setMobileOpen((v) => !v)} />
+        <main className="mx-auto max-w-6xl px-3 py-4 sm:px-6 sm:py-6">
+          <div className="rounded-4xl bg-surface-canvas p-4 shadow-sm ring-1 ring-hairline sm:p-8">{children}</div>
         </main>
       </div>
       <ChatWidget />

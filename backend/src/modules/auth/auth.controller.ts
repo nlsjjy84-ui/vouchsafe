@@ -1,9 +1,10 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AuthService } from './auth.service';
+import { AuthService, isDemoEmail } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { DemoLoginDto } from './dto/demo-login.dto';
 import { ConfirmEmailVerificationDto } from './dto/confirm-email-verification.dto';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
 import { ConfirmPasswordResetDto } from './dto/confirm-password-reset.dto';
@@ -67,6 +68,18 @@ export class AuthController {
   }
 
   /**
+   * 데모 둘러보기
+   * POST /api/auth/demo
+   * body: { role: 'client' | 'expert' }
+   * 가입 없이 시드된 데모 계정으로 바로 로그인한다(면접관·처음 온 사람용).
+   */
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  @Post('demo')
+  demo(@Body() dto: DemoLoginDto) {
+    return this.authService.demoLogin(dto.role);
+  }
+
+  /**
    * 로그아웃 — 지금 쓰던 토큰 하나만 서버측에서 무효화한다 (다른 기기의 세션은 유지).
    * POST /api/auth/logout
    */
@@ -87,6 +100,8 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout-all')
   async logoutAll(@CurrentUser() user: AuthUser) {
+    // 공용 데모 계정은 다른 방문자의 세션까지 끊지 않도록 지금 토큰만 무효화한다.
+    if (isDemoEmail(user.email)) return this.authService.logout(user.jti);
     await this.authService.logoutAll(user.userId);
   }
 

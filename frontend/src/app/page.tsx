@@ -9,6 +9,7 @@ import { DOMAIN_LABELS, DomainType } from '@/lib/types';
 import { JangdanMark } from '@/components/JangdanMark';
 import { JangdanDivider } from '@/components/JangdanDivider';
 import { jangdanDelay } from '@/lib/motion';
+import { DemoButtons } from '@/components/DemoButtons';
 
 // 이용 흐름 섹션의 4단계 - 커넥티드 스테퍼로 그리기 위해 배열로 뽑아뒀다.
 const STEPS = [
@@ -70,14 +71,14 @@ export default function HomePage() {
     <div className="space-y-14">
       {/* 히어로 - 단색 navy 대신 navy→navyLight 그라디언트로 깊이감을 주고,
           헤드라인은 font-display(Do Hyeon)로 "여기가 브랜드의 얼굴"이라는 신호를 준다. */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-ink via-brand-ink to-brand-inkLight px-8 py-16 text-white sm:px-14">
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-ink via-brand-ink to-brand-inkLight px-6 py-12 text-white sm:px-14 sm:py-16">
         <div className="pointer-events-none absolute -right-6 -top-6 opacity-90 sm:right-10 sm:top-10">
           <JangdanMark size={96} animated variant="dark" />
         </div>
         <p className="text-sm font-medium uppercase tracking-wider text-brand-clay">
           검증된 전문가 에스크로 거래 플랫폼
         </p>
-        <h1 className="mt-3 max-w-2xl font-display text-4xl leading-tight tracking-wide sm:text-5xl">
+        <h1 className="mt-3 max-w-2xl font-display text-[2rem] leading-tight tracking-wide sm:text-5xl">
           자격을 검증받은 전문가와,
           <br />
           {/* 세리프 악센트(고운바탕체) 활성화 - 전체가 font-display(두꺼운 로고체)이면
@@ -103,6 +104,9 @@ export default function HomePage() {
           >
             로그인
           </Link>
+        </div>
+        <div className="mt-6 border-t border-white/15 pt-5">
+          <DemoButtons tone="dark" />
         </div>
       </section>
 

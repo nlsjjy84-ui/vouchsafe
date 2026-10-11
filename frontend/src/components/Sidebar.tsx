@@ -119,7 +119,19 @@ const ADMIN_GROUP: NavGroup = {
   items: [{ href: '/admin/disputes', label: '분쟁 중재', icon: Gavel, match: (p) => p.startsWith('/admin/disputes') }],
 };
 
-export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
+export function Sidebar({
+  collapsed: collapsedDesktop,
+  onToggle,
+  mobileOpen = false,
+  onNavigate,
+}: {
+  collapsed: boolean;
+  onToggle: () => void;
+  mobileOpen?: boolean;
+  onNavigate?: () => void;
+}) {
+  // 폰 서랍으로 열렸을 때는 접힘 상태와 상관없이 글자까지 다 보여준다.
+  const collapsed = collapsedDesktop && !mobileOpen;
   const { user } = useAuth();
   const pathname = usePathname() ?? '';
   const isAdmin = user?.role === 'ADMIN';
@@ -130,7 +142,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-30 flex ${width} flex-col border-r border-hairline bg-surface-canvas transition-[width] duration-200`}
+      className={`fixed inset-y-0 left-0 z-30 flex ${width} flex-col border-r border-hairline bg-surface-canvas transition-[width,transform] duration-200 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
     >
       <div className="flex h-14 items-center gap-2.5 border-b border-hairline px-4">
         <JangdanMark size={18} variant="light" />
@@ -161,6 +173,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
                       key={item.href}
                       href={item.href}
                       title={collapsed ? item.label : undefined}
+                      onClick={onNavigate}
                       style={jangdanDelay(i)}
                       className={`animate-stagger-in group flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm font-medium transition-colors ${
                         active ? `${tone.activeBg} ${tone.activeText}` : 'text-ink-700 hover:bg-surface-raised hover:text-ink-900'
@@ -190,7 +203,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
 
       <button
         onClick={onToggle}
-        className="flex items-center gap-2 border-t border-hairline px-4 py-3 text-xs font-medium text-ink-500 hover:bg-surface-raised hover:text-ink-900"
+        className="hidden items-center gap-2 border-t border-hairline px-4 py-3 text-xs font-medium text-ink-500 hover:bg-surface-raised hover:text-ink-900 md:flex"
       >
         {collapsed ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}
         {!collapsed && <span>접기</span>}

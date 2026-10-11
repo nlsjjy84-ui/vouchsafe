@@ -7,6 +7,9 @@ body {
      톤으로 - surface.DEFAULT/ink.900 토큰과 동일 값. */
   background-color: #f7f1e8;
   color: #241a14;
+  /* 2026-10-11: 한국어는 단어 중간에서 줄이 바뀌지 않게(폰에서 "전/문가와"처럼 끊기던 문제). */
+  word-break: keep-all;
+  overflow-wrap: break-word;
   font-family: 'IBM Plex Sans KR', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
 }
 

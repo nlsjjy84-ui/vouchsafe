@@ -20,6 +20,8 @@ interface AuthState {
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  /** 데모 둘러보기 — 가입 없이 시드된 의뢰인/전문가 데모 계정으로 바로 들어간다. */
+  demoLogin: (role: 'client' | 'expert') => Promise<void>;
   // [보안 강화] 가입 직후 자동 로그인이 사라지면서 반환 타입도 바뀌었다 - 더 이상
   // accessToken/user를 안 돌려주고, "인증 메일을 보냈다"는 메시지만 돌려준다.
   // register 화면은 이 값으로 "메일함을 확인해주세요" 안내를 보여준다.
@@ -69,6 +71,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     applyAuthResult(res.data);
   }
 
+  async function demoLogin(role: 'client' | 'expert') {
+    const res = await api.post('/auth/demo', { role });
+    applyAuthResult(res.data);
+  }
+
   // [보안 강화] 예전에는 가입 성공 응답이 로그인 응답과 같은 모양(accessToken +
   // user)이라 applyAuthResult로 바로 로그인 처리했다. 이제 백엔드가 가입 시점에
   // 토큰을 안 주므로(이메일 인증 전 로그인 차단 - auth.service.ts 참고), 여기서도
@@ -104,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, demoLogin, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

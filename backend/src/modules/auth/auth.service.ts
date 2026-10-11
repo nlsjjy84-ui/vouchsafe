@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
@@ -11,6 +11,17 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
 const SALT_ROUNDS = 10;
+
+// 데모 둘러보기 계정 — seed-demo.ts가 만드는 공개 시연 계정. 면접관·처음 온 사람이 가입 없이
+// 로그인 후 화면(에스크로 흐름·AI 기능)을 볼 수 있게 한다. DEMO_LOGIN=off 면 끈다.
+const DEMO_ACCOUNTS: Record<'client' | 'expert', string> = {
+  client: process.env.DEMO_CLIENT_EMAIL ?? 'client@demo.com',
+  expert: process.env.DEMO_EXPERT_EMAIL ?? 'expert@demo.com',
+};
+
+export function isDemoEmail(email: string | undefined | null): boolean {
+  return !!email && /@demo\.com$/i.test(email);
+}
 
 // 로그인 실패 사유(가입 안 된 이메일 / 틀린 비밀번호 / 미인증 계정)를 서로 다른 메시지로
 // 돌려주면 공격자가 "이 이메일은 가입돼 있다"는 사실을 알아낼 수 있다(enumeration).
@@ -107,6 +118,19 @@ export class AuthService {
         message: '이메일 인증을 완료해야 로그인할 수 있습니다. 인증 메일을 다시 받으시려면 재발송을 요청해주세요.',
       });
     }
+    return this.issueToken(user.id, user.email, user.role);
+  }
+
+  /**
+   * 데모 둘러보기 — 비밀번호 없이 시드된 데모 계정으로 토큰을 발급한다.
+   * 공개 시연 계정이라 따로 지킬 비밀이 없고, 비밀번호 재설정 메일은 가짜 주소(@demo.com)로만 가므로
+   * 누군가 계정을 빼앗을 수 없다. 전체 로그아웃은 다른 방문자를 내쫓지 않도록 현재 토큰만 끊는다.
+   */
+  async demoLogin(role: 'client' | 'expert') {
+    const v = (process.env.DEMO_LOGIN ?? '').trim().toLowerCase();
+    if (v === 'off' || v === 'false' || v === '0') throw new NotFoundException();
+    const user = await this.usersService.findByEmail(DEMO_ACCOUNTS[role]);
+    if (!user) throw new NotFoundException('데모 계정이 아직 준비되지 않았습니다.');
     return this.issueToken(user.id, user.email, user.role);
   }
 

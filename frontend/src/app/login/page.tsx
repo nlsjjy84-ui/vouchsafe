@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import { DemoButtons } from '@/components/DemoButtons';
 import { api, extractErrorMessage, hasErrorCode } from '@/lib/api';
 import {
   AuthCard,
@@ -127,6 +128,9 @@ export default function LoginPage() {
 
         <AuthSubmitButton disabled={submitting}>{submitting ? '처리중...' : '로그인'}</AuthSubmitButton>
       </form>
+      <div className="mt-6 border-t border-hairline pt-5">
+        <DemoButtons tone="light" />
+      </div>
     </AuthCard>
   );
 }

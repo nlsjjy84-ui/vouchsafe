@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LogOut } from 'lucide-react';
+import { LogOut, Menu } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { AvatarModule } from './AvatarModule';
 import { NotificationBell } from './NotificationBell';
@@ -32,12 +32,27 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void } = {}) {
 
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-hairline bg-surface-canvas/95 px-4 backdrop-blur">
-      <h1 className="flex items-center gap-2 truncate text-sm font-semibold text-ink-900">
+      <div className="flex min-w-0 items-center gap-2">
+      {onMenuClick && (
+        <button
+          type="button"
+          onClick={onMenuClick}
+          aria-label="메뉴 열기"
+          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-ink-700 hover:bg-surface-raised md:hidden"
+        >
+          <Menu size={20} />
+        </button>
+      )}
+      <h1 className="flex min-w-0 items-center gap-2 truncate text-sm font-semibold text-ink-900">
         <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-brand-clay" aria-hidden="true" />
-        {title}
+        <span className="truncate">{title}</span>
+        {user && /@demo\.com$/i.test(user.email) && (
+          <span className="flex-shrink-0 rounded-full bg-tint-gold px-2 py-0.5 text-[10px] font-bold text-brand-gold">데모 계정</span>
+        )}
       </h1>
+      </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-shrink-0 items-center gap-2 sm:gap-3">
         <NotificationBell />
         {user && (
           <Link href="/mypage" className="flex items-center gap-2 rounded-full px-1 py-1 hover:bg-surface-raised">
@@ -50,7 +65,7 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void } = {}) {
           className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-ink-400 hover:bg-tint-red hover:text-brand-red"
         >
           <LogOut size={16} strokeWidth={1.75} />
-          <span>로그아웃</span>
+          <span className="hidden sm:inline">로그아웃</span>
         </button>
       </div>
     </header>
