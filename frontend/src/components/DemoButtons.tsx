@@ -37,7 +37,7 @@ export function DemoButtons({ tone = 'dark', onDone }: { tone?: 'dark' | 'light'
   return (
     <div>
       <p className={`text-xs font-medium ${tone === 'dark' ? 'text-white/70' : 'text-ink-500'}`}>
-        가입 없이 바로 체험하기 — 공용 데모 계정
+        가입 없이 바로 체험하기 — 공용 데모 계정(둘러보기 전용)
       </p>
       <div className="mt-2 flex flex-wrap gap-2">
         <button type="button" onClick={() => go('client')} disabled={busy !== null} className={`${base} ${style}`}>

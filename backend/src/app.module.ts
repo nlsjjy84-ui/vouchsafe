@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { DemoReadOnlyInterceptor } from './common/interceptors/demo-read-only.interceptor';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './modules/auth/auth.module';
@@ -79,6 +80,10 @@ import { HealthController } from './health.controller';
     ExpertsModule,
   ],
   controllers: [HealthController],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    // 공용 데모 계정은 둘러보기 전용 (등록·지원·결제·글쓰기 차단, AI 초안은 허용)
+    { provide: APP_INTERCEPTOR, useClass: DemoReadOnlyInterceptor },
+  ],
 })
 export class AppModule {}
