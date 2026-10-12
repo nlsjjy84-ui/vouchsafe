@@ -80,6 +80,12 @@ export default function InsightsPage() {
     ...data.earningByDomain.map((d) => d.amount),
   );
   const maxTrend = Math.max(1, ...data.monthlyTrend.flatMap((m) => [m.spent, m.earned]));
+  // 지출만 있는 의뢰인, 수익만 있는 전문가에게 늘 0인 칸을 보여 주지 않는다(둘 다 없으면 둘 다 보여 준다).
+  const hasSpend = data.summary.totalSpent > 0;
+  const hasEarn = data.summary.totalEarned > 0;
+  const showSpend = hasSpend || !hasEarn;
+  const showEarn = hasEarn || !hasSpend;
+  const trendLabel = showSpend && showEarn ? '지출/수익' : showSpend ? '지출' : '수익';
 
   return (
     <div className="space-y-6">
@@ -92,27 +98,27 @@ export default function InsightsPage() {
       </div>
 
       <div className="flex divide-x divide-hairline overflow-x-auto rounded-4xl border border-hairline bg-surface-canvas">
-        <SummaryCard
+        {showSpend && <SummaryCard
           index={0}
           icon={Wallet}
           label="총 지출"
           value={formatWon(data.summary.totalSpent)}
           tone="blue"
-        />
-        <SummaryCard
+        />}
+        {showEarn && <SummaryCard
           index={1}
           icon={PiggyBank}
           label="총 수익"
           value={formatWon(data.summary.totalEarned)}
           tone="teal"
-        />
-        <SummaryCard
+        />}
+        {showEarn && <SummaryCard
           index={2}
           icon={BadgeCheck}
           label="승인된 자격 인증"
           value={`${data.summary.approvedCertificationCount}건`}
           tone="amber"
-        />
+        />}
         <SummaryCard
           index={3}
           icon={AlertTriangle}
@@ -123,7 +129,7 @@ export default function InsightsPage() {
       </div>
 
       {/* 기능1: 예산 목표 대비 소비 (주제1 - 예산/소비패턴 분석) */}
-      <BudgetCard budget={data.budget} onSaved={load} />
+      {showSpend && <BudgetCard budget={data.budget} onSaved={load} />}
 
       {/* 기능2: 소비 이상탐지 하이라이트 (주제1) */}
       {data.spendingAnomaly && (
@@ -159,51 +165,51 @@ export default function InsightsPage() {
         </ul>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <DomainBreakdownCard
+      <div className={`grid gap-4 ${showSpend && showEarn ? 'md:grid-cols-2' : ''}`}>
+        {showSpend && <DomainBreakdownCard
           title="분야별 지출 분포"
           icon={TrendingDown}
           items={data.spendingByDomain}
           max={maxDomainAmount}
           barClass="bg-brand-sage"
-        />
-        <DomainBreakdownCard
+        />}
+        {showEarn && <DomainBreakdownCard
           title="분야별 수익 분포"
           icon={TrendingUp}
           items={data.earningByDomain}
           max={maxDomainAmount}
           barClass="bg-brand-clay"
-        />
+        />}
       </div>
 
       <div className="rounded-4xl border border-hairline bg-surface-canvas p-5">
-        <h2 className="mb-4 text-sm font-semibold text-ink-900">최근 6개월 지출/수익 추이</h2>
+        <h2 className="mb-4 text-sm font-semibold text-ink-900">최근 6개월 {trendLabel} 추이</h2>
         <div className="flex items-end gap-4">
           {data.monthlyTrend.map((m) => (
             <div key={m.month} className="flex flex-1 flex-col items-center gap-1">
               <div className="flex h-32 items-end gap-1">
-                <div
+                {showSpend && <div
                   className="w-3 rounded-t bg-brand-sage"
                   style={{ height: `${Math.max(2, (m.spent / maxTrend) * 100)}%` }}
                   title={`지출 ${formatWon(m.spent)}`}
-                />
-                <div
+                />}
+                {showEarn && <div
                   className="w-3 rounded-t bg-brand-clay"
                   style={{ height: `${Math.max(2, (m.earned / maxTrend) * 100)}%` }}
                   title={`수익 ${formatWon(m.earned)}`}
-                />
+                />}
               </div>
               <span className="text-[11px] text-ink-400">{m.month.slice(5)}월</span>
             </div>
           ))}
         </div>
         <div className="mt-3 flex gap-4 text-xs text-ink-500">
-          <span className="flex items-center gap-1.5">
+          {showSpend && <span className="flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-brand-sage" /> 지출
-          </span>
-          <span className="flex items-center gap-1.5">
+          </span>}
+          {showEarn && <span className="flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-brand-clay" /> 수익
-          </span>
+          </span>}
         </div>
 
         {/* 기능3: 다음 달 지출/수익 예측 (주제1+2) */}
@@ -211,10 +217,11 @@ export default function InsightsPage() {
           <div className="mt-5 flex items-center gap-3 rounded-2xl border border-hairline-strong border-dashed p-4">
             <CalendarRange size={18} className="flex-shrink-0 text-ink-400" />
             <p className="text-sm text-ink-700">
-              최근 추세로 보면 다음 달엔 약{' '}
-              <span className="font-semibold text-brand-sage">{formatWon(data.forecast.nextMonthSpent)}</span> 지출,
-              약 <span className="font-semibold text-brand-clay">{formatWon(data.forecast.nextMonthEarned)}</span>{' '}
-              수익이 예상돼요.
+              최근 추세로 보면 다음 달엔
+              {showSpend && <> 약 <span className="font-semibold text-brand-sage">{formatWon(data.forecast.nextMonthSpent)}</span> 지출</>}
+              {showSpend && showEarn && ','}
+              {showEarn && <> 약 <span className="font-semibold text-brand-clay">{formatWon(data.forecast.nextMonthEarned)}</span> 수익</>}
+              이 예상돼요.
             </p>
           </div>
         )}

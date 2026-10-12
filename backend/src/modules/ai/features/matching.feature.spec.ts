@@ -6,6 +6,7 @@ import {
   experiencePts,
   freshnessPts,
   ruleTopicFit,
+  guessDomain,
   validateMatchFits,
 } from './matching.feature';
 
@@ -74,5 +75,19 @@ describe('AI 매칭 계산', () => {
     const p = buildExpertMatchPrompt('쿼리 튜닝', '설명', [{ label: '후보 A', titles: ['인덱스 개선'] }]);
     expect(p).toContain('후보 A');
     expect(p).not.toMatch(/@|uuid|expertId/i);
+  });
+});
+
+describe('guessDomain (직접 적은 의뢰 문장 → 분야)', () => {
+  it('문장 속 단어로 분야를 고른다', () => {
+    const { DomainType: D } = require('../../../common/enums/domain-type.enum');
+    expect(guessDomain('다음 주에 중고 SUV 사는데 같이 가서 침수 여부 봐 주실 분')).toBe(D.VEHICLE_DIAGNOSTICS);
+    expect(guessDomain('빌라 전세 계약 전에 등기부 근저당 확인 부탁드려요')).toBe(D.REAL_ESTATE_TITLE_ANALYSIS);
+    expect(guessDomain('주문 목록 조회 쿼리가 느려서 인덱스 점검이 필요해요')).toBe(D.BACKEND_DB_TUNING);
+    expect(guessDomain('윗집 누수로 천장에 곰팡이가 생겼어요')).toBe(D.BUILDING_DEFECT_INSPECTION);
+    expect(guessDomain('외주 용역 계약서 손해배상 조항 검토')).toBe(D.STARTUP_CONTRACT_REVIEW);
+  });
+  it('알아볼 단어가 없으면 null', () => {
+    expect(guessDomain('도와주세요 급해요')).toBeNull();
   });
 });

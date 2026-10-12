@@ -68,6 +68,9 @@ export default function MyPage() {
   if (!data) return null;
 
   const { profile, summary, clientBounties, expertApplications, certifications } = data;
+  // 역할에 맞는 것만 보여 준다: 의뢰인에게 "지원한 프로젝트·자격 인증"처럼 늘 0인 칸을 띄우지 않는다.
+  const asClient = profile.role !== 'EXPERT';
+  const asExpert = profile.role === 'EXPERT' || profile.role === 'HYBRID';
 
   return (
     <div className="space-y-8">
@@ -91,11 +94,11 @@ export default function MyPage() {
         {/* 요약 통계 - 6개의 개별 카드 대신, 헤더와 한 몸인 단일 스탯 바 안에 세로
             구분선만 그어 나열한다 (Toss 계좌 요약 바 패턴 참고). */}
         <div className="flex divide-x divide-white/10 overflow-x-auto border-t border-white/10 bg-white/[0.04]">
-          <SummaryTile index={0} icon={Briefcase} label="등록한 프로젝트" value={summary.clientBountyCount} tone="blue" />
-          <SummaryTile index={1} icon={ClipboardList} label="진행중" value={summary.clientBountyInProgressCount} tone="amber" />
-          <SummaryTile index={2} icon={Send} label="지원한 프로젝트" value={summary.expertApplicationCount} tone="blue" />
-          <SummaryTile index={3} icon={CheckCircle2} label="선정됨" value={summary.expertSelectedCount} tone="teal" />
-          <SummaryTile index={4} icon={ShieldCheck} label="승인된 인증" value={summary.certificationApprovedCount} tone="teal" />
+          {asClient && <SummaryTile index={0} icon={Briefcase} label="등록한 프로젝트" value={summary.clientBountyCount} tone="blue" />}
+          {asClient && <SummaryTile index={1} icon={ClipboardList} label="진행중" value={summary.clientBountyInProgressCount} tone="amber" />}
+          {asExpert && <SummaryTile index={2} icon={Send} label="지원한 프로젝트" value={summary.expertApplicationCount} tone="blue" />}
+          {asExpert && <SummaryTile index={3} icon={CheckCircle2} label="선정됨" value={summary.expertSelectedCount} tone="teal" />}
+          {asExpert && <SummaryTile index={4} icon={ShieldCheck} label="승인된 인증" value={summary.certificationApprovedCount} tone="teal" />}
           <SummaryTile index={5} icon={Bell} label="안 읽은 알림" value={summary.unreadNotificationCount} tone="red" />
         </div>
       </div>
@@ -104,7 +107,7 @@ export default function MyPage() {
 
       <MyAlertCard />
 
-      <section>
+      {asClient && (<section>
         <h2 className="mb-3 text-base font-semibold text-ink-900">
           내가 등록한 프로젝트 <span className="text-ink-400">({clientBounties.length})</span>
         </h2>
@@ -121,16 +124,16 @@ export default function MyPage() {
                 <div className="min-w-0">
                   <p className="text-xs text-ink-400">{DOMAIN_LABELS[b.domainType]}</p>
                   <p className="truncate font-medium text-ink-900">{b.title}</p>
-                  <p className="mt-1 text-sm text-ink-500">{b.bountyAmount.toLocaleString('ko-KR')}원</p>
+                  <p className="mt-1 text-sm text-ink-500">{Number(b.bountyAmount).toLocaleString('ko-KR')}원</p>
                 </div>
                 <BountyStatusBadge status={b.status} />
               </Link>
             ))}
           </div>
         )}
-      </section>
+      </section>)}
 
-      <section>
+      {asExpert && (<section>
         <h2 className="mb-3 text-base font-semibold text-ink-900">
           내가 지원한 프로젝트 <span className="text-ink-400">({expertApplications.length})</span>
         </h2>
@@ -154,9 +157,9 @@ export default function MyPage() {
             ))}
           </div>
         )}
-      </section>
+      </section>)}
 
-      <section>
+      {asExpert && (<section>
         <h2 className="mb-3 text-base font-semibold text-ink-900">
           내 자격 인증 현황 <span className="text-ink-400">({certifications.length})</span>
         </h2>
@@ -179,7 +182,7 @@ export default function MyPage() {
             ))}
           </div>
         )}
-      </section>
+      </section>)}
     </div>
   );
 }

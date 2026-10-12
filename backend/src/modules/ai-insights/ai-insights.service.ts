@@ -388,11 +388,14 @@ function generateInsights(input: {
 
   // 기능3: 다음 달 예측
   if (forecast) {
-    insights.push(
-      `최근 3개월 추세로 보면, 다음 달엔 약 ${formatWon(forecast.nextMonthSpent)}을 지출하고 약 ${formatWon(
-        forecast.nextMonthEarned,
-      )}을 수익낼 것으로 예상돼요.`,
-    );
+    // 한쪽이 0원이면(의뢰만 하는 사람·수익만 있는 전문가) "약 0원"을 굳이 말하지 않는다.
+    const parts = [
+      forecast.nextMonthSpent > 0 ? `약 ${formatWon(forecast.nextMonthSpent)}을 지출` : null,
+      forecast.nextMonthEarned > 0 ? `약 ${formatWon(forecast.nextMonthEarned)}의 수익을 낼` : null,
+    ].filter(Boolean);
+    if (parts.length > 0) {
+      insights.push(`최근 3개월 추세로 보면, 다음 달엔 ${parts.join('하고 ')} 것으로 예상돼요.`);
+    }
   }
 
   if (summary.disputedCount > 0) {

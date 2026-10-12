@@ -51,7 +51,7 @@ export function AiRecommendedBounties() {
                 <p className="whitespace-nowrap font-display text-lg text-ink-900">{r.totalScore}<span className="text-xs text-ink-400"> / 100</span></p>
               </div>
               <p className="mt-1 text-xs text-ink-500">
-                {DOMAIN_LABELS[r.domainType as DomainType] ?? r.domainType} · {r.amount.toLocaleString('ko-KR')}원 · 지원자 {r.applicantCount}명
+                {DOMAIN_LABELS[r.domainType as DomainType] ?? r.domainType} · {Number(r.amount).toLocaleString('ko-KR')}원 · 지원자 {r.applicantCount}명
               </p>
               <dl className="mt-2 grid gap-1 text-xs text-ink-600 sm:grid-cols-2">
                 {(['domain', 'topicFit', 'freshness', 'competition'] as const).map((k) => (

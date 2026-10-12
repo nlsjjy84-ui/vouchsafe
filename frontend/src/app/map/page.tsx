@@ -56,7 +56,7 @@ export default function MapPage() {
     } else {
       for (const b of bounties) {
         if (b.region.lat == null || b.region.lng == null) continue;
-        list.push({ id: b.id, lat: b.region.lat, lng: b.region.lng, title: b.title, sub: `${regionLabel(b.region)} · ${b.amount.toLocaleString('ko-KR')}원`, href: `/bounties/${b.id}` });
+        list.push({ id: b.id, lat: b.region.lat, lng: b.region.lng, title: b.title, sub: `${regionLabel(b.region)} · ${Number(b.amount).toLocaleString('ko-KR')}원`, href: `/bounties/${b.id}` });
       }
     }
     return list;
@@ -169,7 +169,7 @@ export default function MapPage() {
                   )}
                 </div>
                 <p className="mt-2 line-clamp-1 text-sm font-semibold text-ink-900">{b.title}</p>
-                <p className="mt-1 text-xs text-ink-500">{regionLabel(b.region)} · {b.amount.toLocaleString('ko-KR')}원</p>
+                <p className="mt-1 text-xs text-ink-500">{regionLabel(b.region)} · {Number(b.amount).toLocaleString('ko-KR')}원</p>
               </Link>
             </li>
           ))}

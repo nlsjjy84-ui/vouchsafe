@@ -286,7 +286,7 @@ export function AiAssistantPanel({ bountyId, status, domainType, amount, isOwner
               <div className="mt-3">
                 <ul className="space-y-1 text-sm text-ink-700">
                   {milestones.milestones.map((m, i) => (
-                    <li key={i} className="flex justify-between gap-3"><span>{i + 1}. {m.title}</span><span>{m.amount.toLocaleString('ko-KR')}원</span></li>
+                    <li key={i} className="flex justify-between gap-3"><span>{i + 1}. {m.title}</span><span>{Number(m.amount).toLocaleString('ko-KR')}원</span></li>
                   ))}
                 </ul>
                 <p className="mt-2 text-xs text-ink-400">합계 {milestones.totalAmount.toLocaleString('ko-KR')}원 (금액은 서버가 계산해 합이 정확히 맞습니다). {milestones.note}</p>

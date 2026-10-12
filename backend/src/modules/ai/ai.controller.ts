@@ -18,6 +18,16 @@ class ConfirmRequirementsDto {
   items: string[];
 }
 
+class MatchByTextDto {
+  @IsString()
+  @MaxLength(1000)
+  text: string;
+
+  @IsOptional()
+  @IsEnum(DomainType)
+  domainType?: DomainType;
+}
+
 class PriceQueryDto {
   @IsEnum(DomainType)
   domainType: DomainType;
@@ -110,6 +120,12 @@ export class AiController {
   @Get('bounties/:id/expert-recommendations')
   expertRecs(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthUser) {
     return this.ai.recommendExperts(id, user);
+  }
+
+  @Throttle(AI_THROTTLE)
+  @Post('expert-recommendations/by-text')
+  expertRecsByText(@Body() dto: MatchByTextDto, @CurrentUser() user: AuthUser) {
+    return this.ai.recommendExpertsByText(user, dto.text, dto.domainType);
   }
 
   @Throttle(AI_THROTTLE)

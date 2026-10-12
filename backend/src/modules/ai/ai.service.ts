@@ -60,6 +60,7 @@ import {
   experiencePts,
   expertLabel,
   freshnessPts,
+  guessDomain,
   ruleTopicFit,
   validateMatchFits,
 } from './features/matching.feature';
@@ -287,27 +288,56 @@ export class AiService {
     if (b.status !== BountyStatus.PENDING) {
       throw new BadRequestException('지원자를 모집 중인 프로젝트에서만 전문가를 추천받을 수 있습니다');
     }
-    // 1) 서버가 후보를 거른다: 이 분야에서 승인된 자격이 있는 전문가만. 본인(의뢰인)은 제외.
-    const certRows = await this.certs.find({
-      where: { domainType: b.domainType, verifiedStatus: VerificationStatus.APPROVED },
-    });
-    const certCount = new Map<string, number>();
-    for (const c of certRows) certCount.set(c.userId, (certCount.get(c.userId) ?? 0) + 1);
-    const candidateIds = [...certCount.keys()].filter((id) => id !== b.clientId).slice(0, 30);
-    if (candidateIds.length === 0) {
-      return { recommendations: [], meta: null, note: '이 분야에서 승인된 자격을 가진 전문가가 아직 없습니다.' };
-    }
     const applied = new Set(
       (await this.applications.find({ where: { bountyId }, select: ['id', 'expertId'] })).map((a) => a.expertId),
     );
+    return this.matchExperts({
+      domainType: b.domainType, title: b.title, description: b.description,
+      excludeUserId: b.clientId, bountyId, requesterId: user.userId, applied,
+    });
+  }
+
+  /**
+   * 프로젝트를 등록하지 않고, 하고 싶은 일을 직접 적어서 전문가를 추천받는다.
+   * 분야를 고르지 않으면 문장 속 단어로 분야를 고른다(규칙 기반). 저장하는 것은 없다.
+   */
+  async recommendExpertsByText(user: AuthUser, text: string, domainType?: DomainType) {
+    const clean = text.replace(/\s+/g, ' ').trim();
+    if (clean.length < 8) throw new BadRequestException('맡기고 싶은 일을 조금 더 구체적으로 적어 주세요 (8자 이상)');
+    const domain = domainType ?? guessDomain(clean);
+    if (!domain) {
+      throw new BadRequestException('어떤 분야인지 알아보기 어려워요. 분야를 직접 골라 주시거나 조금 더 구체적으로 적어 주세요');
+    }
+    const title = clean.length > 60 ? `${clean.slice(0, 60)}…` : clean;
+    const out = await this.matchExperts({
+      domainType: domain, title, description: clean,
+      excludeUserId: user.userId, bountyId: null, requesterId: user.userId, applied: new Set<string>(),
+    });
+    return { ...out, domainType: domain, guessed: !domainType };
+  }
+
+  private async matchExperts(q: {
+    domainType: DomainType; title: string; description: string;
+    excludeUserId: string; bountyId: string | null; requesterId: string; applied: Set<string>;
+  }) {
+    // 1) 서버가 후보를 거른다: 이 분야에서 승인된 자격이 있는 전문가만. 본인(의뢰인)은 제외.
+    const certRows = await this.certs.find({
+      where: { domainType: q.domainType, verifiedStatus: VerificationStatus.APPROVED },
+    });
+    const certCount = new Map<string, number>();
+    for (const c of certRows) certCount.set(c.userId, (certCount.get(c.userId) ?? 0) + 1);
+    const candidateIds = [...certCount.keys()].filter((id) => id !== q.excludeUserId).slice(0, 30);
+    if (candidateIds.length === 0) {
+      return { recommendations: [], meta: null, note: '이 분야에서 승인된 자격을 가진 전문가가 아직 없습니다.' };
+    }
 
     // 2) 후보별 서버 계산 값
     const people = await Promise.all(
       candidateIds.map(async (id) => {
         const [rep, titles, settledInDomain] = await Promise.all([
           this.reputation.getExpertReputation(id),
-          this.pastTitles(id, b.domainType),
-          this.bounties.count({ where: { assignedExpertId: id, status: BountyStatus.SETTLED, domainType: b.domainType } }),
+          this.pastTitles(id, q.domainType),
+          this.bounties.count({ where: { assignedExpertId: id, status: BountyStatus.SETTLED, domainType: q.domainType } }),
         ]);
         return { id, rep, titles, settledInDomain };
       }),
@@ -317,18 +347,18 @@ export class AiService {
     // 3) 이력이 있는 후보만 AI에 보낸다(이름 없이 라벨만). 이력이 없으면 주제 점수 0.
     const withHistory = people.filter((p) => p.titles.length > 0);
     const labels = withHistory.map((_, i) => expertLabel(i));
-    const bountyText = `${b.title}\n${b.description}`;
+    const bountyText = `${q.title}\n${q.description}`;
     let fits = new Map<string, { score: number; reason: string }>();
     let meta: AiMeta | null = null;
     if (withHistory.length > 0) {
       const out = await this.runner.run<Map<string, { score: number; reason: string }>>({
         feature: 'EXPERT_MATCH',
-        bountyId,
-        requesterId: user.userId,
+        bountyId: q.bountyId,
+        requesterId: q.requesterId,
         instructions: EXPERT_MATCH_INSTRUCTIONS,
         userPrompt: buildExpertMatchPrompt(
-          b.title,
-          b.description,
+          q.title,
+          q.description,
           withHistory.map((p, i) => ({ label: labels[i], titles: p.titles })),
         ),
         maxTokens: 3000,
@@ -351,7 +381,7 @@ export class AiService {
         expertId: p.id,
         expertName: users.get(p.id) ?? null,
         label: idx >= 0 ? labels[idx] : null,
-        alreadyApplied: applied.has(p.id),
+        alreadyApplied: q.applied.has(p.id),
         completedInDomain: p.settledInDomain,
         totalScore: repPts + certPts + fit.score + expPts,
         breakdown: {

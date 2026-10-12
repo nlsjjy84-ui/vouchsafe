@@ -101,7 +101,7 @@ export default function AdminDisputesPage() {
                 </p>
                 {d.bounty && (
                   <p className="text-xs text-ink-500">
-                    {DOMAIN_LABELS[d.bounty.domainType]} · {d.bounty.bountyAmount.toLocaleString('ko-KR')}원
+                    {DOMAIN_LABELS[d.bounty.domainType]} · {Number(d.bounty.bountyAmount).toLocaleString('ko-KR')}원
                   </p>
                 )}
               </div>

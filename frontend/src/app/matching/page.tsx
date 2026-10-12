@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Sparkles, UsersRound, Briefcase, Info, ArrowRight } from 'lucide-react';
+import { Sparkles, UsersRound, Briefcase, Info, ArrowRight, Search } from 'lucide-react';
 import { api, extractErrorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { Bounty, DOMAIN_LABELS, DomainType, MyDashboard } from '@/lib/types';
@@ -11,6 +11,7 @@ import { AiBadge, AiNotice } from '@/components/AiBadge';
 import { AiRecommendedBounties } from '@/components/AiRecommendedBounties';
 import { Button } from '@/components/Button';
 import { JangdanDivider } from '@/components/JangdanDivider';
+import { FIELD_INPUT_CLASS } from '@/components/FormControls';
 
 const EXPERT_FACTORS: { k: 'reputation' | 'certification' | 'topicFit' | 'experience'; label: string }[] = [
   { k: 'reputation', label: '평판' },
@@ -106,12 +107,32 @@ export default function MatchingPage() {
   );
 }
 
+const EXAMPLES: { text: string; domain: DomainType }[] = [
+  { text: '다음 주에 중고 SUV를 사는데 같이 가서 사고 이력과 침수 여부를 봐 주실 분', domain: 'VEHICLE_DIAGNOSTICS' },
+  { text: '빌라 전세 계약 전에 등기부 근저당과 선순위 보증금을 확인하고 싶어요', domain: 'REAL_ESTATE_TITLE_ANALYSIS' },
+  { text: '경매로 나온 아파트를 대신 임장 가서 점유 상태를 확인해 주세요', domain: 'REAL_ESTATE_TITLE_ANALYSIS' },
+  { text: '신축 아파트 입주 사전점검에 같이 가서 하자를 찾아 주세요', domain: 'BUILDING_DEFECT_INSPECTION' },
+  { text: '윗집 누수로 천장에 곰팡이가 생겼는데 원인과 수리 범위를 알고 싶어요', domain: 'BUILDING_DEFECT_INSPECTION' },
+  { text: '주문 목록 조회 쿼리가 3초 넘게 걸려요. 인덱스를 점검해 주세요', domain: 'BACKEND_DB_TUNING' },
+  { text: '외주 개발 용역 계약서의 손해배상·저작권 조항이 불리하지 않은지 봐 주세요', domain: 'STARTUP_CONTRACT_REVIEW' },
+  { text: '새 매장 오픈 전에 소화기와 감지기, 비상구가 기준에 맞는지 점검해 주세요', domain: 'FIRE_SAFETY_INSPECTION' },
+];
+
+type TextMatch = MatchResult<ExpertRecommendation> & { domainType: DomainType; guessed: boolean };
+
 function ClientMatching() {
   const [bounties, setBounties] = useState<Bounty[] | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [result, setResult] = useState<Record<string, MatchResult<ExpertRecommendation>>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [query, setQuery] = useState('');
+
+  const [text, setText] = useState('');
+  const [domain, setDomain] = useState<DomainType | ''>('');
+  const [textBusy, setTextBusy] = useState(false);
+  const [textError, setTextError] = useState('');
+  const [textResult, setTextResult] = useState<TextMatch | null>(null);
 
   useEffect(() => {
     api
@@ -121,7 +142,7 @@ function ClientMatching() {
         setBounties(open);
         if (open.length) setSelected(open[0].id);
       })
-      .catch((e) => setError(extractErrorMessage(e)));
+      .catch(() => setBounties([]));
   }, []);
 
   async function run() {
@@ -138,66 +159,146 @@ function ClientMatching() {
     }
   }
 
-  const data = selected ? result[selected] : undefined;
-
-  if (bounties === null && !error) return <div className="mt-6 h-32 animate-pulse rounded-4xl bg-surface-raised" />;
-
-  if (bounties && bounties.length === 0) {
-    return (
-      <div className="mt-6 flex flex-col items-center gap-2 rounded-4xl border border-dashed border-hairline-strong bg-surface-canvas py-14 text-center">
-        <UsersRound size={28} className="text-ink-400" />
-        <p className="text-sm text-ink-500">모집 중인 내 프로젝트가 없어요. 프로젝트를 등록하면 맞는 전문가를 추천해 드려요.</p>
-        <Link href="/bounties/new" className="text-sm font-semibold text-brand-clay hover:underline">프로젝트 등록하기</Link>
-      </div>
-    );
+  async function runText() {
+    setTextBusy(true);
+    setTextError('');
+    try {
+      const res = await api.post<TextMatch>('/ai/expert-recommendations/by-text', { text, ...(domain ? { domainType: domain } : {}) });
+      setTextResult(res.data);
+    } catch (e) {
+      setTextError(extractErrorMessage(e));
+    } finally {
+      setTextBusy(false);
+    }
   }
 
+  const data = selected ? result[selected] : undefined;
+  const q = query.trim().toLowerCase();
+  const shown = (bounties ?? []).filter(
+    (b) => !q || b.title.toLowerCase().includes(q) || (DOMAIN_LABELS[b.domainType as DomainType] ?? '').toLowerCase().includes(q),
+  );
+
   return (
-    <section className="mt-6 rounded-4xl border border-hairline bg-surface-raised p-5">
-      <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
-        <UsersRound size={16} /> 어떤 프로젝트에 맞는 전문가를 찾을까요?
-      </h2>
-      <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-        {bounties?.map((b) => (
-          <li key={b.id}>
+    <>
+      <section className="mt-6 rounded-4xl border border-hairline bg-surface-raised p-5">
+        <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
+          <Search size={16} /> 맡기고 싶은 일을 적어서 찾기
+        </h2>
+        <p className="mt-1 text-xs text-ink-500">프로젝트를 등록하지 않아도 돼요. 분야를 비워 두면 적은 내용으로 분야를 골라요. 적은 내용은 저장되지 않아요.</p>
+        <textarea
+          className={`${FIELD_INPUT_CLASS} mt-3 h-24`}
+          value={text}
+          maxLength={1000}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="예) 다음 주에 중고 SUV를 사는데 같이 가서 사고 이력과 침수 여부를 봐 주실 분"
+        />
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {EXAMPLES.map((ex) => (
             <button
+              key={ex.text}
               type="button"
-              onClick={() => setSelected(b.id)}
-              className={`w-full rounded-2xl border p-3 text-left transition-colors ${
-                selected === b.id ? 'border-brand-clay bg-tint-clay/50' : 'border-hairline bg-surface-canvas hover:border-brand-clay/40'
-              }`}
+              onClick={() => { setText(ex.text); setDomain(''); }}
+              className="rounded-full border border-hairline bg-surface-canvas px-3 py-1 text-[11px] text-ink-600 hover:border-brand-clay/50 hover:text-brand-clay"
             >
-              <p className="line-clamp-1 text-sm font-semibold text-ink-900">{b.title}</p>
-              <p className="mt-0.5 text-xs text-ink-500">
-                {DOMAIN_LABELS[b.domainType as DomainType] ?? b.domainType} · {Number(b.bountyAmount).toLocaleString('ko-KR')}원
-              </p>
+              {ex.text.length > 26 ? `${ex.text.slice(0, 26)}…` : ex.text}
             </button>
-          </li>
-        ))}
-      </ul>
-
-      <div className="mt-4 flex flex-wrap items-center gap-3">
-        <Button tone="teal" variant="solid" size="sm" disabled={busy || !selected} onClick={run}>
-          {busy ? '찾는 중…' : '전문가 추천받기'}
-        </Button>
-        {selected && (
-          <Link href={`/bounties/${selected}`} className="text-xs font-semibold text-ink-500 hover:text-brand-clay">
-            프로젝트 상세 보기
-          </Link>
+          ))}
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <select className={`${FIELD_INPUT_CLASS} w-auto min-w-0`} value={domain} onChange={(e) => setDomain(e.target.value as DomainType | '')}>
+            <option value="">분야 자동으로 고르기</option>
+            {(Object.entries(DOMAIN_LABELS) as [DomainType, string][]).map(([v, l]) => (
+              <option key={v} value={v}>{l}</option>
+            ))}
+          </select>
+          <Button tone="teal" variant="solid" size="sm" disabled={textBusy || text.trim().length < 8} onClick={runText}>
+            {textBusy ? '찾는 중…' : '전문가 추천받기'}
+          </Button>
+          {textResult?.meta && <AiBadge meta={textResult.meta} />}
+        </div>
+        {textError && <p className="mt-3 rounded-xl bg-tint-red px-3 py-2 text-sm text-brand-red">{textError}</p>}
+        {textResult && (
+          <p className="mt-3 text-xs text-ink-600">
+            분야: <b className="text-ink-800">{DOMAIN_LABELS[textResult.domainType]}</b>
+            {textResult.guessed ? ' (적은 내용으로 고름 — 다르면 위에서 분야를 직접 골라 주세요)' : ''}
+          </p>
         )}
-        {data?.meta && <AiBadge meta={data.meta} />}
-      </div>
+        {textResult && <Recommendations data={textResult} />}
+      </section>
 
-      {error && <p className="mt-3 rounded-xl bg-tint-red px-3 py-2 text-sm text-brand-red">{error}</p>}
-      {data?.note && <p className="mt-3 text-sm text-ink-600">{data.note}</p>}
+      <section className="mt-6 rounded-4xl border border-hairline bg-surface-raised p-5">
+        <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
+          <UsersRound size={16} /> 내 모집 중 프로젝트로 찾기
+        </h2>
+        {bounties === null && <div className="mt-3 h-24 animate-pulse rounded-2xl bg-surface-canvas" />}
+        {bounties && bounties.length === 0 && (
+          <p className="mt-3 text-sm text-ink-500">
+            모집 중인 내 프로젝트가 없어요.{' '}
+            <Link href="/bounties/new" className="font-semibold text-brand-clay hover:underline">프로젝트 등록하기</Link>
+          </p>
+        )}
+        {bounties && bounties.length > 0 && (
+          <>
+            {bounties.length > 4 && (
+              <input
+                className={`${FIELD_INPUT_CLASS} mt-3`}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={`프로젝트 ${bounties.length}개 중에서 제목이나 분야로 검색`}
+              />
+            )}
+            <ul className="mt-3 grid max-h-80 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
+              {shown.map((b) => (
+                <li key={b.id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelected(b.id)}
+                    className={`w-full rounded-2xl border p-3 text-left transition-colors ${
+                      selected === b.id ? 'border-brand-clay bg-tint-clay/50' : 'border-hairline bg-surface-canvas hover:border-brand-clay/40'
+                    }`}
+                  >
+                    <p className="line-clamp-1 text-sm font-semibold text-ink-900">{b.title}</p>
+                    <p className="mt-0.5 text-xs text-ink-500">
+                      {DOMAIN_LABELS[b.domainType as DomainType] ?? b.domainType} · {Number(b.bountyAmount).toLocaleString('ko-KR')}원
+                    </p>
+                  </button>
+                </li>
+              ))}
+              {shown.length === 0 && <li className="text-sm text-ink-500">검색 결과가 없어요.</li>}
+            </ul>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Button tone="teal" variant="solid" size="sm" disabled={busy || !selected} onClick={run}>
+                {busy ? '찾는 중…' : '전문가 추천받기'}
+              </Button>
+              {selected && (
+                <Link href={`/bounties/${selected}`} className="text-xs font-semibold text-ink-500 hover:text-brand-clay">
+                  프로젝트 상세 보기
+                </Link>
+              )}
+              {data?.meta && <AiBadge meta={data.meta} />}
+            </div>
+          </>
+        )}
+        {error && <p className="mt-3 rounded-xl bg-tint-red px-3 py-2 text-sm text-brand-red">{error}</p>}
+        {data && <Recommendations data={data} />}
+      </section>
+      <p className="mt-3 text-[11px] text-ink-400">이 분야에서 승인된 자격이 있는 전문가만 후보가 돼요. 이름 대신 후보 A/B 라벨과 완료 프로젝트 제목만 AI에 전달돼요.</p>
+    </>
+  );
+}
 
-      {data && data.recommendations.length > 0 && (
+function Recommendations({ data }: { data: MatchResult<ExpertRecommendation> }) {
+  return (
+    <>
+      {data.note && <p className="mt-3 text-sm text-ink-600">{data.note}</p>}
+      {data.recommendations.length > 0 && (
         <ul className="mt-4 space-y-3">
           {data.recommendations.map((r, idx) => (
             <li key={r.expertId} className="rounded-2xl border border-hairline bg-surface-canvas p-4">
               <div className="flex items-baseline justify-between gap-3">
                 <p className="text-sm font-semibold text-ink-900">
-                  {idx + 1}위 · {r.expertName ?? '전문가'}
+                  {idx + 1}위 ·{' '}
+                  <Link href={`/experts/${r.expertId}`} className="hover:text-brand-clay hover:underline">{r.expertName ?? '전문가'}</Link>
                   {r.alreadyApplied && (
                     <span className="ml-2 rounded-full bg-tint-sage px-2 py-0.5 text-[11px] font-semibold text-brand-sage">이미 지원함</span>
                   )}
@@ -222,8 +323,7 @@ function ClientMatching() {
           ))}
         </ul>
       )}
-      <p className="mt-3 text-[11px] text-ink-400">이 분야에서 승인된 자격이 있는 전문가만 후보가 돼요. 이름 대신 후보 A/B 라벨과 완료 프로젝트 제목만 AI에 전달돼요.</p>
-      {data?.meta && <AiNotice meta={data.meta} />}
-    </section>
+      {data.meta && <AiNotice meta={data.meta} />}
+    </>
   );
 }

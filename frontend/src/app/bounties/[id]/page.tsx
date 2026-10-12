@@ -123,11 +123,11 @@ export default function BountyDetailPage() {
 
         <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-ink-700">{bounty.description}</p>
         <p className="mt-4 font-display text-2xl tracking-wide text-ink-900">
-          {bounty.bountyAmount.toLocaleString('ko-KR')}원
+          {Number(bounty.bountyAmount).toLocaleString('ko-KR')}원
         </p>
         {transaction && transaction.platformFeeAmount > 0 && (
           <p className="text-xs text-ink-400">
-            (플랫폼 수수료 {transaction.platformFeeAmount.toLocaleString('ko-KR')}원 반영됨)
+            (플랫폼 수수료 {Number(transaction.platformFeeAmount).toLocaleString('ko-KR')}원 반영됨)
           </p>
         )}
       </div>
@@ -431,7 +431,7 @@ function PaymentSection({
       </p>
       {error && <FormErrorText>{error}</FormErrorText>}
       <Button onClick={handlePay} disabled={processing} tone="amber" variant="solid">
-        {processing ? '결제 진행중...' : `${amount.toLocaleString('ko-KR')}원 결제하기`}
+        {processing ? '결제 진행중...' : `${Number(amount).toLocaleString('ko-KR')}원 결제하기`}
       </Button>
     </section>
   );

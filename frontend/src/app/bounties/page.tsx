@@ -119,7 +119,7 @@ export default function BountiesPage() {
               </h2>
               <p className="mt-1 line-clamp-2 text-sm text-ink-500">{b.description}</p>
               <p className="mt-2 font-display text-base tracking-wide text-ink-900">
-                {b.bountyAmount.toLocaleString('ko-KR')}원
+                {Number(b.bountyAmount).toLocaleString('ko-KR')}원
               </p>
             </div>
           </Link>

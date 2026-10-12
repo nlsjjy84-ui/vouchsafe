@@ -1,4 +1,5 @@
 import { clampText, wrapUserData } from '../ai-guards';
+import { DomainType } from '../../../common/enums/domain-type.enum';
 
 /**
  * 기능 7·8: AI 매칭 (의뢰 → 전문가 추천 / 전문가 → 의뢰 추천). 선택은 항상 사람이 한다.
@@ -117,4 +118,37 @@ export function freshnessPts(createdAt: Date, now = new Date()): number {
 /** 전문가 → 의뢰: 경쟁 정도 (0~10). 지원자가 적을수록 높다 */
 export function competitionPts(applicantCount: number): number {
   return applicantCount === 0 ? 10 : applicantCount <= 2 ? 6 : 2;
+}
+
+/** 직접 적은 의뢰 문장에서 분야를 고르는 규칙 (분야를 따로 고르지 않았을 때만 쓴다). 맞는 단어가 가장 많은 분야. */
+const DOMAIN_KEYWORDS: [DomainType, string[]][] = [
+  [DomainType.REAL_ESTATE_TITLE_ANALYSIS, ['전세', '월세', '매매', '등기', '근저당', '권리', '임장', '경매', '아파트', '빌라', '오피스텔', '상가', '임차', '분양', '보증금', '부동산']],
+  [DomainType.VEHICLE_DIAGNOSTICS, ['중고차', '차량', '자동차', 'suv', '세단', '전기차', '엔진', '변속', '침수', '사고', '시운전', '화물차', '배터리']],
+  [DomainType.BUILDING_DEFECT_INSPECTION, ['하자', '누수', '균열', '결로', '곰팡이', '사전점검', '입주', '외벽', '단열', '주택', '인테리어', '타일']],
+  [DomainType.FIRE_SAFETY_INSPECTION, ['소방', '소화기', '스프링클러', '감지기', '비상구', '피난', '화재']],
+  [DomainType.STARTUP_CONTRACT_REVIEW, ['계약서', '조항', '투자계약', '용역계약', '독소', '법률', '약관', '손해배상']],
+  [DomainType.TAX_STRUCTURE_FACTCHECK, ['세금', '절세', '세무', '종합소득세', '부가세', '경비', '신고', '양도세', '증여']],
+  [DomainType.BACKEND_DB_TUNING, ['쿼리', '인덱스', 'db', '데이터베이스', 'sql', 'mysql', 'postgres', '느려', '느린', '응답시간', '캐시', '튜닝']],
+  [DomainType.DEV_CODE_REVIEW, ['코드', '리뷰', '리액트', 'react', '스프링', 'spring', '자바', 'java', '보안', '취약점', '리팩터링', '프론트']],
+  [DomainType.WEB3_SECURITY_AUDIT, ['스마트컨트랙트', '컨트랙트', '솔리디티', 'solidity', '토큰', '블록체인', 'web3']],
+  [DomainType.CRAWLING_ARCHITECTURE, ['크롤링', '크롤러', '수집', '파싱', '스크래핑']],
+  [DomainType.MOBILE_QA_AUTOMATION, ['앱', '안드로이드', 'ios', '아이폰', '회귀', '테스트', 'qa', '기기']],
+  [DomainType.TECH_CREATOR_CONSULTING, ['유튜브', '채널', '구독자', '크리에이터', '콘텐츠']],
+  [DomainType.AUDIO_MASTERING_REVIEW, ['음원', '믹싱', '마스터링', '음악', '사운드']],
+  [DomainType.INDIE_GAME_QA, ['게임', '밸런스', '레벨', '스팀', '빌드']],
+  [DomainType.GRAPHICS_3D_OPTIMIZATION, ['3d', '모델링', '폴리곤', '텍스처', '렌더링', '에셋']],
+];
+
+export function guessDomain(text: string): DomainType | null {
+  const t = text.toLowerCase();
+  let best: DomainType | null = null;
+  let bestHits = 0;
+  for (const [domain, words] of DOMAIN_KEYWORDS) {
+    const hits = words.filter((w) => t.includes(w)).length;
+    if (hits > bestHits) {
+      best = domain;
+      bestHits = hits;
+    }
+  }
+  return best;
 }

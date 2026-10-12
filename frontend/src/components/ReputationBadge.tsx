@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
+// GET /api/users/:id/reputation 응답 (ReputationService.getExpertReputation)
 interface ReputationSummary {
-  totalCompleted: number;
-  totalConcluded: number;
-  completionRate: number | null;
-  reputationScore: number | null;
+  completedCount: number;
+  completionRate: number; // 0~1
+  score10: number; // 0~10, 0.5 단위
+  hasEnoughData: boolean;
 }
 
 /**
@@ -22,7 +23,7 @@ export function ReputationBadge({ expertId }: { expertId: string }) {
   useEffect(() => {
     let cancelled = false;
     api
-      .get<ReputationSummary>(`/experts/${expertId}/reputation`)
+      .get<ReputationSummary>(`/users/${expertId}/reputation`)
       .then((res) => {
         if (!cancelled) setSummary(res.data);
       })
@@ -34,14 +35,14 @@ export function ReputationBadge({ expertId }: { expertId: string }) {
     };
   }, [expertId]);
 
-  if (!summary || summary.reputationScore === null) {
+  if (!summary || !summary.hasEnoughData) {
     return <span className="text-xs text-ink-400">신규 전문가 (완료 이력 없음)</span>;
   }
 
   return (
     <span className="text-xs text-ink-500">
-      신뢰도 점수 <span className="font-semibold text-brand-clay">{summary.reputationScore}</span>
-      {' · '}완료율 {summary.completionRate}%{' · '}완료 {summary.totalCompleted}건
+      신뢰도 점수 <span className="font-semibold text-brand-clay">{summary.score10.toFixed(1)}</span>/10
+      {' · '}완료율 {Math.round(summary.completionRate * 100)}%{' · '}완료 {summary.completedCount}건
     </span>
   );
 }
