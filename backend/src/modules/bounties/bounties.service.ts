@@ -29,6 +29,7 @@ import { DomainType, DOMAIN_LABELS } from '../../common/enums/domain-type.enum';
 import { NotificationsService } from '../notifications/notifications.service';
 import { AlertsService } from '../notifications/alerts.service';
 import { NotificationType } from '../../common/enums/notification-type.enum';
+import { ServiceType } from '../../common/enums/service-type.enum';
 
 /** 8장 "무이의 기간": 결과물 제출 후 이 기간이 지나도록 승인/이의제기가 없으면 자동 정산 */
 export const NO_OBJECTION_PERIOD_DAYS = 5;
@@ -90,6 +91,43 @@ export class BountiesService {
     // 내 분야 인증 전문가에게 맞춤 알림 (실패해도 등록은 성공으로 둔다)
     await this.alertsService.notifyNewBounty(saved);
     return saved;
+  }
+
+  /**
+   * 전문가 상품으로 바로 의뢰한다. 상품에 적힌 가격·분야·전문가 그대로 프로젝트를 만들고,
+   * 그 전문가의 지원 기록을 남긴 뒤 기존 선택 흐름(selectApplicant)을 그대로 탄다 —
+   * 결제 대기(PAYMENT_PENDING) → 에스크로 결제 → 제출 → 승인·정산이 공고 방식과 똑같다.
+   * 이미 담당자가 정해진 프로젝트라 다른 전문가에게 "새 공고" 알림은 보내지 않는다.
+   */
+  async createFromOffer(
+    clientId: string,
+    offer: { id: string; expertId: string; domainType: DomainType; title: string; description: string; price: number; serviceType: ServiceType; area: string | null },
+    note?: string,
+  ): Promise<Bounty> {
+    if (offer.expertId === clientId) {
+      throw new ForbiddenException('내가 올린 상품은 의뢰할 수 없습니다');
+    }
+    const qualified = await this.certificationsService.hasApprovedCertification(offer.expertId, offer.domainType);
+    if (!qualified) {
+      throw new ForbiddenException('이 전문가의 분야 인증이 유효하지 않아 지금은 의뢰할 수 없습니다');
+    }
+    const extra = note?.trim() ? `\n\n[의뢰인 요청]\n${note.trim()}` : '';
+    const bounty = await this.bountyRepository.save(
+      this.bountyRepository.create({
+        clientId,
+        domainType: offer.domainType,
+        title: offer.title,
+        description: `전문가 상품으로 들어온 의뢰입니다.\n\n${offer.description}${extra}`,
+        bountyAmount: Number(offer.price),
+        serviceType: offer.serviceType,
+        companionLocation: offer.serviceType === ServiceType.COMPANION ? offer.area : null,
+        sourceOfferId: offer.id,
+      }),
+    );
+    const application = await this.applicationRepository.save(
+      this.applicationRepository.create({ bountyId: bounty.id, expertId: offer.expertId, message: `상품 「${offer.title}」` }),
+    );
+    return this.selectApplicant(bounty.id, application.id, clientId);
   }
 
   findAll(filters: { domainType?: DomainType; status?: BountyStatus }) {

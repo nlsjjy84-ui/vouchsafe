@@ -51,6 +51,10 @@ export class Bounty {
   @Column({ name: 'assigned_expert_id', type: 'uuid', nullable: true })
   assignedExpertId: string | null;
 
+  /** 전문가 상품(ExpertOffer)으로 들어온 의뢰면 그 상품 id. 상품 후기(정산 후 의뢰인 평가)를 상품에 모을 때 쓴다. */
+  @Column({ name: 'source_offer_id', type: 'uuid', nullable: true })
+  sourceOfferId: string | null;
+
   /** 동행 서비스 확장 (Phase 2): REMOTE(기본, 원격) | COMPANION(현장 동행) */
   @Column({ type: 'enum', enum: ServiceType, default: ServiceType.REMOTE })
   serviceType: ServiceType;

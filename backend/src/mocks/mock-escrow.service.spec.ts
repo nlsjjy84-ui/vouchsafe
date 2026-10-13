@@ -7,12 +7,12 @@ import { MockEscrowService } from './mock-escrow.service';
 describe('MockEscrowService 수수료 계산', () => {
   const service = new MockEscrowService();
 
-  it('플랫폼 기본 수수료는 금액의 10%다', () => {
-    expect(service.calculatePlatformFee(100000)).toBe(10000);
+  it('플랫폼 수수료는 누진식이다 (10만 원 → 15,000)', () => {
+    expect(service.calculatePlatformFee(100000)).toBe(15000);
   });
 
-  it('플랫폼 수수료는 소수점을 내림 처리한다 (33333원의 10% = 3333.3 → 3333)', () => {
-    expect(service.calculatePlatformFee(33333)).toBe(3333);
+  it('1만 원 미만 끝자리는 세지 않는다 (123457원 → 12단위 → 18,000)', () => {
+    expect(service.calculatePlatformFee(123457)).toBe(18000);
   });
 
   it('의뢰인 단순변심 취소 수수료는 금액의 3%다', () => {

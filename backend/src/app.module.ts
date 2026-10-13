@@ -19,6 +19,7 @@ import { AiModule } from './modules/ai/ai.module';
 import { CommunityModule } from './modules/community/community.module';
 import { RegionsModule } from './modules/regions/regions.module';
 import { ExpertsModule } from './modules/experts/experts.module';
+import { OffersModule } from './modules/offers/offers.module';
 import { HealthController } from './health.controller';
 
 @Module({
@@ -78,6 +79,7 @@ import { HealthController } from './health.controller';
     CommunityModule,
     RegionsModule,
     ExpertsModule,
+    OffersModule,
   ],
   controllers: [HealthController],
   providers: [

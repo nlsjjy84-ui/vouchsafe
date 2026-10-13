@@ -46,11 +46,78 @@ function snippet(text: string, index: number, len: number): string {
   return text.slice(start, Math.min(text.length, index + len + 20)).replace(/\s+/g, ' ').trim();
 }
 
+/** 한글로 쓴 숫자. "공일공 일이삼사"처럼 전화번호를 글자로 풀어 쓰는 경우를 잡는다. */
+const HANGUL_DIGITS: Record<string, string> = {
+  공: '0', 영: '0', 빵: '0', 일: '1', 하나: '1', 이: '2', 둘: '2', 삼: '3', 셋: '3', 사: '4', 넷: '4',
+  오: '5', 육: '6', 륙: '6', 칠: '7', 팔: '8', 구: '9',
+};
+const FULLWIDTH_DIGIT = /[０-９]/;
+/** 숫자 사이에 끼워 넣는 띄어쓰기·기호. 이것들은 건너뛰고 숫자를 이어 붙인다. */
+const DIGIT_SEPARATORS = /[\s\-.·•_~,()\[\]{}*'"`/|+;]/; // ':'는 넣지 않는다(날짜·시각 "2026-10-14 10:00"이 이어 붙지 않게)
+
+/**
+ * 숫자를 한글·띄어쓰기·기호로 쪼개 쓴 전화번호·계좌번호를 찾는다.
+ * 한글 숫자를 숫자로 바꾸고 구분 기호를 건너뛰며 숫자를 이어 붙였을 때,
+ * 0으로 시작하는 9자리 이상(전화) 또는 11자리 이상(계좌)이 나오면 연락처로 본다.
+ * 다른 글자가 나오면 끊어서 세므로 "이사 오일 걸려요", "150만 원", "2026-10-14" 같은 보통 문장은 걸리지 않는다.
+ */
+export function hiddenNumber(text: string): string | null {
+  let digits = '';
+  let start = -1;
+  const flush = (end: number): string | null => {
+    const hit = (digits.length >= 9 && digits.startsWith('0')) || digits.length >= 11;
+    const quote = hit ? text.slice(start, end).trim() : null;
+    digits = '';
+    start = -1;
+    return quote;
+  };
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const two = text.slice(i, i + 2);
+    let d: string | null = null;
+    let step = 1;
+    if (/[0-9]/.test(ch)) d = ch;
+    else if (FULLWIDTH_DIGIT.test(ch)) d = String(ch.charCodeAt(0) - 0xff10);
+    else if (HANGUL_DIGITS[two] && two.length === 2) { d = HANGUL_DIGITS[two]; step = 2; }
+    else if (HANGUL_DIGITS[ch]) d = HANGUL_DIGITS[ch];
+    if (d !== null) {
+      if (start < 0) start = i;
+      digits += d;
+      i += step - 1;
+      continue;
+    }
+    if (DIGIT_SEPARATORS.test(ch) && start >= 0) continue;
+    const q = flush(i);
+    if (q) return q;
+  }
+  return flush(text.length);
+}
+
+/**
+ * 띄어쓰기·기호를 넣거나 비슷한 말로 바꿔 쓴 메신저·이메일 표현.
+ * 비교는 공백과 기호를 모두 뺀 소문자 문장에서 한다("카 . 톡" → "카톡").
+ */
+const HIDDEN_CONTACT_WORDS =
+  /(?:카|까|캬|깨)(?:톡|똑|토크)|ㅋㅌ|카카오(?!페이|맵|뱅크|모빌리티)|kakao(?!pay|map|bank)|katalk|오픈채팅|오픈톡|오카방|텔레(?:그램|그|방|주|줘|로|아이디|id)|telegram|텔그|라인아이디|라인id|lineid|위챗|wechat|디스코드|discord|디코(?!딩|더|드)|인스타(?:그램)?(?:dm|디엠)|(?:디엠|dm)(?:주|줘|보내|으로|부탁)|(?:문자|전화)(?:주세요|줘|부탁|보내|번호)|번호(?:를)?(?:알려|남겨|주세요|줘|보내|드릴|드려)|골뱅이|(?:닷|dot)(?:컴|com|넷|net)|지메일|gmail|네이버메일|naver(?:닷|dot)?com|한메일|hanmail|daum(?:닷|dot)?net/;
+
+export function hiddenContact(text: string): string | null {
+  const num = hiddenNumber(text);
+  if (num) return num;
+  const squashed = text.toLowerCase().replace(/[\s.·•\-_~,*'"`/|\\()\[\]{}!?^+=:;]/g, '');
+  const m = HIDDEN_CONTACT_WORDS.exec(squashed);
+  return m ? m[0] : null;
+}
+
 export function ruleBasedRisk(text: string): RiskSignal[] {
   const out: RiskSignal[] = [];
   for (const [type, re] of RULES) {
     const m = re.exec(text);
     if (m) out.push({ type, quote: snippet(text, m.index, m[0].length), why: RISK_META[type].why, source: 'RULE' });
+  }
+  // 정규식이 못 잡는 우회 표현(한글 숫자, 띄어쓰기·기호로 쪼갠 메신저 이름 등)
+  if (!out.some((s) => s.type === 'CONTACT')) {
+    const hidden = hiddenContact(text);
+    if (hidden) out.push({ type: 'CONTACT', quote: hidden, why: RISK_META.CONTACT.why, source: 'RULE' });
   }
   return out;
 }

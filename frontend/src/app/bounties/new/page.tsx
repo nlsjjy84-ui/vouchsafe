@@ -173,7 +173,7 @@ export default function NewBountyPage() {
             <Wallet size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
             <input
               type="number"
-              min={10000}
+              min={100000}
               step={10000}
               className={`${FIELD_INPUT_CLASS} pl-9`}
               value={bountyAmount}

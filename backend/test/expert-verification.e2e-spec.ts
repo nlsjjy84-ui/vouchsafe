@@ -57,7 +57,7 @@ describe('전문가 검증 흐름 (e2e)', () => {
         domainType: 'DEV_CODE_REVIEW',
         title: '전문가 검증 흐름 테스트용 바운티',
         description: '아직 승인받지 못한 전문가가 지원을 시도하는 시나리오입니다',
-        bountyAmount: 20000,
+        bountyAmount: 100000,
       })
       .expect(201);
 
@@ -98,7 +98,7 @@ describe('전문가 검증 흐름 (e2e)', () => {
         domainType: 'DEV_CODE_REVIEW',
         title: '승인된 전문가 지원 테스트',
         description: '승인 완료 후 지원이 정상적으로 허용되는지 확인하는 시나리오입니다',
-        bountyAmount: 25000,
+        bountyAmount: 110000,
       })
       .expect(201);
 
@@ -129,7 +129,7 @@ describe('전문가 검증 흐름 (e2e)', () => {
         domainType: 'VEHICLE_DIAGNOSTICS',
         title: '다른 도메인 바운티',
         description: '전문가가 승인받지 않은 도메인에 지원을 시도하는 시나리오입니다',
-        bountyAmount: 25000,
+        bountyAmount: 110000,
       })
       .expect(201);
 

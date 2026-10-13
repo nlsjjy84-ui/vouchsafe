@@ -12,6 +12,7 @@ import { DemoButtons } from './DemoButtons';
 
 const PUBLIC_LINKS = [
   { href: '/bounties', label: '프로젝트 둘러보기' },
+  { href: '/offers', label: '전문가 상품' },
   { href: '/cases', label: '거래 사례' },
   { href: '/map', label: '지역 찾기' },
   { href: '/community', label: '커뮤니티' },

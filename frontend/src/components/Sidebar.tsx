@@ -15,6 +15,8 @@ import {
   MapPinned,
   ChevronsLeft,
   ChevronsRight,
+  Store,
+  Flag,
 } from 'lucide-react';
 import { JangdanMark } from './JangdanMark';
 import { useAuth } from '@/lib/auth-context';
@@ -89,6 +91,7 @@ const NAV_GROUPS: NavGroup[] = [
     tone: 'teal',
     items: [
       { href: '/bounties', label: '프로젝트 둘러보기', icon: Compass, match: (p) => p === '/bounties' },
+      { href: '/offers', label: '전문가 상품', icon: Store, match: (p) => p.startsWith('/offers') },
       { href: '/cases', label: '거래 사례', icon: ScrollText, match: (p) => p.startsWith('/cases') },
       { href: '/map', label: '지역 찾기', icon: MapPinned, match: (p) => p.startsWith('/map') },
       { href: '/community', label: '커뮤니티', icon: MessagesSquare, match: (p) => p.startsWith('/community') },
@@ -116,7 +119,10 @@ const NAV_GROUPS: NavGroup[] = [
 const ADMIN_GROUP: NavGroup = {
   label: '관리자',
   tone: 'red',
-  items: [{ href: '/admin/disputes', label: '분쟁 중재', icon: Gavel, match: (p) => p.startsWith('/admin/disputes') }],
+  items: [
+    { href: '/admin/disputes', label: '분쟁 중재', icon: Gavel, match: (p) => p.startsWith('/admin/disputes') },
+    { href: '/admin/reports', label: '신고 처리', icon: Flag, match: (p) => p.startsWith('/admin/reports') },
+  ],
 };
 
 export function Sidebar({

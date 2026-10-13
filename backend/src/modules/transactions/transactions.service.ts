@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { milestoneFee } from '../../mocks/settlement-fee.util';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { Transaction } from './entities/transaction.entity';
@@ -166,7 +167,14 @@ export class TransactionsService {
     manager?: EntityManager,
   ): Promise<Transaction> {
     const transaction = await this.findByBountyIdOrThrow(bountyId, manager);
-    const fee = this.mockEscrow.calculatePlatformFee(portionAmount);
+    // 수수료는 전체 금액 기준으로 한 번 정하고 마일스톤 금액 비율로 나눈다(나눌수록 비싸지지 않게)
+    const fee = milestoneFee(
+      this.mockEscrow.calculatePlatformFee(Number(transaction.amount)),
+      Number(transaction.amount),
+      portionAmount,
+      Number(transaction.settledAmount),
+      Number(transaction.platformFeeAmount),
+    );
     await this.mockEscrow.settle(portionAmount - fee, receiver.name);
 
     const newSettledAmount = Number(transaction.settledAmount) + portionAmount;

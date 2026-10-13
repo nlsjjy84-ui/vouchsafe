@@ -1,15 +1,17 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ShieldCheck, Lock, Layers, Sparkles } from 'lucide-react';
+import { ShieldCheck, Lock, Layers, Sparkles, Store } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { DOMAIN_LABELS, DomainType } from '@/lib/types';
 import { JangdanMark } from '@/components/JangdanMark';
 import { JangdanDivider } from '@/components/JangdanDivider';
 import { jangdanDelay } from '@/lib/motion';
 import { DemoButtons } from '@/components/DemoButtons';
+import { api } from '@/lib/api';
+import { won } from '@/lib/offer-types';
 
 // 이용 흐름 섹션의 4단계 - 커넥티드 스테퍼로 그리기 위해 배열로 뽑아뒀다.
 const STEPS = [
@@ -53,9 +55,32 @@ const DOMAIN_CATEGORY: Record<DomainType, 'A' | 'B' | 'C'> = {
  * 인상에 "우리만의 시각적 시그니처"가 있다는 걸 바로 보여주고, 카드들은 장단
  * 리듬(간격이 점점 좁아지는 스태거)으로 순서대로 나타나게 했다.
  */
+interface HomeStats {
+  trust: { verifiedExperts: number; rejected: number; byTrack: { track: string; label: string; experts: number }[] };
+  settled: { count: number; amount: number; refunded: number };
+  months: { month: string; settled: number }[];
+  byDomain: { domainType: DomainType; count: number }[];
+  offers: { active: number; medianPrice: number | null };
+  fee: { sample: number; vouchsafe: number; kmong: number };
+}
+
+const CATEGORY_LABEL: Record<'A' | 'B' | 'C', string> = { A: '온라인 기술 진단', B: '현장 진단', C: '전문 자문' };
+
+/** 큰 금액을 "1.2억", "3,450만"처럼 읽기 쉽게 */
+function bigWon(n: number): string {
+  if (n >= 100_000_000) return `${(n / 100_000_000).toFixed(1).replace(/\.0$/, '')}억 원`;
+  if (n >= 10_000) return `${Math.round(n / 10_000).toLocaleString('ko-KR')}만 원`;
+  return won(n);
+}
+
 export default function HomePage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [stats, setStats] = useState<HomeStats | null>(null);
+
+  useEffect(() => {
+    api.get<HomeStats>('/stats/home').then((r) => setStats(r.data)).catch(() => setStats(null));
+  }, []);
 
   useEffect(() => {
     if (!loading && user) {
@@ -68,47 +93,58 @@ export default function HomePage() {
   }
 
   return (
-    <div className="space-y-14">
+    <div className="space-y-10">
       {/* 히어로 - 단색 navy 대신 navy→navyLight 그라디언트로 깊이감을 주고,
           헤드라인은 font-display(Do Hyeon)로 "여기가 브랜드의 얼굴"이라는 신호를 준다. */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-ink via-brand-ink to-brand-inkLight px-6 py-12 text-white sm:px-14 sm:py-16">
-        <div className="pointer-events-none absolute -right-6 -top-6 opacity-90 sm:right-10 sm:top-10">
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-ink via-brand-ink to-brand-inkLight px-6 py-10 text-white sm:px-12 sm:py-12">
+        <div className="pointer-events-none absolute -right-6 -top-6 opacity-40 sm:opacity-60 lg:hidden">
           <JangdanMark size={96} animated variant="dark" />
         </div>
-        <p className="text-sm font-medium uppercase tracking-wider text-brand-clay">
-          검증된 전문가 에스크로 거래 플랫폼
-        </p>
-        <h1 className="mt-3 max-w-2xl font-display text-[2rem] leading-tight tracking-wide sm:text-5xl">
-          자격을 검증받은 전문가와,
-          <br />
-          {/* 세리프 악센트(고운바탕체) 활성화 - 전체가 font-display(두꺼운 로고체)이면
-              오히려 "강조점 없이 다 똑같이 세다"가 된다. 문장의 정서적 핵심 어구
-              ("안전하게 정산되는")만 결이 다른 서체로 얹어서 진짜 강조를 만든다. */}
-          <span className="font-serifAccent font-normal">안전하게 정산되는</span> 거래.
-        </h1>
-        <p className="mt-4 max-w-xl text-white/70">
-          Vouchsafe는 백엔드 튜닝부터 건축물 하자진단, 계약서 검토까지 — 신뢰가 중요한
-          고관여 전문 결과물을 의뢰하고, 에스크로로 안전하게 대금을 주고받는 거래
-          플랫폼입니다.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link
-            href="/register"
-            className="rounded-full bg-brand-clay px-7 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-clayDeep hover:shadow-lg"
-          >
-            무료로 시작하기
-          </Link>
-          <Link
-            href="/login"
-            className="rounded-full border border-white/30 px-7 py-3 text-sm font-medium text-white transition-colors hover:border-white hover:bg-white hover:text-brand-ink"
-          >
-            로그인
-          </Link>
-        </div>
-        <div className="mt-6 border-t border-white/15 pt-5">
-          <DemoButtons tone="dark" />
+        <div className="relative grid gap-6 lg:grid-cols-[1fr_24rem] lg:items-center lg:gap-x-8">
+          <div className="lg:col-start-1 lg:row-start-1">
+            <p className="text-sm font-medium uppercase tracking-wider text-brand-clay">검증된 전문가만 파는 진단·검수 마켓</p>
+            <h1 className="mt-3 max-w-2xl font-display text-[2rem] leading-tight tracking-wide sm:text-5xl lg:text-[2.6rem]">
+              자격을 검증받은 전문가와,
+              <br />
+              <span className="font-serifAccent font-normal">안전하게 정산되는</span> 거래.
+            </h1>
+            <p className="mt-4 max-w-xl text-sm text-white/70">
+              결과를 승인해야 돈이 나가는 에스크로, 정산이 끝난 사람만 쓰는 후기, 크몽보다 낮은 수수료.
+            </p>
+          </div>
+
+          {/* 숫자 먼저: 검증된 전문가와 실제 정산 기록 */}
+          <div className="grid grid-cols-2 gap-3 lg:col-start-2 lg:row-span-2 lg:row-start-1" aria-label="Vouchsafe 숫자">
+            <HeroStat value={stats ? `${stats.trust.verifiedExperts}명` : '–'} label="검증된 전문가" note={stats ? `서류 대조에서 반려 ${stats.trust.rejected}건` : ''} />
+            <HeroStat value={stats ? `${stats.settled.count}건` : '–'} label="정산까지 끝난 거래" note={stats ? `환불 ${stats.settled.refunded}건도 공개` : ''} />
+            <HeroStat value={stats ? bigWon(stats.settled.amount) : '–'} label="에스크로로 정산된 금액" note="승인한 뒤에만 지급" />
+            <HeroStat value={stats ? `${stats.offers.active}개` : '–'} label="올라온 전문가 상품" note={stats?.offers.medianPrice ? `가운데 가격 ${bigWon(stats.offers.medianPrice)}` : ''} />
+          </div>
+
+          <div className="lg:col-start-1 lg:row-start-2">
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/offers"
+                className="inline-flex items-center gap-1.5 rounded-full bg-brand-clay px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-clayDeep hover:shadow-lg"
+              >
+                <Store size={16} /> 전문가 상품 보기
+              </Link>
+              <Link
+                href="/register"
+                className="rounded-full border border-white/30 px-6 py-3 text-sm font-medium text-white transition-colors hover:border-white hover:bg-white hover:text-brand-ink"
+              >
+                무료로 시작하기
+              </Link>
+            </div>
+            <div className="mt-5 border-t border-white/15 pt-4">
+              <DemoButtons tone="dark" />
+            </div>
+          </div>
         </div>
       </section>
+
+      {/* 그래프: 월별 정산, 분야 묶음별 거래, 수수료 비교 */}
+      {stats && <HomeCharts stats={stats} />}
 
       {/* 핵심 가치 3가지 */}
       <section>
@@ -305,5 +341,74 @@ function DomainCategoryCard({
         )}
       </div>
     </div>
+  );
+}
+
+function HeroStat({ value, label, note }: { value: string; label: string; note: string }) {
+  return (
+    <div className="rounded-2xl border border-white/15 bg-white/[0.07] p-4">
+      <p className="font-display text-3xl tabular-nums tracking-wide">{value}</p>
+      <p className="mt-1 text-xs font-medium text-white/80">{label}</p>
+      <p className="mt-0.5 text-[11px] text-white/50">{note}</p>
+    </div>
+  );
+}
+
+function HomeCharts({ stats }: { stats: HomeStats }) {
+  const maxMonth = Math.max(1, ...stats.months.map((m) => m.settled));
+  const byCat: Record<'A' | 'B' | 'C', number> = { A: 0, B: 0, C: 0 };
+  for (const d of stats.byDomain) byCat[DOMAIN_CATEGORY[d.domainType]] += d.count;
+  const maxCat = Math.max(1, ...Object.values(byCat));
+  const maxFee = Math.max(stats.fee.kmong, stats.fee.vouchsafe);
+  return (
+    <section className="grid gap-4 lg:grid-cols-3" aria-label="숫자로 보는 Vouchsafe">
+      <div className="rounded-2xl border border-hairline bg-surface-canvas p-5">
+        <h2 className="text-sm font-semibold text-ink-900">최근 6개월 정산 완료 거래</h2>
+        <div className="mt-4 flex h-32 items-end gap-2">
+          {stats.months.map((m) => (
+            <div key={m.month} className="flex flex-1 flex-col items-center gap-1">
+              <span className="text-[11px] font-semibold tabular-nums text-ink-700">{m.settled}</span>
+              <span className="w-full rounded-t-md bg-brand-clay" style={{ height: `${(m.settled / maxMonth) * 88}px`, minHeight: m.settled ? 4 : 1 }} />
+              <span className="text-[10px] text-ink-400">{Number(m.month.slice(5))}월</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="rounded-2xl border border-hairline bg-surface-canvas p-5">
+        <h2 className="text-sm font-semibold text-ink-900">분야 묶음별 진행·완료 거래</h2>
+        <ul className="mt-4 space-y-3">
+          {(Object.keys(byCat) as Array<'A' | 'B' | 'C'>).map((k) => (
+            <li key={k} className="grid grid-cols-[6.5rem_1fr_2rem] items-center gap-2 text-xs">
+              <span className="text-ink-700">{CATEGORY_LABEL[k]}</span>
+              <span className="h-3 overflow-hidden rounded-full bg-surface-raised">
+                <span className="block h-full rounded-full bg-brand-sage" style={{ width: `${(byCat[k] / maxCat) * 100}%` }} />
+              </span>
+              <b className="text-right tabular-nums text-ink-900">{byCat[k]}</b>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 text-[11px] text-ink-400">15개 분야 = 온라인 기술 진단 5 · 현장 진단 7 · 전문 자문 3</p>
+      </div>
+      <div className="rounded-2xl border border-hairline bg-surface-canvas p-5">
+        <h2 className="text-sm font-semibold text-ink-900">{bigWon(stats.fee.sample)}짜리 일의 수수료</h2>
+        <ul className="mt-4 space-y-3">
+          {[
+            { k: 'Vouchsafe', v: stats.fee.vouchsafe, cls: 'bg-brand-sage' },
+            { k: '크몽', v: stats.fee.kmong, cls: 'bg-ink-400' },
+          ].map((r) => (
+            <li key={r.k} className="grid grid-cols-[5rem_1fr_4.5rem] items-center gap-2 text-xs">
+              <span className={r.k === 'Vouchsafe' ? 'font-semibold text-brand-sage' : 'text-ink-700'}>{r.k}</span>
+              <span className="h-3 overflow-hidden rounded-full bg-surface-raised">
+                <span className={`block h-full rounded-full ${r.cls}`} style={{ width: `${(r.v / maxFee) * 100}%` }} />
+              </span>
+              <b className="text-right tabular-nums text-ink-900">{won(r.v)}</b>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 text-[11px] text-ink-400">
+          전문가가 냄 · 의뢰인 0원 · 거래가 안 되면 0원. 크몽은 표시 요율 19.7%(부가세 별도, 크몽 전문가센터 2024-08-20).
+        </p>
+      </div>
+    </section>
   );
 }

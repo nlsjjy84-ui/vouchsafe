@@ -53,7 +53,7 @@ describe('에스크로 거래 흐름 (e2e)', () => {
         domainType: 'DEV_CODE_REVIEW',
         title: '에스크로 거래 흐름 e2e 테스트',
         description: '등록→지원→선택→제출→승인 전 구간을 검증하는 시나리오입니다',
-        bountyAmount: 50000,
+        bountyAmount: 150000,
       })
       .expect(201);
     const bountyId = bountyRes.body.id;
@@ -141,7 +141,7 @@ describe('에스크로 거래 흐름 (e2e)', () => {
       .set('Authorization', `Bearer ${client.accessToken}`)
       .expect(200);
     expect(txRes.body.escrowStatus).toBe('SETTLED');
-    expect(Number(txRes.body.platformFeeAmount)).toBe(5000); // 50000원의 10%
+    expect(Number(txRes.body.platformFeeAmount)).toBe(22500); // 15만 원: 10만 원 15,000 + 1만 원마다 1,500 × 5
   });
 
   it('이 바운티의 의뢰인이 아닌 제3자가 지원자를 선택하려 하면 거부된다', async () => {
@@ -163,7 +163,7 @@ describe('에스크로 거래 흐름 (e2e)', () => {
         domainType: 'DEV_CODE_REVIEW',
         title: '제3자 권한 검증 테스트',
         description: '바운티 소유자가 아닌 사람이 선택을 시도하는 시나리오입니다',
-        bountyAmount: 30000,
+        bountyAmount: 120000,
       })
       .expect(201);
     const bountyId = bountyRes.body.id;

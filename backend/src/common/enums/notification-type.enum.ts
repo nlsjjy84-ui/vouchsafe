@@ -10,4 +10,5 @@ export enum NotificationType {
   CERTIFICATION_REVIEWED = 'CERTIFICATION_REVIEWED', // 신청자: 자격 인증 심사 결과
   NEW_BOUNTY_IN_FIELD = 'NEW_BOUNTY_IN_FIELD', // 전문가: 내 인증 분야에 새 프로젝트 등록 (맞춤 알림)
   APPLICATION_NOT_SELECTED = 'APPLICATION_NOT_SELECTED', // 전문가: 지원한 프로젝트에서 다른 전문가가 선정됨
+  OFFER_MESSAGE = 'OFFER_MESSAGE', // 전문가: 내 상품에 새 문의 / 의뢰인: 전문가 답변
 }

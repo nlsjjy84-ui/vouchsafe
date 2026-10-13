@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { calculatePlatformFee } from './settlement-fee.util';
 
 /**
  * 기획서 6장 "오픈뱅킹 에스크로 락업"의 Mock 구현.
@@ -39,8 +40,8 @@ export class MockEscrowService {
    * - 전문가 귀책 환불: 전액 환불, PG수수료는 플랫폼 충당금으로 보전
    */
   calculatePlatformFee(amount: number): number {
-    const FEE_RATE = 0.1; // 플랫폼 기본 수수료 10% (MVP 가정치 - 실제 요율은 사업 결정 필요)
-    return Math.floor(amount * FEE_RATE);
+    // 누진식(구간 시작 수수료 + 1만 원마다 추가금) — 계산식은 settlement-fee.util 한 곳에만 둔다
+    return calculatePlatformFee(Number(amount));
   }
 
   calculateClientCancelFee(amount: number): number {

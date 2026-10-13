@@ -1,4 +1,5 @@
 import { Test } from '@nestjs/testing';
+import { calculatePlatformFee } from '../src/mocks/settlement-fee.util';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { randomUUID } from 'crypto';
@@ -123,7 +124,7 @@ describe('Bounty escrow flow (e2e)', () => {
         domainType: DOMAIN,
         title: '자격 미보유 지원 차단 테스트용 임시 바운티',
         description: '이 바운티는 자격 인증 없는 사용자의 지원이 막히는지 확인하기 위한 임시 데이터입니다.',
-        bountyAmount: 50000,
+        bountyAmount: 150000,
       })
       .expect(201);
 
@@ -246,7 +247,7 @@ describe('Bounty escrow flow (e2e)', () => {
       .set('Authorization', `Bearer ${client.token}`)
       .expect(200);
 
-    const expectedFee = Math.floor(paymentAmount * 0.1);
+    const expectedFee = calculatePlatformFee(paymentAmount); // 20만 원 → 30,000원
     expect(txRes.body.escrowStatus).toBe('SETTLED');
     expect(Number(txRes.body.platformFeeAmount)).toBe(expectedFee);
     expect(Number(txRes.body.settledAmount)).toBe(paymentAmount);
