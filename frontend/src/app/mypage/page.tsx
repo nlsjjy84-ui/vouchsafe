@@ -19,6 +19,7 @@ import { AvatarModule } from '@/components/AvatarModule';
 import { jangdanDelay } from '@/lib/motion';
 import { MyRegionCard } from '@/components/MyRegionCard';
 import { MyAlertCard } from '@/components/MyAlertCard';
+import { PayoutAccountCard } from '@/components/PayoutAccountCard';
 
 const CERT_STATUS_LABEL: Record<'PENDING' | 'APPROVED' | 'REJECTED', string> = {
   PENDING: '심사중',
@@ -183,6 +184,8 @@ export default function MyPage() {
           </div>
         )}
       </section>)}
+
+      {asExpert && <PayoutAccountCard />}
     </div>
   );
 }

@@ -20,6 +20,7 @@ import { CommunityModule } from './modules/community/community.module';
 import { RegionsModule } from './modules/regions/regions.module';
 import { ExpertsModule } from './modules/experts/experts.module';
 import { OffersModule } from './modules/offers/offers.module';
+import { PayoutModule } from './modules/payout/payout.module';
 import { HealthController } from './health.controller';
 
 @Module({
@@ -80,6 +81,7 @@ import { HealthController } from './health.controller';
     RegionsModule,
     ExpertsModule,
     OffersModule,
+    PayoutModule,
   ],
   controllers: [HealthController],
   providers: [
