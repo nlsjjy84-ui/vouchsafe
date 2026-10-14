@@ -17,6 +17,7 @@ import {
   ChevronsRight,
   Store,
   Flag,
+  Banknote,
 } from 'lucide-react';
 import { JangdanMark } from './JangdanMark';
 import { useAuth } from '@/lib/auth-context';
@@ -122,6 +123,7 @@ const ADMIN_GROUP: NavGroup = {
   items: [
     { href: '/admin/disputes', label: '분쟁 중재', icon: Gavel, match: (p) => p.startsWith('/admin/disputes') },
     { href: '/admin/reports', label: '신고 처리', icon: Flag, match: (p) => p.startsWith('/admin/reports') },
+    { href: '/admin/payouts', label: '출금 처리', icon: Banknote, match: (p) => p.startsWith('/admin/payouts') },
   ],
 };
 

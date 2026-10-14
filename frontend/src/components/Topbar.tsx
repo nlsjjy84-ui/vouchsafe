@@ -23,6 +23,8 @@ const PAGE_TITLES: Array<{ test: (p: string) => boolean; title: string }> = [
   { test: (p) => p.startsWith('/certifications'), title: '전문가 인증' },
   { test: (p) => p.startsWith('/mypage'), title: '마이페이지' },
   { test: (p) => p.startsWith('/admin/disputes'), title: '분쟁 중재 (관리자)' },
+  { test: (p) => p.startsWith('/admin/reports'), title: '신고 처리 (관리자)' },
+  { test: (p) => p.startsWith('/admin/payouts'), title: '출금 처리 (관리자)' },
 ];
 
 export function Topbar({ onMenuClick }: { onMenuClick?: () => void } = {}) {
