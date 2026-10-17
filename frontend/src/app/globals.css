@@ -178,3 +178,139 @@ body {
     transform: none !important;
   }
 }
+
+/* ---------------- 첫 화면 랜딩: 스크롤하면 다음 화면으로 이어지며 계속 바뀐다 (2026-10-17) ----------------
+   뒤에는 3D 장단 기둥이 붙어 있고(sticky), 화면들은 그 위로 흘러간다. 먹(ink) 바탕에 황토 · 흙빛 · 세이지. 네모 없음. */
+.vs-landing { --vs-ink: #1c1410; --vs-paper: #f7f1e8; --vs-muted: rgba(247, 241, 232, 0.66); --vs-line: rgba(247, 241, 232, 0.16);
+  --vs-clay: #e0703a; --vs-gold: #e3a64a; --vs-sage: #a9c196; --vs-warn: #ef7b67;
+  position: relative; color: var(--vs-paper); background: var(--vs-ink); }
+.vs-landing, .vs-landing * { box-sizing: border-box; }
+.vs-landing a { color: inherit; }
+.vs-landing-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; z-index: 0; }
+.vs-landing-backdrop { position: absolute; inset: 0;
+  background: radial-gradient(ellipse 55% 65% at 60% 52%, rgba(227, 166, 74, 0.15), transparent 70%), radial-gradient(ellipse 40% 40% at 15% 90%, rgba(224, 112, 58, 0.09), transparent 70%), var(--vs-ink); }
+.vs-landing-scene { position: absolute; inset: 0; opacity: 0; transition: opacity 1.4s ease; }
+.vs-landing-scene.is-ready { opacity: 1; }
+.vs-landing-scene canvas { display: block; width: 100% !important; height: 100% !important; }
+.vs-landing-veil { position: absolute; inset: 0; pointer-events: none; transition: background 1.2s ease; }
+.vs-landing-veil[data-side="left"] { background: linear-gradient(90deg, rgba(28, 20, 16, 0.85) 0%, rgba(28, 20, 16, 0.3) 42%, transparent 68%); }
+.vs-landing-veil[data-side="right"] { background: linear-gradient(270deg, rgba(28, 20, 16, 0.85) 0%, rgba(28, 20, 16, 0.3) 42%, transparent 68%); }
+.vs-landing-veil[data-side="center"] { background: linear-gradient(180deg, rgba(28, 20, 16, 0.88) 0%, rgba(28, 20, 16, 0.55) 34%, transparent 60%); }
+
+.vs-landing-masthead { position: fixed; top: 0; left: 0; right: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; padding: 26px 6%;
+  background: linear-gradient(180deg, rgba(28, 20, 16, 0.7), transparent); }
+.vs-landing-brand { display: inline-flex; align-items: center; gap: .65rem; font-size: 1.2rem; font-weight: 600; letter-spacing: -.01em; }
+.vs-landing-top { display: flex; align-items: center; gap: 1.6rem; font-size: .9rem; }
+.vs-landing-top a { color: var(--vs-muted); padding: .3rem 0; transition: color .2s; }
+.vs-landing-top a:hover { color: var(--vs-paper); }
+.vs-landing-top .vs-landing-top-strong { color: var(--vs-paper); font-weight: 700; }
+.vs-landing-top .vs-landing-top-strong span { display: inline-block; color: var(--vs-gold); transition: translate .3s; }
+.vs-landing-top .vs-landing-top-strong:hover span { translate: 3px -3px; }
+
+/* 흘러가는 화면들 */
+.vs-landing-flow { position: relative; z-index: 2; margin-top: -100svh; }
+.vs-sec { position: relative; min-height: 100svh; display: flex; align-items: center; padding: 0 7%; }
+.vs-sec-hero { height: 100svh; }
+.vs-sec-problem { min-height: 150svh; align-items: flex-start; padding-top: 30svh; }
+.vs-sec-escrow { min-height: 130svh; justify-content: center; align-items: flex-start; padding-top: 22svh; }
+.vs-sec-approve { min-height: 130svh; }
+.vs-sec-final { min-height: 0; height: 100svh; justify-content: center; align-items: flex-start; padding-top: 22svh; }
+.vs-col { width: min(560px, 46%); }
+.vs-col-right { margin-left: auto; text-align: right; }
+.vs-col-center { margin: 0 auto; width: min(900px, 100%); text-align: center; }
+.vs-col-center .vs-landing-actions { justify-content: center; }
+.vs-sec h1, .vs-sec h2 { margin: 0; font-family: 'Gowun Batang', serif; font-size: clamp(2.1rem, 3.9vw, 3.9rem); line-height: 1.25; letter-spacing: -.03em; font-weight: 400; text-wrap: balance; color: var(--vs-muted); }
+.vs-sec h1 { font-weight: 700; color: var(--vs-paper); }
+.vs-sec h2 em { font-style: normal; font-weight: 700; color: var(--vs-paper); }
+.vs-sec .vs-huge { font-size: clamp(2.4rem, 5.6vw, 5.6rem); line-height: 1.18; }
+.vs-sec > .vs-col > p:not(.vs-kicker), .vs-col-center > p:not(.vs-kicker) { margin: 1.4rem 0 2.2rem; font-size: clamp(.98rem, 1.2vw, 1.12rem); line-height: 1.85; color: var(--vs-muted); }
+.vs-kicker { margin: 0 0 1.1rem; font-size: .8rem; letter-spacing: .22em; color: var(--vs-gold); }
+.vs-center { text-align: center; }
+.vs-landing-actions { display: flex; align-items: center; gap: 1.7rem; flex-wrap: wrap; }
+.vs-landing-action { display: inline-flex; align-items: center; gap: 1.1rem; border: 0; background: none; color: var(--vs-paper); font: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; padding: 0; }
+.vs-landing-action > span { position: relative; padding: .7rem 0; }
+.vs-landing-action > span::after { content: ""; position: absolute; left: 0; right: 0; bottom: .35rem; height: 1px; background: rgba(227, 166, 74, 0.7); transform-origin: left; transition: transform .4s; }
+.vs-landing-action i { width: 3rem; height: 3rem; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 1.25rem; background: var(--vs-clay); color: #fff; transition: transform .4s; }
+.vs-landing-action:hover i { transform: rotate(45deg); }
+.vs-landing-action:hover > span::after { transform: scaleX(.55); }
+.vs-landing-action:disabled, .vs-landing-link:disabled { opacity: .6; cursor: progress; }
+.vs-landing-link { border: 0; background: none; color: var(--vs-muted); font: inherit; font-size: .95rem; cursor: pointer; padding: .7rem 0; transition: color .2s; }
+.vs-landing-link:hover { color: var(--vs-paper); }
+.vs-landing-note { margin: 1rem 0 0; color: var(--vs-warn); font-size: .9rem; }
+.vs-scrollcue { position: absolute; left: 50%; bottom: 7svh; width: 1px; height: 64px; background: var(--vs-line); overflow: hidden; }
+.vs-scrollcue i { position: absolute; left: 0; top: -40%; width: 1px; height: 40%; background: var(--vs-gold); animation: vs-cue 2.2s ease-in-out infinite; }
+@keyframes vs-cue { to { top: 100%; } }
+
+/* 문제: 들은 말이 한 줄씩 쳐진다 */
+.vs-heard { margin-top: 3rem; display: grid; gap: 1.4rem; }
+.vs-heard p { margin: 0; min-height: 1.6em; font-family: 'Gowun Batang', serif; font-style: italic; font-size: clamp(1.1rem, 1.7vw, 1.55rem); color: rgba(247, 241, 232, 0.88); transition: opacity .3s; }
+.vs-heard p::before { content: ""; display: inline-block; width: .5rem; height: .5rem; border-radius: 50%; background: var(--vs-warn); box-shadow: 0 0 14px var(--vs-warn); margin-right: .7rem; vertical-align: .18em; }
+.vs-heard p:empty::before { display: none; }
+
+/* 자격 · 이력 · 신원: 세로 스크롤만큼 가로로 넘어간다 */
+.vs-sec-checks { display: block; padding: 0; height: 320svh; }
+.vs-hpin { position: sticky; top: 0; height: 100svh; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+.vs-hkicker { position: absolute; left: 7%; top: 18svh; }
+.vs-htrack { display: flex; width: max-content; will-change: transform; }
+.vs-hpanel { width: 62vw; padding: 0 7vw; flex: none; }
+.vs-hpanel-end { width: 40vw; }
+.vs-hno { display: block; font-size: .85rem; letter-spacing: .2em; color: var(--vs-gold); margin-bottom: 1rem; }
+.vs-hpanel h3 { margin: 0; font-family: 'Gowun Batang', serif; font-size: clamp(4.5rem, 12vw, 11rem); line-height: 1; font-weight: 700; letter-spacing: -.04em; color: var(--vs-paper); }
+.vs-hpanel p { margin: 1.6rem 0 0; max-width: 26em; font-size: clamp(1rem, 1.3vw, 1.2rem); line-height: 1.8; color: var(--vs-muted); }
+
+/* 숫자 띠 */
+.vs-sec-numbers { justify-content: center; }
+.vs-numbers { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(2rem, 7vw, 7rem); width: 100%; }
+.vs-number { display: grid; gap: .5rem; text-align: center; min-width: 0; }
+.vs-number strong { font-family: 'Gowun Batang', serif; font-size: clamp(3.4rem, 7.5vw, 7rem); font-weight: 700; line-height: 1; color: var(--vs-gold); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+.vs-number strong b { font-weight: inherit; }
+.vs-number strong small { font-size: .38em; margin-left: .15em; color: var(--vs-paper); }
+.vs-number span { font-size: .98rem; color: var(--vs-paper); }
+.vs-number em { font-style: normal; font-size: .82rem; color: var(--vs-muted); }
+
+/* 15개 분야: 두 줄이 서로 반대로 흐른다 */
+.vs-sec-fields { display: block; padding: 22svh 0; min-height: 90svh; }
+.vs-flow-row { overflow: hidden; padding: .4rem 0; -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+.vs-flow-row > div { display: flex; width: max-content; animation: vs-marquee 70s linear infinite; }
+.vs-flow-row.is-reverse > div { animation-direction: reverse; animation-duration: 80s; }
+.vs-flow-row span { display: flex; gap: 3rem; padding-right: 3rem; }
+.vs-flow-row em { font-style: normal; font-family: 'Gowun Batang', serif; font-size: clamp(1.6rem, 3.4vw, 3rem); color: rgba(247, 241, 232, 0.82); white-space: nowrap; }
+.vs-flow-row.is-reverse em { color: rgba(247, 241, 232, 0.32); }
+.vs-flow-row em::before { content: "\25C6"; font-size: .3em; color: var(--vs-clay); margin-right: 1.2rem; vertical-align: .55em; }
+@keyframes vs-marquee { to { transform: translateX(-50%); } }
+
+.vs-landing-foot { position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%); display: flex; gap: 1.2rem; font-size: .78rem; color: var(--vs-muted); white-space: nowrap; }
+.vs-landing-foot a { color: var(--vs-muted); } .vs-landing-foot a:hover { color: var(--vs-paper); }
+
+/* 화면 아래 고정: 장단 이름 · 진행 · 멈춤 */
+.vs-landing-hud { position: fixed; left: 7%; bottom: 28px; z-index: 20; pointer-events: none; }
+.vs-landing-rhythm { margin: 0 0 .7rem; font-size: .78rem; letter-spacing: .08em; color: rgba(247, 241, 232, 0.45); }
+.vs-landing-rhythm span { margin-left: .5rem; font-family: 'Gowun Batang', serif; font-size: 1rem; letter-spacing: 0; color: var(--vs-gold); }
+.vs-landing-progress { display: flex; gap: .4rem; }
+.vs-landing-progress i { width: 1.4rem; height: 2px; background: var(--vs-line); transition: background .4s; }
+.vs-landing-progress i.on { background: var(--vs-gold); }
+.vs-landing-motion { position: fixed; right: 6%; bottom: 24px; z-index: 20; width: 2.5rem; height: 2.5rem; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--vs-line);
+  background: rgba(28, 20, 16, 0.4); color: var(--vs-muted); cursor: pointer; backdrop-filter: blur(8px); }
+.vs-landing-motion svg { width: 1rem; stroke: currentColor; stroke-width: 1.5; fill: currentColor; }
+
+@media (max-width: 760px) {
+  .vs-landing-masthead { padding: 18px 6%; }
+  .vs-landing-top { gap: 1rem; font-size: .85rem; } .vs-landing-top a:not(.vs-landing-top-strong):not([href="/login"]) { display: none; }
+  .vs-sec { padding: 0 7%; align-items: flex-end; padding-bottom: 20svh; }
+  .vs-sec-final { align-items: flex-start; padding-top: 52svh; padding-bottom: 0; }
+  .vs-sec-problem { padding-top: 0; align-items: flex-end; }
+  .vs-col, .vs-col-right { width: 100%; text-align: left; margin: 0; }
+  .vs-col-center { text-align: center; }
+  .vs-sec h1, .vs-sec h2 { font-size: 2.05rem; }
+  .vs-sec .vs-huge { font-size: 2.3rem; }
+  .vs-landing-veil[data-side] { background: linear-gradient(0deg, rgba(28, 20, 16, 0.94) 0%, rgba(28, 20, 16, 0.6) 48%, transparent 72%); }
+  .vs-hpanel { width: 86vw; padding: 0 7vw; }
+  .vs-hpanel h3 { font-size: 5rem; }
+  .vs-hkicker { top: 14svh; }
+  .vs-sec-checks .vs-hpin { justify-content: flex-end; padding-bottom: 22svh; }
+  .vs-numbers { flex-direction: column; gap: 2.4rem; }
+  .vs-sec-numbers, .vs-sec-fields { align-items: center; padding-bottom: 0; }
+  .vs-landing-foot { display: none; }
+  .vs-landing-hud { bottom: 18px; } .vs-landing-motion { bottom: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .vs-landing-scene { transition: none; } .vs-flow-row > div, .vs-scrollcue i { animation: none; } }

@@ -56,6 +56,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     });
   }
 
+  // 첫 화면 랜딩은 머리글까지 장면 안에 들어 있는 전체 화면이라 바깥 틀을 씌우지 않는다.
+  if (!loading && !user && pathname === '/') {
+    return <>{children}</>;
+  }
+
   if (loading || !user) {
     return (
       <>
