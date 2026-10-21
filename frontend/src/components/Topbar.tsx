@@ -30,7 +30,7 @@ const PAGE_TITLES: Array<{ test: (p: string) => boolean; title: string }> = [
 export function Topbar({ onMenuClick }: { onMenuClick?: () => void } = {}) {
   const { user, logout } = useAuth();
   const pathname = usePathname() ?? '';
-  const title = PAGE_TITLES.find((p) => p.test(pathname))?.title ?? 'Vouchsafe';
+  const title = PAGE_TITLES.find((p) => p.test(pathname))?.title ?? 'CREDO';
 
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-hairline bg-surface-canvas/95 px-4 backdrop-blur">

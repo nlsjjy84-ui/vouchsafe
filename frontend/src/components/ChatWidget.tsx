@@ -56,7 +56,7 @@ const RULES: Array<{ keywords: string[]; answer: string }> = [
   },
   {
     keywords: ['안녕', 'hi', 'hello', '반가'],
-    answer: '안녕하세요! Vouchsafe 도우미예요. 프로젝트, 에스크로, 전문가 인증, AI 인사이트 등 무엇이든 물어보세요.',
+    answer: '안녕하세요! CREDO 도우미예요. 프로젝트, 에스크로, 전문가 인증, AI 인사이트 등 무엇이든 물어보세요.',
   },
 ];
 
@@ -75,7 +75,7 @@ export function ChatWidget() {
     {
       id: 0,
       role: 'bot',
-      text: '안녕하세요! Vouchsafe AI 도우미예요. 에스크로, 이의제기, 전문가 인증, AI 인사이트 등 궁금한 걸 물어보세요.',
+      text: '안녕하세요! CREDO AI 도우미예요. 에스크로, 이의제기, 전문가 인증, AI 인사이트 등 궁금한 걸 물어보세요.',
     },
   ]);
   const [input, setInput] = useState('');
@@ -110,7 +110,7 @@ export function ChatWidget() {
         <div className="fixed bottom-24 right-6 z-40 flex h-[28rem] w-80 flex-col overflow-hidden rounded-2xl border border-hairline bg-surface-canvas shadow-float">
           <div className="flex items-center gap-2.5 bg-brand-ink px-4 py-3 text-white">
             <JangdanMark size={14} variant="dark" />
-            <span className="text-sm font-semibold">Vouchsafe AI 도우미</span>
+            <span className="text-sm font-semibold">CREDO AI 도우미</span>
           </div>
           <div className="flex-1 space-y-2 overflow-y-auto px-3 py-3">
             {messages.map((m) => (

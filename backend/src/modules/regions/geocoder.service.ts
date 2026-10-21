@@ -52,7 +52,7 @@ export class GeocoderService {
       const ctl = new AbortController();
       const timer = setTimeout(() => ctl.abort(), 4000);
       const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=kr&accept-language=ko&q=${encodeURIComponent(q)}`;
-      const res = await fetch(url, { signal: ctl.signal, headers: { 'User-Agent': 'Vouchsafe-portfolio-demo/1.0' } });
+      const res = await fetch(url, { signal: ctl.signal, headers: { 'User-Agent': 'CREDO-portfolio-demo/1.0' } });
       clearTimeout(timer);
       if (!res.ok) return null;
       const data = (await res.json()) as { lat: string; lon: string }[];

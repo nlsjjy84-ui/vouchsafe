@@ -157,7 +157,7 @@ export default function ConceptBPage() {
 
       {/* 핵심 가치 - 에디토리얼 인덱스 */}
       <section className="px-6 py-16 sm:px-10">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#666]">Why Vouchsafe</p>
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#666]">Why CREDO</p>
         <div className="mt-6 divide-y divide-[#111] border-t border-[#111]">
           {INDEX_ITEMS.map((item) => (
             <div key={item.n} className="grid grid-cols-[auto,1fr] items-baseline gap-x-6 py-7 sm:grid-cols-[80px,1fr,1fr]">

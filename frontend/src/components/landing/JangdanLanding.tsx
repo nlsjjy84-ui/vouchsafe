@@ -277,9 +277,9 @@ export function JangdanLanding({ stats }: { stats: LandingStats | null }) {
       </div>
 
       <header className="vs-landing-masthead">
-        <Link className="vs-landing-brand" href="/" aria-label="Vouchsafe 처음으로">
+        <Link className="vs-landing-brand" href="/" aria-label="CREDO 처음으로">
           <JangdanMark size={20} variant="dark" />
-          <span>Vouchsafe</span>
+          <span>CREDO</span>
         </Link>
         <nav className="vs-landing-top" aria-label="둘러보기">
           <Link href="/offers">전문가 상품</Link>
@@ -429,7 +429,7 @@ export function JangdanLanding({ stats }: { stats: LandingStats | null }) {
             </h2>
             {actions(true)}
           </div>
-          <nav className="vs-landing-foot" aria-label="Vouchsafe 안내">
+          <nav className="vs-landing-foot" aria-label="CREDO 안내">
             <Link href="/community">커뮤니티</Link>
             <Link href="/map">지역 찾기</Link>
             <Link href="/matching">AI 매칭</Link>

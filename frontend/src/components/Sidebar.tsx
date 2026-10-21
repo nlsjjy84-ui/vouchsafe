@@ -154,7 +154,7 @@ export function Sidebar({
     >
       <div className="flex h-14 items-center gap-2.5 border-b border-hairline px-4">
         <JangdanMark size={18} variant="light" />
-        {!collapsed && <span className="truncate font-display text-base tracking-wide text-ink-900">Vouchsafe</span>}
+        {!collapsed && <span className="truncate font-display text-base tracking-wide text-ink-900">CREDO</span>}
       </div>
 
       <nav className="flex-1 space-y-5 overflow-y-auto px-2 py-4">

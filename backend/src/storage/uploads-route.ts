@@ -9,7 +9,7 @@ import { contentTypeForExt, isInlineSafe } from './content-types';
  */
 function placeholderPdf(label: string): Buffer {
   const safe = label.replace(/[^A-Za-z0-9 ._-]/g, '');
-  const stream = `BT /F1 20 Tf 60 740 Td (Vouchsafe demo file) Tj 0 -32 Td /F1 12 Tf (${safe}) Tj 0 -24 Td (Sample deliverable for demonstration.) Tj ET`;
+  const stream = `BT /F1 20 Tf 60 740 Td (CREDO demo file) Tj 0 -32 Td /F1 12 Tf (${safe}) Tj 0 -24 Td (Sample deliverable for demonstration.) Tj ET`;
   const objs = [
     '<< /Type /Catalog /Pages 2 0 R >>',
     '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',

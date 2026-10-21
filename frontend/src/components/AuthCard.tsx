@@ -25,7 +25,7 @@ export function AuthCard({
         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-ink">
           <JangdanMark size={18} variant="dark" />
         </span>
-        <span className="font-display text-xl tracking-wide text-ink-900">Vouchsafe</span>
+        <span className="font-display text-xl tracking-wide text-ink-900">CREDO</span>
       </Link>
 
       <div className="rounded-4xl border border-hairline bg-surface-canvas p-8 shadow-bloom">

@@ -39,7 +39,7 @@ export function Navbar() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <Link href="/bounties" className="flex items-center gap-2.5">
           <JangdanMark size={18} variant="dark" />
-          <span className="text-lg font-semibold">Vouchsafe</span>
+          <span className="text-lg font-semibold">CREDO</span>
         </Link>
 
         <nav className="hidden items-center gap-4 whitespace-nowrap text-sm md:flex">

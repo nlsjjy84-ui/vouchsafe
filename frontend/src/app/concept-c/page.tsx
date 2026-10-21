@@ -93,7 +93,7 @@ export default function ConceptCPage() {
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#241a14] font-serifAccent text-sm text-[#f7f1e8]">
             VS
           </span>
-          <span className="font-serifAccent text-lg">Vouchsafe</span>
+          <span className="font-serifAccent text-lg">CREDO</span>
         </span>
         <nav className="flex items-center gap-3 text-sm">
           <span className="hidden sm:inline text-[#241a14]/70">프로젝트</span>
@@ -169,7 +169,7 @@ export default function ConceptCPage() {
 
       {/* 핵심 가치 - 3색 로테이션 카드 (clay/ink/sage) - 한 색만 우려먹지 않기 */}
       <section className="px-6 py-20 sm:px-10">
-        <p className="font-serifAccent text-2xl text-center">왜 Vouchsafe일까요</p>
+        <p className="font-serifAccent text-2xl text-center">왜 CREDO일까요</p>
         <div className="mx-auto mt-10 grid max-w-5xl gap-6 sm:grid-cols-3">
           {FEATURES.map((f) => {
             const tone = TONE_STYLES[f.tone];

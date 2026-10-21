@@ -64,7 +64,7 @@ export default function LoginPage() {
   return (
     <AuthCard
       title="로그인"
-      subtitle="검증된 전문가와 의뢰인을 잇는 Vouchsafe에 오신 걸 환영해요"
+      subtitle="검증된 전문가와 의뢰인을 잇는 CREDO에 오신 걸 환영해요"
       footer={
         <div className="flex items-center justify-between">
           <span>
