@@ -116,6 +116,11 @@ export default function PublicCasesPage() {
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-28 animate-pulse rounded-4xl bg-surface-raised" />
           ))}
+          {/* 무료 서버 콜드스타트 안내 (2026-10-28) — 랜딩과 같은 말투로, 빈 스켈레톤만 보고
+              "고장났나" 오해하지 않도록 한 줄 안내를 둔다. */}
+          <p className="pt-1 text-center text-xs text-ink-400">
+            무료 서버라 처음 열 때 10~20초쯤 걸릴 수 있어요. 잠시만 기다려 주세요.
+          </p>
         </div>
       )}
 
