@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { DemoButtons } from '@/components/DemoButtons';
 import { PenSquare, ImagePlus, X } from 'lucide-react';
 import { api, extractErrorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -71,6 +72,7 @@ export default function NewPostPage() {
       <div className="mx-auto max-w-xl rounded-4xl border border-hairline bg-surface-canvas p-8 text-center">
         <p className="text-sm text-ink-600">글을 쓰려면 로그인이 필요해요.</p>
         <Link href="/login" className="mt-3 inline-block text-sm font-semibold text-brand-clay hover:underline">로그인하러 가기</Link>
+        <div className="mt-5"><DemoButtons tone="light" stayHere center /></div>
       </div>
     );
   }

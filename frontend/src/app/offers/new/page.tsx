@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { DemoButtons } from '@/components/DemoButtons';
 import { BadgeCheck, PackagePlus } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -32,9 +33,12 @@ export default function NewOfferPage() {
   if (loading) return null;
   if (!user) {
     return (
-      <p className="text-sm text-ink-500">
-        <Link href="/login" className="font-semibold text-brand-sage">로그인</Link>한 뒤에 상품을 올릴 수 있어요.
-      </p>
+      <div className="space-y-4">
+        <p className="text-sm text-ink-500">
+          <Link href="/login" className="font-semibold text-brand-sage">로그인</Link>한 뒤에 상품을 올릴 수 있어요.
+        </p>
+        <DemoButtons tone="light" stayHere />
+      </div>
     );
   }
 

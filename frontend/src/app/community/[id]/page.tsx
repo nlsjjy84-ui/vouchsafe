@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { DemoButtons } from '@/components/DemoButtons';
 import { ArrowLeft, Eye, Heart, MessageSquare, Trash2, CornerDownRight, BadgeCheck, X } from 'lucide-react';
 import { api, extractErrorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -269,9 +270,10 @@ export default function PostDetailPage() {
             <CommentBox placeholder="댓글을 입력하세요 (전문가 인증을 받은 분야의 글이면 '전문가 답변'으로 표시돼요)" onSubmit={(t) => addComment(t)} />
           </div>
         ) : (
-          <p className="rounded-3xl border border-dashed border-hairline-strong bg-surface-canvas p-4 text-center text-sm text-ink-500">
-            댓글을 쓰려면 <Link href="/login" className="font-semibold text-brand-clay hover:underline">로그인</Link>이 필요해요.
-          </p>
+          <div className="rounded-3xl border border-dashed border-hairline-strong bg-surface-canvas p-4 text-center text-sm text-ink-500">
+            <p>댓글을 쓰려면 <Link href="/login" className="font-semibold text-brand-clay hover:underline">로그인</Link>이 필요해요.</p>
+            <div className="mt-3"><DemoButtons tone="light" stayHere center /></div>
+          </div>
         )}
       </section>
 

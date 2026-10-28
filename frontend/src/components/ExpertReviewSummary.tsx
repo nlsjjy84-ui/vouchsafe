@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { DemoButtons } from './DemoButtons';
 import { Quote, Sparkles } from 'lucide-react';
 import { api, extractErrorMessage } from '@/lib/api';
 import { ReviewSummaryResponse } from '@/lib/ai-types';
@@ -41,7 +42,10 @@ export function ExpertReviewSummary({ expertId }: { expertId: string }) {
             {busy ? '요약 중…' : data ? 'AI 요약 다시 보기' : 'AI로 후기 요약 보기'}
           </Button>
         ) : (
-          <p className="text-xs text-ink-500">로그인하면 AI가 후기를 요약해 드려요.</p>
+          <div className="w-full">
+            <p className="text-xs text-ink-500">로그인하면 AI가 후기를 요약해 드려요.</p>
+            <div className="mt-2"><DemoButtons tone="light" stayHere /></div>
+          </div>
         )}
         <AiBadge meta={data?.meta} />
       </div>

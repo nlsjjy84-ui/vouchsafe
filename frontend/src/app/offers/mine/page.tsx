@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { DemoButtons } from '@/components/DemoButtons';
 import { LayoutList, MessageSquare, PackagePlus, PenSquare, ShoppingBag, Star } from 'lucide-react';
 import { api, extractErrorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -46,9 +47,12 @@ export default function MyOffersPage() {
   if (loading) return null;
   if (!user) {
     return (
-      <p className="text-sm text-ink-500">
-        <Link href="/login" className="font-semibold text-brand-sage">로그인</Link>한 뒤에 볼 수 있어요.
-      </p>
+      <div className="space-y-4">
+        <p className="text-sm text-ink-500">
+          <Link href="/login" className="font-semibold text-brand-sage">로그인</Link>한 뒤에 볼 수 있어요.
+        </p>
+        <DemoButtons tone="light" stayHere />
+      </div>
     );
   }
 

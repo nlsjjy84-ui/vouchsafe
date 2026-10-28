@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { DemoButtons } from '@/components/DemoButtons';
 import { Sparkles, UsersRound, Briefcase, Info, ArrowRight, Search } from 'lucide-react';
 import { api, extractErrorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -66,6 +67,7 @@ export default function MatchingPage() {
         <div className="mt-6 rounded-4xl border border-dashed border-hairline-strong bg-surface-canvas p-10 text-center">
           <p className="text-sm text-ink-600">매칭 추천은 로그인 후에 받을 수 있어요.</p>
           <Link href="/login" className="mt-3 inline-block text-sm font-semibold text-brand-clay hover:underline">로그인하러 가기</Link>
+          <div className="mt-5"><DemoButtons tone="light" stayHere center /></div>
         </div>
       )}
 

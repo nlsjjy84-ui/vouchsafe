@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { DemoButtons } from '@/components/DemoButtons';
 import { ArrowLeft, BadgeCheck, Clock, Lock, MapPin, MessageSquare, PenSquare, ShieldCheck, Star } from 'lucide-react';
 import { api, extractErrorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -158,9 +159,12 @@ export default function OfferDetailPage() {
               </div>
             )}
             {!user && !closed && (
-              <Link href="/login" className="mt-4 block rounded-full bg-brand-sage px-4 py-2.5 text-center text-sm font-semibold text-white">
-                로그인하고 의뢰하기
-              </Link>
+              <>
+                <Link href="/login" className="mt-4 block rounded-full bg-brand-sage px-4 py-2.5 text-center text-sm font-semibold text-white">
+                  로그인하고 의뢰하기
+                </Link>
+                <div className="mt-3"><DemoButtons tone="light" stayHere /></div>
+              </>
             )}
             {mine && (
               <div className="mt-4 flex gap-2">
@@ -288,9 +292,12 @@ export default function OfferDetailPage() {
           </form>
         ) : (
           !user && (
-            <Link href="/login" className="mt-4 inline-block text-sm font-medium text-brand-sage hover:underline">
-              로그인하고 문의하기
-            </Link>
+            <>
+              <Link href="/login" className="mt-4 inline-block text-sm font-medium text-brand-sage hover:underline">
+                로그인하고 문의하기
+              </Link>
+              <div className="mt-3"><DemoButtons tone="light" stayHere /></div>
+            </>
           )
         )}
       </section>
