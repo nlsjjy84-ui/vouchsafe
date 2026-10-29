@@ -100,12 +100,12 @@ export default function MapPage() {
           <option value="">전체 시/도</option>
           {facets.map((f) => <option key={f.name} value={f.name}>{f.name} ({f.count})</option>)}
         </select>
-        <select className={sel} value={sigungu} disabled={!sidoNode} onChange={(e) => { setSigungu(e.target.value); setDong(''); }}>
-          <option value="">전체 시/군/구</option>
+        <select className={sel} value={sigungu} onChange={(e) => { setSigungu(e.target.value); setDong(''); }}>
+          <option value="">{sidoNode ? '전체 시/군/구' : '시/군/구 (시/도를 먼저 고르세요)'}</option>
           {sidoNode?.children.map((f) => <option key={f.name} value={f.name}>{f.name} ({f.count})</option>)}
         </select>
-        <select className={sel} value={dong} disabled={!sigunguNode} onChange={(e) => setDong(e.target.value)}>
-          <option value="">전체 동</option>
+        <select className={sel} value={dong} onChange={(e) => setDong(e.target.value)}>
+          <option value="">{sigunguNode ? '전체 동' : '동 (시/군/구를 먼저 고르세요)'}</option>
           {sigunguNode?.children.map((f) => <option key={f.name} value={f.name}>{f.name} ({f.count})</option>)}
         </select>
         <select className={sel} value={domain} onChange={(e) => setDomain(e.target.value)}>

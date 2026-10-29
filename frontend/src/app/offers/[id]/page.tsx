@@ -43,7 +43,7 @@ export default function OfferDetailPage() {
 
   async function ask(e: React.FormEvent) {
     e.preventDefault();
-    if (!text.trim()) return;
+    if (!text.trim()) { setErr('궁금한 점을 한 줄 적어 주세요. 예: 일정은 얼마나 걸리나요?'); return; }
     setBusy('ask');
     setErr(null);
     try {
@@ -283,7 +283,7 @@ export default function OfferDetailPage() {
             <div className="flex justify-end">
               <button
                 type="submit"
-                disabled={busy !== null || !text.trim()}
+                disabled={busy !== null}
                 className="rounded-full bg-brand-ink px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
               >
                 {busy === 'ask' ? '남기는 중…' : mine ? '답변 남기기' : '문의 남기기'}

@@ -164,8 +164,8 @@ export function AiAssistantPanel({ bountyId, status, domainType, amount, isOwner
               ))}
               <div className="flex flex-wrap gap-2">
                 {draftTexts.length < 10 && <Button tone="navy" variant="outline" size="sm" onClick={() => setDraftTexts([...draftTexts, ''])}>항목 추가</Button>}
-                <Button tone="teal" size="sm" disabled={busy === 'confirm' || draftTexts.every((t) => !t.trim())}
-                  onClick={() => run('confirm', async () => (await api.put(`/ai/bounties/${bountyId}/requirements`, { items: draftTexts.filter((t) => t.trim()) })).data,
+                <Button tone="teal" size="sm" disabled={busy === 'confirm'}
+                  onClick={() => draftTexts.every((t) => !t.trim()) ? setError('항목을 하나 이상 적어 주세요. 「항목 추가」로 칸을 늘릴 수 있어요.') : run('confirm', async () => (await api.put(`/ai/bounties/${bountyId}/requirements`, { items: draftTexts.filter((t) => t.trim()) })).data,
                     () => { setDraftTexts(null); loadReq(); })}>
                   {busy === 'confirm' ? '확정 중…' : '이 내용으로 확정'}
                 </Button>

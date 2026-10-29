@@ -148,7 +148,7 @@ function ClientMatching() {
   }, []);
 
   async function run() {
-    if (!selected) return;
+    if (!selected) { setError('위 목록에서 프로젝트를 하나 골라 주세요.'); return; }
     setBusy(true);
     setError('');
     try {
@@ -162,10 +162,13 @@ function ClientMatching() {
   }
 
   async function runText() {
+    // 막지 않는다: 글이 너무 짧으면 첫 예시를 넣어 바로 추천해 본다.
+    const query = text.trim().length >= 8 ? text : EXAMPLES[0].text;
+    if (query !== text) setText(query);
     setTextBusy(true);
     setTextError('');
     try {
-      const res = await api.post<TextMatch>('/ai/expert-recommendations/by-text', { text, ...(domain ? { domainType: domain } : {}) });
+      const res = await api.post<TextMatch>('/ai/expert-recommendations/by-text', { text: query, ...(domain ? { domainType: domain } : {}) });
       setTextResult(res.data);
     } catch (e) {
       setTextError(extractErrorMessage(e));
@@ -214,7 +217,7 @@ function ClientMatching() {
               <option key={v} value={v}>{l}</option>
             ))}
           </select>
-          <Button tone="teal" variant="solid" size="sm" disabled={textBusy || text.trim().length < 8} onClick={runText}>
+          <Button tone="teal" variant="solid" size="sm" disabled={textBusy} onClick={runText}>
             {textBusy ? '찾는 중…' : '전문가 추천받기'}
           </Button>
           {textResult?.meta && <AiBadge meta={textResult.meta} />}
@@ -270,7 +273,7 @@ function ClientMatching() {
               {shown.length === 0 && <li className="text-sm text-ink-500">검색 결과가 없어요.</li>}
             </ul>
             <div className="mt-4 flex flex-wrap items-center gap-3">
-              <Button tone="teal" variant="solid" size="sm" disabled={busy || !selected} onClick={run}>
+              <Button tone="teal" variant="solid" size="sm" disabled={busy} onClick={run}>
                 {busy ? '찾는 중…' : '전문가 추천받기'}
               </Button>
               {selected && (

@@ -486,6 +486,7 @@ function SafeNumberSection({ bountyId }: { bountyId: string }) {
   }
 
   async function handleRegisterPhone() {
+    if (!myPhone.trim()) { setError('전화번호를 등록하지 않았어요. 위 칸에 내 휴대폰 번호를 적어 주세요. 예: 010-1234-5678'); return; }
     setBusy(true);
     setError(null);
     try {
@@ -521,7 +522,7 @@ function SafeNumberSection({ bountyId }: { bountyId: string }) {
             value={myPhone}
             onChange={(e) => setMyPhone(e.target.value)}
           />
-          <Button size="sm" onClick={handleRegisterPhone} disabled={busy || !myPhone} tone="navy" variant="solid">
+          <Button size="sm" onClick={handleRegisterPhone} disabled={busy} tone="navy" variant="solid">
             내 번호 등록하고 다시 시도
           </Button>
         </div>

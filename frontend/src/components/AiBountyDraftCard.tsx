@@ -30,11 +30,15 @@ export function AiBountyDraftCard({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
+  // 막지 않는다: 10자보다 짧으면 예시 문장을 넣어 바로 초안을 만들어 본다.
+  const SAMPLE_IDEA = '이번 주말에 중고차 3대를 보러 가는데, 엔진 상태랑 사고 이력을 같이 봐줄 사람이 필요해요.';
   async function run() {
+    const text = idea.trim().length >= 10 ? idea : SAMPLE_IDEA;
+    if (text !== idea) setIdea(text);
     setBusy(true);
     setError('');
     try {
-      const res = await api.post<BountyDraftResponse>('/ai/bounty-draft', { idea, serviceType });
+      const res = await api.post<BountyDraftResponse>('/ai/bounty-draft', { idea: text, serviceType });
       setData(res.data);
       onApply({
         domainType: (res.data.draft.domainType as DomainType | null) ?? null,
@@ -64,11 +68,11 @@ export function AiBountyDraftCard({
         className={`${FIELD_INPUT_CLASS} mt-3 resize-y bg-surface-canvas`}
       />
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <Button type="button" tone="navy" variant="soft" size="sm" disabled={busy || idea.trim().length < 10} onClick={run}>
+        <Button type="button" tone="navy" variant="soft" size="sm" disabled={busy} onClick={run}>
           {busy ? '만드는 중…' : data ? '초안 다시 만들기' : '초안 만들기'}
         </Button>
         <AiBadge meta={data?.meta} />
-        <span className="text-[11px] text-ink-400">{idea.trim().length < 10 ? '10자 이상 적어 주세요' : `${idea.length} / 800`}</span>
+        <span className="text-[11px] text-ink-400">{idea.trim().length < 10 ? '비워 두고 누르면 예시로 만들어 봐요' : `${idea.length} / 800`}</span>
       </div>
       {error && <p className="mt-2 text-xs text-brand-red">{error}</p>}
 

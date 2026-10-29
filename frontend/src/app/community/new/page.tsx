@@ -50,6 +50,8 @@ export default function NewPostPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    // 막지 않는다: 빈칸이면 무엇을 채우면 되는지 알려 준다.
+    if (!title.trim() || !content.trim()) { setError(!title.trim() ? '제목을 적어 주세요.' : '내용을 적어 주세요.'); return; }
     setSubmitting(true);
     try {
       const fd = new FormData();
@@ -144,7 +146,7 @@ export default function NewPostPage() {
         </div>
 
         {error && <FormErrorText>{error}</FormErrorText>}
-        <FormSubmitButton disabled={submitting || !title.trim() || !content.trim()}>
+        <FormSubmitButton disabled={submitting}>
           {submitting ? '등록 중...' : '등록하기'}
         </FormSubmitButton>
       </form>

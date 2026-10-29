@@ -29,7 +29,7 @@ function CommentBox({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!text.trim()) return;
+    if (!text.trim()) { setErr('댓글 내용을 적어 주세요.'); return; }
     setBusy(true);
     setErr(null);
     try {
@@ -62,7 +62,7 @@ function CommentBox({
         )}
         <button
           type="submit"
-          disabled={busy || !text.trim()}
+          disabled={busy}
           className="rounded-full bg-brand-clay px-4 py-1.5 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-40"
         >
           {busy ? '등록 중...' : '등록'}

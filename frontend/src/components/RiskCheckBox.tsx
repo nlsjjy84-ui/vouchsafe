@@ -33,6 +33,8 @@ export function RiskCheckBox({ text, kind }: { text: string; kind: 'BOUNTY' | 'A
   const [error, setError] = useState('');
 
   async function run() {
+    // 막지 않는다: 글이 비어 있으면 무엇을 먼저 하면 되는지 알려 준다.
+    if (text.trim().length === 0) { setError(kind === 'BOUNTY' ? '아래 상세 내용을 먼저 적거나 위 「초안 만들기」를 눌러 주세요. 그 글을 점검해 드려요.' : '지원 내용을 먼저 적어 주세요. 그 글을 점검해 드려요.'); return; }
     setBusy(true);
     setError('');
     try {
@@ -49,7 +51,7 @@ export function RiskCheckBox({ text, kind }: { text: string; kind: 'BOUNTY' | 'A
   return (
     <div data-guide="risk-check" className="rounded-xl border border-hairline bg-surface-raised p-3">
       <div className="flex flex-wrap items-center gap-2">
-        <Button type="button" tone="navy" variant="soft" size="sm" disabled={busy || text.trim().length === 0} onClick={run}>
+        <Button type="button" tone="navy" variant="soft" size="sm" disabled={busy} onClick={run}>
           <ShieldCheck size={13} className="mr-1 inline" />
           {busy ? '점검 중…' : data ? '다시 점검' : '위험 신호 점검'}
         </Button>
