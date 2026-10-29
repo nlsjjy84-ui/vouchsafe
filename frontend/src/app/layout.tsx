@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 import { AppShell } from '@/components/AppShell';
@@ -47,6 +48,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* AI 길 안내: 버튼을 감싸는 커서 + 번지는 빛 + 글 설명 (2026-10-29) */}
           <AiGuide />
         </AuthProvider>
+        {/* 포트폴리오로 돌아가기: 어느 화면에서든 노션 포트폴리오 첫 화면으로 (2026-10-30) */}
+        <Script src="/pf-back.js" strategy="afterInteractive" />
       </body>
     </html>
   );
