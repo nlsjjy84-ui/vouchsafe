@@ -182,12 +182,13 @@ function ClientMatching() {
 
   return (
     <>
-      <section className="mt-6 rounded-4xl border border-hairline bg-surface-raised p-5">
+      <section data-guide="match-text" className="mt-6 rounded-4xl border border-hairline bg-surface-raised p-5">
         <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
           <Search size={16} /> 맡기고 싶은 일을 적어서 찾기
         </h2>
         <p className="mt-1 text-xs text-ink-500">프로젝트를 등록하지 않아도 돼요. 분야를 비워 두면 적은 내용으로 분야를 골라요. 적은 내용은 저장되지 않아요.</p>
         <textarea
+          id="match-text"
           className={`${FIELD_INPUT_CLASS} mt-3 h-24`}
           value={text}
           maxLength={1000}

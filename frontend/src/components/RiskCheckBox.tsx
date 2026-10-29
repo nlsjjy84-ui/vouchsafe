@@ -47,7 +47,7 @@ export function RiskCheckBox({ text, kind }: { text: string; kind: 'BOUNTY' | 'A
 
   const lv = data ? LEVEL_META[data.level] : null;
   return (
-    <div className="rounded-xl border border-hairline bg-surface-raised p-3">
+    <div data-guide="risk-check" className="rounded-xl border border-hairline bg-surface-raised p-3">
       <div className="flex flex-wrap items-center gap-2">
         <Button type="button" tone="navy" variant="soft" size="sm" disabled={busy || text.trim().length === 0} onClick={run}>
           <ShieldCheck size={13} className="mr-1 inline" />

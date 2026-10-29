@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 import { AppShell } from '@/components/AppShell';
+import { GuideDuo, LanternCursor } from '@/components/GuideDuo';
 
 export const metadata: Metadata = {
   title: 'CREDO',
@@ -43,6 +44,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthProvider>
           <AppShell>{children}</AppShell>
+          {/* 풍이와 결이의 길 안내 + 등불 커서 (2026-10-28) */}
+          <GuideDuo />
+          <LanternCursor />
         </AuthProvider>
       </body>
     </html>

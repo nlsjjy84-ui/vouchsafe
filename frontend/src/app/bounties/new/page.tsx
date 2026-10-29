@@ -160,6 +160,7 @@ export default function NewBountyPage() {
 
         <FormField label="상세 내용" hint="(20자 이상)">
           <textarea
+            id="bounty-description"
             className={`${FIELD_INPUT_CLASS} h-32`}
             value={description}
             onChange={(e) => setDescription(e.target.value)}

@@ -50,12 +50,13 @@ export function AiBountyDraftCard({
 
   const hint = data?.priceHint;
   return (
-    <div className="mb-5 rounded-4xl border border-hairline bg-tint-clay p-5">
+    <div data-guide="ai-draft" className="mb-5 rounded-4xl border border-hairline bg-tint-clay p-5">
       <h2 className="flex items-center gap-2 text-base font-semibold text-ink-900">
         <Sparkles size={16} className="text-brand-clay" /> AI로 공고 초안 만들기
       </h2>
       <p className="mt-1 text-xs text-ink-600">필요한 일을 한두 문장으로 적으면 분야, 제목, 상세 내용 초안을 아래에 채워 드려요.</p>
       <textarea
+        id="ai-draft-idea"
         value={idea}
         onChange={(e) => setIdea(e.target.value.slice(0, 800))}
         rows={3}

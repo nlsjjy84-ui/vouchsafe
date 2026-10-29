@@ -107,7 +107,7 @@ export function ChatWidget() {
   return (
     <>
       {open && (
-        <div className="fixed bottom-24 right-6 z-40 flex h-[28rem] w-80 flex-col overflow-hidden rounded-2xl border border-hairline bg-surface-canvas shadow-float">
+        <div data-guide="chat-panel" className="fixed bottom-24 right-6 z-40 flex h-[28rem] w-80 flex-col overflow-hidden rounded-2xl border border-hairline bg-surface-canvas shadow-float">
           <div className="flex items-center gap-2.5 bg-brand-ink px-4 py-3 text-white">
             <JangdanMark size={14} variant="dark" />
             <span className="text-sm font-semibold">CREDO AI 도우미</span>
